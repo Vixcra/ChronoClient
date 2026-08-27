@@ -1,0 +1,75 @@
+[package]
+name = "chrono-evades"
+version = "1.0.0"
+edition = "2024"
+default-run = "chrono-evades"
+description = "Native Evades.io desktop client — low-latency, unlocked FPS"
+authors = ["Vince"]
+
+[dependencies]
+# Async runtime & networking
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = { version = "0.26", features = ["native-tls"] }
+futures-util = "0.3"
+url = "2"
+
+# Binary protocol codec
+byteorder = "1"
+
+# Serialization (config, codex, replays)
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bitflags = "2"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Windowing & WebView2 Desktop Engine
+winit = "0.30"
+wry = "0.47"
+tao = "0.30"
+
+# GPU rendering
+wgpu = "24"
+pollster = "0.4"
+
+# 2D/3D math
+glam = "0.29"
+bytemuck = { version = "1", features = ["derive"] }
+
+# UI overlay (settings, debug HUD)
+egui = "0.31"
+egui-wgpu = "0.31"
+egui-winit = "0.31"
+
+# Replay compression
+flate2 = "1"
+
+# CLI argument parsing
+clap = { version = "4", features = ["derive"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# Image decoding for window icon
+image = { version = "0.25", default-features = false, features = ["png"] }
+
+# Discord Rich Presence
+discord-rich-presence = "0.2"
+reqwest = { version = "0.13.4", default-features = false, features = ["json", "default-tls", "multipart", "blocking"] }
+obfstr = "0.4.6"
+
+[build-dependencies]
+winres = "0.1"
+
+[profile.dev]
+opt-level = 1           # slightly optimized for playable dev builds
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,4204 @@
+{
+  "solo": {
+    "Central Core": [
+      {
+        "place": "1st",
+        "time": "3.48",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "3.49",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "3.51",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "3.55",
+        "player": "FixedIt",
+        "hero": "Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "3.56",
+        "player": "Asylum",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "3.56",
+        "player": "nagalsuper",
+        "hero": "Magmax"
+      },
+      {
+        "place": "7th",
+        "time": "4.03",
+        "player": "Pro👑",
+        "hero": "Magmax"
+      },
+      {
+        "place": "8th",
+        "time": "4.04",
+        "player": "Utt",
+        "hero": "Magmax"
+      },
+      {
+        "place": "9th",
+        "time": "4.04",
+        "player": "Zade",
+        "hero": "Magmax"
+      },
+      {
+        "place": "10th",
+        "time": "4.07",
+        "player": "Sirius",
+        "hero": "Magmax"
+      }
+    ],
+    "Central Core Hard": [
+      {
+        "place": "1st",
+        "time": "4.18",
+        "player": "Vikenti",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "4.24",
+        "player": "Akzow",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "4.28",
+        "player": "ProYo",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "4.32",
+        "player": "KaBo0M",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "4.54",
+        "player": "Incstinct",
+        "hero": "Candy"
+      },
+      {
+        "place": "6th",
+        "time": "5.05",
+        "player": "Sirius",
+        "hero": "Candy"
+      },
+      {
+        "place": "7th",
+        "time": "5.14",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "8th",
+        "time": "5.25",
+        "player": "Pro👑",
+        "hero": "Factorb"
+      },
+      {
+        "place": "9th",
+        "time": "6.46",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "10th",
+        "time": "7.09",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Haunted Halls": [
+      {
+        "place": "1st",
+        "time": "2.27",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "2.40",
+        "player": "JoniJoni",
+        "hero": "Cent"
+      },
+      {
+        "place": "3rd",
+        "time": "2.45",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "2.49",
+        "player": "ProYo",
+        "hero": "Stheno"
+      },
+      {
+        "place": "5th",
+        "time": "2.57",
+        "player": "тимонубы",
+        "hero": "Shade"
+      },
+      {
+        "place": "6th",
+        "time": "2.59",
+        "player": "KaBo0M",
+        "hero": "Shade"
+      },
+      {
+        "place": "7th",
+        "time": "2.59",
+        "player": "Vixino",
+        "hero": "Veydris"
+      },
+      {
+        "place": "8th",
+        "time": "3.03",
+        "player": "xXGalaxyXx",
+        "hero": "Necro"
+      },
+      {
+        "place": "9th",
+        "time": "3.06",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Veydris"
+      },
+      {
+        "place": "10th",
+        "time": "3.12",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Peculiar Pyramid Inner": [
+      {
+        "place": "1st",
+        "time": "1.42",
+        "player": "somekid",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "1.44",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "1.46",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "1.47",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Candy"
+      },
+      {
+        "place": "5th",
+        "time": "1.49",
+        "player": "ProYo",
+        "hero": "Candy"
+      },
+      {
+        "place": "6th",
+        "time": "1.49",
+        "player": "Sirius",
+        "hero": "Candy"
+      },
+      {
+        "place": "7th",
+        "time": "1.50",
+        "player": "Asylum",
+        "hero": "Magmax"
+      },
+      {
+        "place": "8th",
+        "time": "1.52",
+        "player": "KaBo0M",
+        "hero": "Candy"
+      },
+      {
+        "place": "9th",
+        "time": "1.53",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "10th",
+        "time": "1.55",
+        "player": "Vixino",
+        "hero": "Candy"
+      }
+    ],
+    "Peculiar Pyramid Perimeter": [
+      {
+        "place": "1st",
+        "time": "1.33",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "1.36",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "1.38",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "1.41",
+        "player": "Sirius",
+        "hero": "Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "1.43",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "1.44",
+        "player": "Саня кинг",
+        "hero": "Magmax"
+      },
+      {
+        "place": "7th",
+        "time": "1.46",
+        "player": "Asylum",
+        "hero": "Magmax"
+      },
+      {
+        "place": "8th",
+        "time": "1.49",
+        "player": "Zade",
+        "hero": "Magmax"
+      },
+      {
+        "place": "9th",
+        "time": "1.50",
+        "player": "Vixino",
+        "hero": "Magmax"
+      },
+      {
+        "place": "10th",
+        "time": "1.51",
+        "player": "Utt",
+        "hero": "Candy"
+      }
+    ],
+    "Peculiar Pyramid Inner Hard": [
+      {
+        "place": "1st",
+        "time": "1.53",
+        "player": "somekid",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "1.59",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "2.05",
+        "player": "Asylum",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "2.06",
+        "player": "Sirius",
+        "hero": "Candy"
+      },
+      {
+        "place": "5th",
+        "time": "2.06",
+        "player": "KaBo0M",
+        "hero": "Candy"
+      },
+      {
+        "place": "6th",
+        "time": "2.06",
+        "player": "ProYo",
+        "hero": "Candy"
+      },
+      {
+        "place": "7th",
+        "time": "2.10",
+        "player": "greeny",
+        "hero": "Candy"
+      },
+      {
+        "place": "8th",
+        "time": "2.13",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "9th",
+        "time": "2.14",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "10th",
+        "time": "2.54",
+        "player": "тимонубы",
+        "hero": "Cybot"
+      }
+    ],
+    "Peculiar Pyramid Perimeter Hard": [
+      {
+        "place": "1st",
+        "time": "1.46",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "1.55",
+        "player": "Sirius",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "2.08",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "2.12",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "2.24",
+        "player": "тимонубы",
+        "hero": "Cybot"
+      },
+      {
+        "place": "6th",
+        "time": "2.33",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Wacky Wonderland": [
+      {
+        "place": "1st",
+        "time": "7.37",
+        "player": "тимонубы",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "8.00",
+        "player": "KaBo0M",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "8.41",
+        "player": "Pro👑",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "10.02",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "5th",
+        "time": "12.00",
+        "player": "yIzaac😎👌",
+        "hero": "Chrono"
+      }
+    ],
+    "Glacial Gorge": [
+      {
+        "place": "1st",
+        "time": "3.14",
+        "player": "JoniJoni",
+        "hero": "Cent"
+      },
+      {
+        "place": "2nd",
+        "time": "3.24",
+        "player": "eagle45",
+        "hero": "Cent"
+      },
+      {
+        "place": "3rd",
+        "time": "4.21",
+        "player": "KaBo0M",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "4.22",
+        "player": "тимонубы",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "4.23",
+        "player": "greeny",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "4.31",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "4.43",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "8th",
+        "time": "4.43",
+        "player": "Pro👑",
+        "hero": "Factorb"
+      },
+      {
+        "place": "9th",
+        "time": "5.54",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Glacial Gorge Hard": [
+      {
+        "place": "1st",
+        "time": "5.49",
+        "player": "JoniJoni",
+        "hero": "Cent"
+      },
+      {
+        "place": "2nd",
+        "time": "5.56",
+        "player": "RadicalLarry",
+        "hero": "Ortuus"
+      },
+      {
+        "place": "3rd",
+        "time": "6.16",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Viola"
+      },
+      {
+        "place": "4th",
+        "time": "9.11",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "5th",
+        "time": "9.40",
+        "player": "greeny",
+        "hero": "Viola"
+      },
+      {
+        "place": "6th",
+        "time": "9.54",
+        "player": "Utt",
+        "hero": "Rameses"
+      }
+    ],
+    "Vicious Valley": [
+      {
+        "place": "1st",
+        "time": "3.47",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "3.48",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "3.51",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "3.52",
+        "player": "Asylum",
+        "hero": "Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "3.52",
+        "player": "Sirius",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "3.53",
+        "player": "Cavern",
+        "hero": "Magmax"
+      },
+      {
+        "place": "7th",
+        "time": "3.53",
+        "player": "Utt",
+        "hero": "Magmax"
+      },
+      {
+        "place": "8th",
+        "time": "3.53",
+        "player": "Саня кинг",
+        "hero": "Magmax"
+      },
+      {
+        "place": "9th",
+        "time": "3.55",
+        "player": "Vixino",
+        "hero": "Magmax"
+      },
+      {
+        "place": "10th",
+        "time": "3.55",
+        "player": "Zade",
+        "hero": "Magmax"
+      }
+    ],
+    "Vicious Valley Hard": [
+      {
+        "place": "1st",
+        "time": "4.25",
+        "player": "Akzow",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "4.37",
+        "player": "Vikenti",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "4.40",
+        "player": "KaBo0M",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "4.43",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "5.07",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "6.53",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "7.35",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Humongous Hollow": [
+      {
+        "place": "1st",
+        "time": "7.28",
+        "player": "9113Guest",
+        "hero": "Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "8.28",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "8.30",
+        "player": "greeny",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "8.47",
+        "player": "Utt",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "9.02",
+        "player": "тимонубы",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "9.13",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "9.15",
+        "player": "JoniJoni",
+        "hero": "Demona"
+      },
+      {
+        "place": "8th",
+        "time": "10.15",
+        "player": "potask",
+        "hero": "Factorb"
+      },
+      {
+        "place": "9th",
+        "time": "13.54",
+        "player": "Francis357",
+        "hero": "Factorb"
+      }
+    ],
+    "Elite Expanse": [
+      {
+        "place": "1st",
+        "time": "7.42",
+        "player": "Cavern",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "8.07",
+        "player": "KaBo0M",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "8.29",
+        "player": "Pro👑",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "8.40",
+        "player": "Utt",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "9.19",
+        "player": "Vikenti",
+        "hero": "Shade"
+      },
+      {
+        "place": "6th",
+        "time": "10.12",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "11.19",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Elite Expanse Hard": [
+      {
+        "place": "1st",
+        "time": "19.33",
+        "player": "тимонубы",
+        "hero": "Viola"
+      }
+    ],
+    "Endless Echo": [
+      {
+        "place": "1st",
+        "time": "97.35",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "2nd",
+        "time": "75.01",
+        "player": "Utt",
+        "hero": "Rameses"
+      },
+      {
+        "place": "3rd",
+        "time": "58.59",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "4th",
+        "time": "60.33",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Viola"
+      },
+      {
+        "place": "5th",
+        "time": "48.18",
+        "player": "Vixino",
+        "hero": "Veydris"
+      }
+    ],
+    "Dangerous District": [
+      {
+        "place": "1st",
+        "time": "6.50",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "6.51",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "6.57",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "7.33",
+        "player": "Utt",
+        "hero": "Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "9.02",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "6th",
+        "time": "9.17",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "12.30",
+        "player": "Francis357",
+        "hero": "Viola"
+      }
+    ],
+    "Quiet Quarry": [
+      {
+        "place": "1st",
+        "time": "4.26",
+        "player": "Vixino",
+        "hero": "Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "4.29",
+        "player": "9113Guest",
+        "hero": "Demona"
+      },
+      {
+        "place": "3rd",
+        "time": "4.47",
+        "player": "тимонубы",
+        "hero": "Mirage"
+      },
+      {
+        "place": "4th",
+        "time": "4.51",
+        "player": "greeny",
+        "hero": "Mirage"
+      },
+      {
+        "place": "5th",
+        "time": "4.52",
+        "player": "KaBo0M",
+        "hero": "Mirage"
+      },
+      {
+        "place": "6th",
+        "time": "4.56",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Mirage"
+      },
+      {
+        "place": "7th",
+        "time": "4.58",
+        "player": "Zade",
+        "hero": "Mirage"
+      },
+      {
+        "place": "8th",
+        "time": "7.04",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Quiet Quarry Hard": [
+      {
+        "place": "1st",
+        "time": "5.01",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Mirage"
+      },
+      {
+        "place": "2nd",
+        "time": "7.00",
+        "player": "тимонубы",
+        "hero": "Viola"
+      }
+    ],
+    "Monumental Migration 480": [
+      {
+        "place": "1st",
+        "time": "60.36",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "2nd",
+        "time": "64.34",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "3rd",
+        "time": "98.06",
+        "player": "piger",
+        "hero": "Viola"
+      }
+    ],
+    "Monumental Migration 120": [
+      {
+        "place": "1st",
+        "time": "9.50",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "10.09",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "10.16",
+        "player": "Vixino",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "10.29",
+        "player": "KaBo0M",
+        "hero": "Candy"
+      },
+      {
+        "place": "5th",
+        "time": "10.55",
+        "player": "Utt",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "11.13",
+        "player": "Pro👑",
+        "hero": "Shade"
+      },
+      {
+        "place": "7th",
+        "time": "13.06",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "8th",
+        "time": "13.40",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "9th",
+        "time": "18.00",
+        "player": "Francis357",
+        "hero": "Viola"
+      }
+    ],
+    "Ominous Occult": [
+      {
+        "place": "1st",
+        "time": "2.56",
+        "player": "Akzow",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "3.02",
+        "player": "Vikenti",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "3.08",
+        "player": "ProYo",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "3.12",
+        "player": "KaBo0M",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "3.15",
+        "player": "Pro👑",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "3.25",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "7th",
+        "time": "3.34",
+        "player": "greeny",
+        "hero": "Magmax"
+      },
+      {
+        "place": "8th",
+        "time": "3.45",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "9th",
+        "time": "3.48",
+        "player": "FixedIt",
+        "hero": "Factorb"
+      },
+      {
+        "place": "10th",
+        "time": "4.27",
+        "player": "Zade",
+        "hero": "Stheno"
+      }
+    ],
+    "Ominous Occult Hard": [
+      {
+        "place": "1st",
+        "time": "3.05",
+        "player": "Akzow",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "3.08",
+        "player": "EvadesIsMid",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "3.10",
+        "player": "Vikenti",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "3.12",
+        "player": "KaBo0M",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "3.19",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "6th",
+        "time": "3.20",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "3.52",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "8th",
+        "time": "4.35",
+        "player": "Pro👑",
+        "hero": "Necro"
+      },
+      {
+        "place": "9th",
+        "time": "5.21",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Veydris"
+      },
+      {
+        "place": "10th",
+        "time": "5.55",
+        "player": "Bluemonkey14",
+        "hero": "Nexus"
+      }
+    ],
+    "Frozen Fjord": [
+      {
+        "place": "1st",
+        "time": "4.05",
+        "player": "9113Guest",
+        "hero": "Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "4.25",
+        "player": "тимонубы",
+        "hero": "Demona"
+      },
+      {
+        "place": "3rd",
+        "time": "4.31",
+        "player": "Vixino",
+        "hero": "Demona"
+      },
+      {
+        "place": "4th",
+        "time": "5.25",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Cybot"
+      },
+      {
+        "place": "5th",
+        "time": "5.44",
+        "player": "Pro👑",
+        "hero": "Mirage"
+      },
+      {
+        "place": "6th",
+        "time": "6.09",
+        "player": "Vikenti",
+        "hero": "Mirage"
+      },
+      {
+        "place": "7th",
+        "time": "6.27",
+        "player": "piger",
+        "hero": "Cent"
+      },
+      {
+        "place": "8th",
+        "time": "7.29",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Frozen Fjord Hard": [
+      {
+        "place": "1st",
+        "time": "5.58",
+        "player": "тимонубы",
+        "hero": "Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "6.17",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Viola"
+      },
+      {
+        "place": "3rd",
+        "time": "8.53",
+        "player": "Incstinct",
+        "hero": "Mirage"
+      }
+    ],
+    "Restless Ridge": [
+      {
+        "place": "1st",
+        "time": "8.10",
+        "player": "Vikenti",
+        "hero": "Mirage"
+      },
+      {
+        "place": "2nd",
+        "time": "8.33",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Mirage"
+      },
+      {
+        "place": "3rd",
+        "time": "9.17",
+        "player": "KaBo0M",
+        "hero": "Mirage"
+      },
+      {
+        "place": "4th",
+        "time": "9.51",
+        "player": "Zade",
+        "hero": "Mirage"
+      },
+      {
+        "place": "5th",
+        "time": "14.01",
+        "player": "тимонубы",
+        "hero": "Rameses"
+      },
+      {
+        "place": "6th",
+        "time": "20.21",
+        "player": "Francis357",
+        "hero": "Rameses"
+      }
+    ],
+    "Restless Ridge Hard": [
+      {
+        "place": "1st",
+        "time": "16.23",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Viola"
+      },
+      {
+        "place": "2nd",
+        "time": "22.27",
+        "player": "тимонубы",
+        "hero": "Viola"
+      }
+    ],
+    "Toxic Territory": [
+      {
+        "place": "1st",
+        "time": "2.23",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "2.23",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "2.30",
+        "player": "nagalsuper",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "2.38",
+        "player": "Pro👑",
+        "hero": "Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "2.38",
+        "player": "Саня кинг",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "2.42",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "2.42",
+        "player": "тимонубы",
+        "hero": "Factorb"
+      },
+      {
+        "place": "8th",
+        "time": "2.44",
+        "player": "Utt",
+        "hero": "Magmax"
+      },
+      {
+        "place": "9th",
+        "time": "2.45",
+        "player": "Cavern",
+        "hero": "Magmax"
+      },
+      {
+        "place": "10th",
+        "time": "2.48",
+        "player": "Zade",
+        "hero": "Factorb"
+      }
+    ],
+    "Toxic Territory Hard": [
+      {
+        "place": "1st",
+        "time": "2.45",
+        "player": "9113Guest",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "2.49",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "2.50",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "2.58",
+        "player": "RadicalLarry",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "2.59",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "3.01",
+        "player": "Utt",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "3.09",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "8th",
+        "time": "4.59",
+        "player": "тимонубы",
+        "hero": "Viola"
+      }
+    ],
+    "Magnetic Monopole": [
+      {
+        "place": "1st",
+        "time": "3.20",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "3.38",
+        "player": "9113Guest",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "3.42",
+        "player": "Utt",
+        "hero": "Shade"
+      },
+      {
+        "place": "4th",
+        "time": "3.43",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "3.50",
+        "player": "greeny",
+        "hero": "Shade"
+      },
+      {
+        "place": "6th",
+        "time": "3.55",
+        "player": "тимонубы",
+        "hero": "Mirage"
+      },
+      {
+        "place": "7th",
+        "time": "4.05",
+        "player": "Zade",
+        "hero": "Agno"
+      },
+      {
+        "place": "8th",
+        "time": "4.57",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "9th",
+        "time": "7.01",
+        "player": "Francis357",
+        "hero": "Rameses"
+      }
+    ],
+    "Magnetic Monopole: Dipole": [
+      {
+        "place": "1st",
+        "time": "1.13",
+        "player": "9113Guest",
+        "hero": "Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "1.19",
+        "player": "greeny",
+        "hero": "Demona"
+      },
+      {
+        "place": "3rd",
+        "time": "1.20",
+        "player": "Utt",
+        "hero": "Demona"
+      },
+      {
+        "place": "4th",
+        "time": "1.59",
+        "player": "тимонубы",
+        "hero": "Mirage"
+      },
+      {
+        "place": "5th",
+        "time": "2.10",
+        "player": "Vixino",
+        "hero": "Rameses"
+      },
+      {
+        "place": "6th",
+        "time": "4.02",
+        "player": "Francis357",
+        "hero": "Rameses"
+      }
+    ],
+    "Magnetic Monopole Hard": [
+      {
+        "place": "1st",
+        "time": "3.03",
+        "player": "9113Guest",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "3.05",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "3.17",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "3.49",
+        "player": "KaBo0M",
+        "hero": "Agno"
+      },
+      {
+        "place": "5th",
+        "time": "3.54",
+        "player": "Utt",
+        "hero": "Agno"
+      },
+      {
+        "place": "6th",
+        "time": "4.03",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "4.05",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Magnetic Monopole: Dipole Hard": [
+      {
+        "place": "1st",
+        "time": "1.17",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "1.18",
+        "player": "nagalsuper",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "1.19",
+        "player": "ProYo",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "1.25",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "1.25",
+        "player": "greeny",
+        "hero": "Demona"
+      },
+      {
+        "place": "6th",
+        "time": "1.34",
+        "player": "KaBo0M",
+        "hero": "Candy"
+      },
+      {
+        "place": "7th",
+        "time": "1.35",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "8th",
+        "time": "2.21",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "9th",
+        "time": "2.38",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Burning Bunker": [
+      {
+        "place": "1st",
+        "time": "2.54",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "2.56",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "3.04",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "3.09",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "3.23",
+        "player": "JokeR:D",
+        "hero": "Reaper"
+      },
+      {
+        "place": "6th",
+        "time": "3.24",
+        "player": "Vixino",
+        "hero": "Agno"
+      },
+      {
+        "place": "7th",
+        "time": "3.28",
+        "player": "Zade",
+        "hero": "Agno"
+      },
+      {
+        "place": "8th",
+        "time": "3.28",
+        "player": "KaBo0M",
+        "hero": "Agno"
+      },
+      {
+        "place": "9th",
+        "time": "3.29",
+        "player": "тимонубы",
+        "hero": "Reaper"
+      },
+      {
+        "place": "10th",
+        "time": "3.32",
+        "player": "Utt",
+        "hero": "Factorb"
+      }
+    ],
+    "Burning Bunker Hard": [
+      {
+        "place": "1st",
+        "time": "3.51",
+        "player": "тимонубы",
+        "hero": "Reaper"
+      },
+      {
+        "place": "2nd",
+        "time": "3.55",
+        "player": "RadicalLarry",
+        "hero": "Reaper"
+      },
+      {
+        "place": "3rd",
+        "time": "4.04",
+        "player": "9113Guest",
+        "hero": "Reaper"
+      },
+      {
+        "place": "4th",
+        "time": "4.05",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "4.06",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "4.07",
+        "player": "Sirius",
+        "hero": "Reaper"
+      },
+      {
+        "place": "7th",
+        "time": "4.37",
+        "player": "KaBo0M",
+        "hero": "Reaper"
+      },
+      {
+        "place": "8th",
+        "time": "4.46",
+        "player": "potask",
+        "hero": "Reaper"
+      },
+      {
+        "place": "9th",
+        "time": "5.01",
+        "player": "Zade",
+        "hero": "Reaper"
+      },
+      {
+        "place": "10th",
+        "time": "6.27",
+        "player": "Pro👑",
+        "hero": "Rameses"
+      }
+    ],
+    "Grand Garden": [
+      {
+        "place": "1st",
+        "time": "2.31",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "2.34",
+        "player": "merin",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "2.35",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "2.36",
+        "player": "Fyre",
+        "hero": "Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "2.36",
+        "player": "Pro👑",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "2.37",
+        "player": "greeny",
+        "hero": "Magmax"
+      },
+      {
+        "place": "7th",
+        "time": "2.37",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Magmax"
+      },
+      {
+        "place": "8th",
+        "time": "2.39",
+        "player": "Cavern",
+        "hero": "Magmax"
+      },
+      {
+        "place": "9th",
+        "time": "2.45",
+        "player": "Zade",
+        "hero": "Magmax"
+      },
+      {
+        "place": "10th",
+        "time": "2.46",
+        "player": "Utt",
+        "hero": "Magmax"
+      }
+    ],
+    "Grand Garden Hard": [
+      {
+        "place": "1st",
+        "time": "2.47",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "2.49",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "3.12",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "3.17",
+        "player": "Utt",
+        "hero": "Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "3.49",
+        "player": "KaBo0M",
+        "hero": "Rameses"
+      },
+      {
+        "place": "6th",
+        "time": "4.00",
+        "player": "тимонубы",
+        "hero": "Rameses"
+      },
+      {
+        "place": "7th",
+        "time": "4.53",
+        "player": "potask",
+        "hero": "Rameses"
+      }
+    ],
+    "Mysterious Mansion Hedge (59) (Hat)": [
+      {
+        "place": "1st",
+        "time": "2.16",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "2.17",
+        "player": "ProYo",
+        "hero": "Mirage"
+      },
+      {
+        "place": "3rd",
+        "time": "2.26",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "2.37",
+        "player": "тимонубы",
+        "hero": "Mirage"
+      },
+      {
+        "place": "5th",
+        "time": "3.07",
+        "player": "Vixino",
+        "hero": "Veydris"
+      },
+      {
+        "place": "6th",
+        "time": "3.08",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Mysterious Mansion Liminal (60)": [
+      {
+        "place": "1st",
+        "time": "1.43",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "1.46",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "2.10",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "2.11",
+        "player": "тимонубы",
+        "hero": "Candy"
+      },
+      {
+        "place": "5th",
+        "time": "2.13",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "6th",
+        "time": "2.39",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "4.28",
+        "player": "Francis357",
+        "hero": "Rameses"
+      }
+    ],
+    "Mysterious Mansion Attic (61)": [
+      {
+        "place": "1st",
+        "time": "1.33",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "1.42",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "1.43",
+        "player": "Sirius",
+        "hero": "Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "1.50",
+        "player": "Vixino",
+        "hero": "Candy"
+      },
+      {
+        "place": "5th",
+        "time": "1.52",
+        "player": "Саня кинг",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "1.53",
+        "player": "Utt",
+        "hero": "Candy"
+      },
+      {
+        "place": "7th",
+        "time": "2.14",
+        "player": "тимонубы",
+        "hero": "Mirage"
+      },
+      {
+        "place": "8th",
+        "time": "2.55",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "9th",
+        "time": "4.38",
+        "player": "Francis357",
+        "hero": "Rameses"
+      }
+    ],
+    "Mysterious Mansion Cryptic (62) (Hero)": [
+      {
+        "place": "1st",
+        "time": "2.59",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "3.14",
+        "player": "Vixino",
+        "hero": "Demona"
+      },
+      {
+        "place": "3rd",
+        "time": "3.17",
+        "player": "ProYo",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "3.27",
+        "player": "тимонубы",
+        "hero": "Mirage"
+      },
+      {
+        "place": "5th",
+        "time": "3.46",
+        "player": "Utt",
+        "hero": "Agno"
+      },
+      {
+        "place": "6th",
+        "time": "4.12",
+        "player": "Zade",
+        "hero": "Agno"
+      },
+      {
+        "place": "7th",
+        "time": "4.28",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "8th",
+        "time": "6.49",
+        "player": "Francis357",
+        "hero": "Rameses"
+      }
+    ],
+    "Dangerous District Hard": [
+      {
+        "place": "1st",
+        "time": "9.11",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Viola"
+      },
+      {
+        "place": "2nd",
+        "time": "9.15",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "3rd",
+        "time": "9.33",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "4th",
+        "time": "9.35",
+        "player": "ProYo",
+        "hero": "Rameses"
+      },
+      {
+        "place": "5th",
+        "time": "10.07",
+        "player": "KaBo0M",
+        "hero": "Rameses"
+      },
+      {
+        "place": "6th",
+        "time": "11.33",
+        "player": "Pro👑",
+        "hero": "Rameses"
+      }
+    ],
+    "Cyber Castle": [
+      {
+        "place": "1st",
+        "time": "5.04",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Viola"
+      },
+      {
+        "place": "2nd",
+        "time": "5.10",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "3rd",
+        "time": "5.15",
+        "player": "Tsuba",
+        "hero": "Viola"
+      },
+      {
+        "place": "4th",
+        "time": "5.36",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "5th",
+        "time": "6.10",
+        "player": "Lunari",
+        "hero": "Viola"
+      },
+      {
+        "place": "6th",
+        "time": "7.28",
+        "player": "KaBo0M",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "7.52",
+        "player": "Utt",
+        "hero": "Viola"
+      }
+    ],
+    "Cyber Castle Hard": [
+      {
+        "place": "1st",
+        "time": "9.48",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Viola"
+      },
+      {
+        "place": "2nd",
+        "time": "12.44",
+        "player": "тимонубы",
+        "hero": "Ortuus"
+      }
+    ],
+    "Catastrophic Core": [
+      {
+        "place": "1st",
+        "time": "6.31",
+        "player": "ProYo",
+        "hero": "Rameses"
+      },
+      {
+        "place": "2nd",
+        "time": "8.41",
+        "player": "Мудрец31",
+        "hero": "Necro"
+      },
+      {
+        "place": "3rd",
+        "time": "9.04",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "4th",
+        "time": "9.26",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Humongous Hollow Hard": [
+      {
+        "place": "1st",
+        "time": "18.12",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "19.20",
+        "player": "RadicalLarry",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "26.24",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "4th",
+        "time": "28.11",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Infinite Inferno": [
+      {
+        "place": "1st",
+        "time": "4.04",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "4.14",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "4.28",
+        "player": "Utt",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "5.41",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "5th",
+        "time": "6.53",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Shifting Sands": [
+      {
+        "place": "1st",
+        "time": "4.14",
+        "player": "Vikenti",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "4.16",
+        "player": "9113Guest",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "4.17",
+        "player": "Cavern",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "4.26",
+        "player": "Lunari",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "4.30",
+        "player": "Sirius",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "4.35",
+        "player": "Pro👑",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "4.35",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "8th",
+        "time": "4.49",
+        "player": "Zade",
+        "hero": "Factorb"
+      },
+      {
+        "place": "9th",
+        "time": "4.49",
+        "player": "тимонубы",
+        "hero": "Factorb"
+      },
+      {
+        "place": "10th",
+        "time": "4.50",
+        "player": "Vixino",
+        "hero": "Factorb"
+      }
+    ],
+    "Coupled Corridors": [
+      {
+        "place": "1st",
+        "time": "4.25",
+        "player": "9113Guest",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "4.28",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "4.28",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "4.31",
+        "player": "Utt",
+        "hero": "Shade"
+      },
+      {
+        "place": "5th",
+        "time": "4.32",
+        "player": "Саня кинг",
+        "hero": "Shade"
+      },
+      {
+        "place": "6th",
+        "time": "4.34",
+        "player": "Lunari",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "4.35",
+        "player": "Vixino",
+        "hero": "Shade"
+      },
+      {
+        "place": "8th",
+        "time": "5.30",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "9th",
+        "time": "5.39",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "10th",
+        "time": "9.25",
+        "player": "Francis357",
+        "hero": "Rameses"
+      }
+    ],
+    "Withering Wasteland": [
+      {
+        "place": "1st",
+        "time": "4.01",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "4.10",
+        "player": "9113Guest",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "4.17",
+        "player": "KaBo0M",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "4.26",
+        "player": "greeny",
+        "hero": "Candy"
+      },
+      {
+        "place": "5th",
+        "time": "4.30",
+        "player": "ProYo",
+        "hero": "Magmax"
+      },
+      {
+        "place": "6th",
+        "time": "4.30",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "7th",
+        "time": "4.33",
+        "player": "Zade",
+        "hero": "Magmax"
+      },
+      {
+        "place": "8th",
+        "time": "4.48",
+        "player": "Asylum",
+        "hero": "Shade"
+      },
+      {
+        "place": "9th",
+        "time": "4.57",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "10th",
+        "time": "5.41",
+        "player": "тимонубы",
+        "hero": "Viola"
+      }
+    ],
+    "Dusty Depths": [
+      {
+        "place": "1st",
+        "time": "4.01",
+        "player": "Vikenti",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "4.26",
+        "player": "9113Guest",
+        "hero": "Factorb"
+      },
+      {
+        "place": "3rd",
+        "time": "4.33",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "4th",
+        "time": "5.22",
+        "player": "RadicalLarry",
+        "hero": "Rameses"
+      },
+      {
+        "place": "5th",
+        "time": "7.01",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Veydris"
+      },
+      {
+        "place": "6th",
+        "time": "7.36",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "7.53",
+        "player": "KaBo0M",
+        "hero": "Rameses"
+      },
+      {
+        "place": "8th",
+        "time": "13.13",
+        "player": "Макс2124",
+        "hero": "Cent"
+      }
+    ],
+    "Wacky Wonderland Hard": [
+      {
+        "place": "1st",
+        "time": "13.03",
+        "player": "тимонубы",
+        "hero": "Viola"
+      }
+    ],
+    "Terrifying Temple": [
+      {
+        "place": "1st",
+        "time": "4.10",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "2nd",
+        "time": "4.17",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "4.18",
+        "player": "KaBo0M",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "4.27",
+        "player": "Саня кинг",
+        "hero": "Factorb"
+      },
+      {
+        "place": "5th",
+        "time": "4.34",
+        "player": "Vixino",
+        "hero": "Factorb"
+      },
+      {
+        "place": "6th",
+        "time": "5.19",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "7th",
+        "time": "5.52",
+        "player": "potask",
+        "hero": "Viola"
+      },
+      {
+        "place": "8th",
+        "time": "6.03",
+        "player": "Br1h",
+        "hero": "Veydris"
+      }
+    ],
+    "Research Lab": [
+      {
+        "place": "1st",
+        "time": "4.15",
+        "player": "Akzow",
+        "hero": "Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "4.41",
+        "player": "Vikenti",
+        "hero": "Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "5.04",
+        "player": "ProYo",
+        "hero": "Candy"
+      },
+      {
+        "place": "4th",
+        "time": "5.54",
+        "player": "RadicalLarry",
+        "hero": "Rameses"
+      },
+      {
+        "place": "5th",
+        "time": "6.44",
+        "player": "Utt",
+        "hero": "Rameses"
+      },
+      {
+        "place": "6th",
+        "time": "7.04",
+        "player": "KaBo0M",
+        "hero": "Rameses"
+      },
+      {
+        "place": "7th",
+        "time": "7.49",
+        "player": "тимонубы",
+        "hero": "Viola"
+      }
+    ],
+    "Ancient Abyss": [
+      {
+        "place": "1st",
+        "time": "4.13",
+        "player": "ProYo",
+        "hero": "Factorb"
+      },
+      {
+        "place": "2nd",
+        "time": "4.47",
+        "player": "9113Guest",
+        "hero": "Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "5.22",
+        "player": "Саня кинг",
+        "hero": "Rameses"
+      },
+      {
+        "place": "4th",
+        "time": "5.50",
+        "player": "KaBo0M",
+        "hero": "Rameses"
+      },
+      {
+        "place": "5th",
+        "time": "6.07",
+        "player": "тимонубы",
+        "hero": "Viola"
+      },
+      {
+        "place": "6th",
+        "time": "6.15",
+        "player": "potask",
+        "hero": "Viola"
+      }
+    ],
+    "Vast Void 50": [
+      {
+        "place": "1st",
+        "time": "7.39",
+        "player": "RadicalLarry",
+        "hero": "Rameses"
+      },
+      {
+        "place": "2nd",
+        "time": "6.30",
+        "player": "ProYo",
+        "hero": "Rameses"
+      }
+    ],
+    "Haunted Halls: Deep Woods 25": [
+      {
+        "place": "1st",
+        "time": "5.12",
+        "player": "9113Guest",
+        "hero": "Stheno"
+      },
+      {
+        "place": "2nd",
+        "time": "5.33",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Veydris"
+      },
+      {
+        "place": "3rd",
+        "time": "5.58",
+        "player": "тимонубы",
+        "hero": "Shade"
+      },
+      {
+        "place": "4th",
+        "time": "6.48",
+        "player": "RadicalLarry",
+        "hero": "Rameses"
+      },
+      {
+        "place": "5th",
+        "time": "7.23",
+        "player": "ProYo",
+        "hero": "Rameses"
+      },
+      {
+        "place": "6th",
+        "time": "7.29",
+        "player": "Utt",
+        "hero": "Stheno"
+      },
+      {
+        "place": "7th",
+        "time": "8.07",
+        "player": "KaBo0M",
+        "hero": "Rameses"
+      }
+    ],
+    "Pristine Purgatory": [
+      {
+        "place": "1st",
+        "time": "2.41",
+        "player": "Макс2124",
+        "hero": "Euclid"
+      },
+      {
+        "place": "2nd",
+        "time": "2.55",
+        "player": "ProYo",
+        "hero": "Veydris"
+      },
+      {
+        "place": "3rd",
+        "time": "2.55",
+        "player": "Akzow",
+        "hero": "Veydris"
+      },
+      {
+        "place": "4th",
+        "time": "3.00",
+        "player": "Kurozen",
+        "hero": "Veydris"
+      },
+      {
+        "place": "5th",
+        "time": "3.05",
+        "player": "Vikenti",
+        "hero": "Veydris"
+      },
+      {
+        "place": "6th",
+        "time": "3.25",
+        "player": "EvadesIsMid",
+        "hero": "Veydris"
+      },
+      {
+        "place": "7th",
+        "time": "3.32",
+        "player": "DD1",
+        "hero": "Veydris"
+      },
+      {
+        "place": "8th",
+        "time": "4.05",
+        "player": "KaBo0M",
+        "hero": "Veydris"
+      },
+      {
+        "place": "9th",
+        "time": "5.05",
+        "player": "Pro👑",
+        "hero": "Veydris"
+      }
+    ]
+  },
+  "duo": {
+    "Central Core": [
+      {
+        "place": "1st",
+        "time": "4.03",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "4.04",
+        "player": "Asylum & Zade",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "3rd",
+        "time": "4.04",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "4th",
+        "time": "4.08",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      }
+    ],
+    "Central Core Hard": [
+      {
+        "place": "1st",
+        "time": "4.30",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "4.37",
+        "player": "Incstinct & nagalsuper",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "3rd",
+        "time": "4.42",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "4.48",
+        "player": "Asylum & Lunari",
+        "hero": "2Candy"
+      },
+      {
+        "place": "5th",
+        "time": "4.56",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      }
+    ],
+    "Haunted Halls": [
+      {
+        "place": "1st",
+        "time": "2.28",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "2nd",
+        "time": "2.28",
+        "player": "MagmaxOnly & тимонубы",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "3rd",
+        "time": "2.29",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "4th",
+        "time": "2.33",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Dem/Can"
+      },
+      {
+        "place": "5th",
+        "time": "2.42",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "6th",
+        "time": "2.48",
+        "player": "MagmaxOnly & Vixino",
+        "hero": "Fac/Jöt"
+      },
+      {
+        "place": "7th",
+        "time": "2.57",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Peculiar Pyramid Inner": [
+      {
+        "place": "1st",
+        "time": "1.56",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "1.57",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "1.58",
+        "player": "Asylum & Zade",
+        "hero": "2Candy"
+      }
+    ],
+    "Peculiar Pyramid Perimeter": [
+      {
+        "place": "1st",
+        "time": "1.48",
+        "player": "9113Guest & Cavern",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "1.52",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Cyb/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "1.53",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Cyb"
+      },
+      {
+        "place": "4th",
+        "time": "1.54",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Wacky Wonderland": [
+      {
+        "place": "1st",
+        "time": "7.08",
+        "player": "Cavern & Lunari",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "7.10",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "7.19",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "7.29",
+        "player": "KaBo0M & nagalsuper",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "5th",
+        "time": "10.44",
+        "player": "MagmaxOnly & Francis357",
+        "hero": "Can/Fac"
+      }
+    ],
+    "Glacial Gorge": [
+      {
+        "place": "1st",
+        "time": "4.34",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "2nd",
+        "time": "4.42",
+        "player": "Cavern & eagle45",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "7.19",
+        "player": "Francis357 & arras",
+        "hero": "Vio/Jol"
+      }
+    ],
+    "Glacial Gorge Hard": [
+      {
+        "place": "1st",
+        "time": "5.58",
+        "player": "Cavern & eagle45",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "5.58",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "6.18",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Cyb"
+      },
+      {
+        "place": "4th",
+        "time": "10.36",
+        "player": "Francis357 & arras",
+        "hero": "Jol/Ign"
+      }
+    ],
+    "Vicious Valley": [
+      {
+        "place": "1st",
+        "time": "4.01",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "4.01",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "4.03",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "4.05",
+        "player": "Asylum & Zade",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "4.05",
+        "player": "Cavern & KaBo0M",
+        "hero": "Fac/Can"
+      }
+    ],
+    "Vicious Valley Hard": [
+      {
+        "place": "1st",
+        "time": "4.36",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "4.36",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "3rd",
+        "time": "4.39",
+        "player": "Cavern & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "4.42",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "5th",
+        "time": "8.38",
+        "player": "Francis357 & arras",
+        "hero": "Fac/Ign"
+      }
+    ],
+    "Humongous Hollow": [
+      {
+        "place": "1st",
+        "time": "8.05",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "8.16",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "8.16",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "8.19",
+        "player": "Asylum & Lunari",
+        "hero": "Can/Mor"
+      },
+      {
+        "place": "5th",
+        "time": "8.21",
+        "player": "KaBo0M & nagalsuper",
+        "hero": "Can/Fac"
+      }
+    ],
+    "Elite Expanse": [
+      {
+        "place": "1st",
+        "time": "7.34",
+        "player": "9113Guest & Cavern",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "7.36",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "3rd",
+        "time": "7.36",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "7.39",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "5th",
+        "time": "7.44",
+        "player": "KaBo0M & nagalsuper",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "6th",
+        "time": "8.00",
+        "player": "Asylum & Zade",
+        "hero": "Can/Fac"
+      }
+    ],
+    "Dangerous District": [
+      {
+        "place": "1st",
+        "time": "7.14",
+        "player": "Cavern & Lunari",
+        "hero": "2Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "7.22",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "7.26",
+        "player": "Asylum & Zade",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "7.31",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Magmax"
+      }
+    ],
+    "Dangerous District Hard": [
+      {
+        "place": "1st",
+        "time": "8.35",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "8.39",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "3rd",
+        "time": "8.45",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "4th",
+        "time": "14.34",
+        "player": "arras & Francis357",
+        "hero": "Ram/Cyb"
+      }
+    ],
+    "Monumental Migration 120": [
+      {
+        "place": "1st",
+        "time": "10.03",
+        "player": "9113Guest & Cavern",
+        "hero": "2Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "10.24",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "10.29",
+        "player": "Asylum & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "4th",
+        "time": "10.37",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      }
+    ],
+    "Monumental Migration 480": [
+      {
+        "place": "1st",
+        "time": "47.10",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Shade"
+      },
+      {
+        "place": "2nd",
+        "time": "51.29",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "2Shade"
+      }
+    ],
+    "Ominous Occult": [
+      {
+        "place": "1st",
+        "time": "3.11",
+        "player": "KaBo0M & somekid",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "3.22",
+        "player": "9113Guest & ProYo",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "3.31",
+        "player": "EvadesIsMid & RadicalLarry",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "4th",
+        "time": "3.32",
+        "player": "Kurozen & nagalsuper",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "5th",
+        "time": "3.46",
+        "player": "Cavern & Lunari",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "6th",
+        "time": "3.46",
+        "player": "Kurozen & Саня кинг",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "7th",
+        "time": "4.16",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "8th",
+        "time": "5.00",
+        "player": "9113Guest & Jimbo",
+        "hero": "2Necro"
+      },
+      {
+        "place": "9th",
+        "time": "6.48",
+        "player": "Francis357 & arras",
+        "hero": "Nec/Ort"
+      }
+    ],
+    "Ominous Occult Hard": [
+      {
+        "place": "1st",
+        "time": "3.21",
+        "player": "KaBo0M & somekid",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "3.22",
+        "player": "KaBo0M & merin",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "3.29",
+        "player": "9113Guest & ProYo",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "3.32",
+        "player": "Kurozen & nagalsuper",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "5th",
+        "time": "3.34",
+        "player": "EvadesIsMid & RadicalLarry",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "6th",
+        "time": "3.35",
+        "player": "Kurozen & KaBo0M",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "7th",
+        "time": "3.48",
+        "player": "Cavern & Lunari",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "8th",
+        "time": "3.53",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "9th",
+        "time": "4.02",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Frozen Fjord": [
+      {
+        "place": "1st",
+        "time": "4.34",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "2nd",
+        "time": "4.36",
+        "player": "MagmaxOnly & Vixino",
+        "hero": "2Demona"
+      },
+      {
+        "place": "3rd",
+        "time": "4.44",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Dem/Can"
+      },
+      {
+        "place": "4th",
+        "time": "4.52",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Cyb/Ca"
+      },
+      {
+        "place": "5th",
+        "time": "5.03",
+        "player": "Lunari & Zade",
+        "hero": "2Demona"
+      }
+    ],
+    "Frozen Fjord Hard": [
+      {
+        "place": "1st",
+        "time": "5.40",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "2nd",
+        "time": "5.41",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "5.54",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "4th",
+        "time": "6.14",
+        "player": "Cavern & Lunari",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "5th",
+        "time": "9.08",
+        "player": "MagmaxOnly & Vixino",
+        "hero": "2Mirage"
+      },
+      {
+        "place": "6th",
+        "time": "12.22",
+        "player": "arras & Francis357",
+        "hero": "Ort/Ign"
+      }
+    ],
+    "Restless Ridge": [
+      {
+        "place": "1st",
+        "time": "9.38",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Mirage"
+      },
+      {
+        "place": "2nd",
+        "time": "10.11",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "2Mirage"
+      },
+      {
+        "place": "3rd",
+        "time": "11.24",
+        "player": "KaBo0M & nagalsuper",
+        "hero": "2Mirage"
+      },
+      {
+        "place": "4th",
+        "time": "11.42",
+        "player": "Lunari & Zade",
+        "hero": "2Mirage"
+      }
+    ],
+    "Restless Ridge Hard": [
+      {
+        "place": "1st",
+        "time": "13.04",
+        "player": "тимонубы & MagmaxOnly",
+        "hero": "2Reaper"
+      },
+      {
+        "place": "2nd",
+        "time": "13.05",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "2Reaper"
+      },
+      {
+        "place": "3rd",
+        "time": "14.01",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Reaper"
+      },
+      {
+        "place": "4th",
+        "time": "18.05",
+        "player": "Lunari & Zade",
+        "hero": "2Reaper"
+      }
+    ],
+    "Toxic Territory": [
+      {
+        "place": "1st",
+        "time": "2.39",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "2.44",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "2.45",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "4th",
+        "time": "2.56",
+        "player": "Asylum & Zade",
+        "hero": "Can/Fac"
+      }
+    ],
+    "Toxic Territory Hard": [
+      {
+        "place": "1st",
+        "time": "2.55",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Sth/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "3.07",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Sth"
+      },
+      {
+        "place": "3rd",
+        "time": "3.08",
+        "player": "Lunari & Zade",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "6.52",
+        "player": "Francis357 & arras",
+        "hero": "Vio/Fac"
+      }
+    ],
+    "Magnetic Monopole": [
+      {
+        "place": "1st",
+        "time": "3.42",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "4.01",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      }
+    ],
+    "Magnetic Monopole: Dipole": [
+      {
+        "place": "1st",
+        "time": "2.14",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Candy"
+      }
+    ],
+    "Magnetic Monopole Hard": [
+      {
+        "place": "1st",
+        "time": "3.31",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "6.06",
+        "player": "Francis357 & arras",
+        "hero": "Ign/Ram"
+      }
+    ],
+    "Magnetic Monopole: Dipole Hard": [
+      {
+        "place": "1st",
+        "time": "1.50",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Candy"
+      }
+    ],
+    "Burning Bunker": [
+      {
+        "place": "1st",
+        "time": "2.54",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "2.58",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "3rd",
+        "time": "3.02",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "4th",
+        "time": "3.35",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Burning Bunker Hard": [
+      {
+        "place": "1st",
+        "time": "4.15",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "4.18",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "3rd",
+        "time": "4.25",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Reaper"
+      },
+      {
+        "place": "4th",
+        "time": "5.29",
+        "player": "Lunari & Zade",
+        "hero": "2Reaper"
+      },
+      {
+        "place": "5th",
+        "time": "8.02",
+        "player": "Francis357 & arras",
+        "hero": "Reap/Ram"
+      }
+    ],
+    "Terrifying Temple": [
+      {
+        "place": "1st",
+        "time": "4.14",
+        "player": "Cavern & ProYo",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "4.18",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "3rd",
+        "time": "4.18",
+        "player": "Cavern & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "4.29",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "5th",
+        "time": "4.29",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "6th",
+        "time": "4.32",
+        "player": "KaBo0M & nagalsuper",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "7th",
+        "time": "4.35",
+        "player": "Cavern & Lunari",
+        "hero": "2Candy"
+      }
+    ],
+    "Elite Expanse Hard": [
+      {
+        "place": "1st",
+        "time": "10.12",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Ign"
+      },
+      {
+        "place": "2nd",
+        "time": "10.14",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Fac"
+      },
+      {
+        "place": "3rd",
+        "time": "11.31",
+        "player": "Cavern & Lunari",
+        "hero": "Fac/Ign"
+      }
+    ],
+    "Peculiar Pyramid Inner Hard": [
+      {
+        "place": "1st",
+        "time": "2.13",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "2.14",
+        "player": "Asylum & Zade",
+        "hero": "2Candy"
+      },
+      {
+        "place": "3rd",
+        "time": "2.18",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Candy"
+      },
+      {
+        "place": "4th",
+        "time": "4.42",
+        "player": "Francis357 & arras",
+        "hero": "Fac/Ign"
+      }
+    ],
+    "Peculiar Pyramid Perimeter Hard": [
+      {
+        "place": "1st",
+        "time": "1.56",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Cyb/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "1.57",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Cyb/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "2.04",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Endless Echo 999": [
+      {
+        "place": "1st",
+        "time": "120.03",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Vey/Vio"
+      },
+      {
+        "place": "2nd",
+        "time": "11.02",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Fac"
+      }
+    ],
+    "Grand Garden": [
+      {
+        "place": "1st",
+        "time": "2.45",
+        "player": "9113Guest & Cavern",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "2.45",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "3rd",
+        "time": "2.47",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "4th",
+        "time": "2.48",
+        "player": "Asylum & Zade",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "5th",
+        "time": "2.58",
+        "player": "Cavern & Zade",
+        "hero": "2Magmax"
+      }
+    ],
+    "Grand Garden Hard": [
+      {
+        "place": "1st",
+        "time": "3.07",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "3.10",
+        "player": "9113Guest & Cavern",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "3rd",
+        "time": "3.17",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "4th",
+        "time": "3.33",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "5th",
+        "time": "4.54",
+        "player": "Francis357 & arras",
+        "hero": "Mir/Ign"
+      }
+    ],
+    "Quiet Quarry": [
+      {
+        "place": "1st",
+        "time": "4.47",
+        "player": "Cavern & Lunari",
+        "hero": "2Demona"
+      },
+      {
+        "place": "2nd",
+        "time": "5.02",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Mirage"
+      },
+      {
+        "place": "3rd",
+        "time": "5.19",
+        "player": "Asylum & Zade",
+        "hero": "2Mirage"
+      },
+      {
+        "place": "4th",
+        "time": "5.21",
+        "player": "9113Guest & Cavern",
+        "hero": "2Demona"
+      }
+    ],
+    "Quiet Quarry Hard": [
+      {
+        "place": "1st",
+        "time": "4.57",
+        "player": "somekid & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Agn/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "5.22",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Mirage"
+      },
+      {
+        "place": "3rd",
+        "time": "6.18",
+        "player": "MagmaxOnly & Vixino",
+        "hero": "Leo/Euc"
+      },
+      {
+        "place": "4th",
+        "time": "10.37",
+        "player": "Francis357 & arras",
+        "hero": "Ign/Ort"
+      }
+    ],
+    "Mysterious Mansion Hedge (59) (Hat)": [
+      {
+        "place": "1st",
+        "time": "2.15",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Dem/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "2.21",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      }
+    ],
+    "Mysterious Mansion Liminal (60)": [
+      {
+        "place": "1st",
+        "time": "1.51",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "2nd",
+        "time": "2.05",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Dem/Can"
+      }
+    ],
+    "Mysterious Mansion Attic (61)": [
+      {
+        "place": "1st",
+        "time": "1.49",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Dem/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "1.53",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      }
+    ],
+    "Mysterious Mansion Cryptic (62) (Hero)": [
+      {
+        "place": "1st",
+        "time": "3.24",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Mag/Mag"
+      }
+    ],
+    "Cyber Castle": [
+      {
+        "place": "1st",
+        "time": "4.25",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "2Viola"
+      },
+      {
+        "place": "2nd",
+        "time": "4.57",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Viola"
+      },
+      {
+        "place": "3rd",
+        "time": "5.17",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "2Viola"
+      },
+      {
+        "place": "4th",
+        "time": "5.59",
+        "player": "Cavern & Lunari",
+        "hero": "Ign/Vio"
+      },
+      {
+        "place": "5th",
+        "time": "7.29",
+        "player": "Lunari & Zade",
+        "hero": "Vio/Ort"
+      }
+    ],
+    "Cyber Castle Hard": [
+      {
+        "place": "1st",
+        "time": "8.57",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Vio/Cyb"
+      },
+      {
+        "place": "2nd",
+        "time": "9.35",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Cyb/Vio"
+      },
+      {
+        "place": "3rd",
+        "time": "9.55",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Vio/Cyb"
+      },
+      {
+        "place": "4th",
+        "time": "14.27",
+        "player": "Cavern & Lunari",
+        "hero": "Ign/Vio"
+      }
+    ],
+    "Catastrophic Core": [
+      {
+        "place": "1st",
+        "time": "5.16",
+        "player": "Asylum & Cavern",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "2nd",
+        "time": "5.22",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "5.40",
+        "player": "KaBo0M & Vixino",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "4th",
+        "time": "5.47",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "5th",
+        "time": "5.49",
+        "player": "Asylum & Zade",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "6th",
+        "time": "6.03",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Humongous Hollow Hard": [
+      {
+        "place": "1st",
+        "time": "16.18",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "17.10",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Mor"
+      },
+      {
+        "place": "3rd",
+        "time": "17.46",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "2Factorb"
+      }
+    ],
+    "Infinite Inferno": [
+      {
+        "place": "1st",
+        "time": "4.14",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "4.27",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "3rd",
+        "time": "4.53",
+        "player": "KaBo0M & nagalsuper",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "4th",
+        "time": "11.57",
+        "player": "Francis357 & arras",
+        "hero": "Vio/Ort"
+      }
+    ],
+    "Shifting Sands": [
+      {
+        "place": "1st",
+        "time": "4.20",
+        "player": "9113Guest & Cavern",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "4.40",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "4.41",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "4th",
+        "time": "4.50",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "5th",
+        "time": "5.08",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & тимонубы",
+        "hero": "Can/Dem"
+      }
+    ],
+    "Coupled Corridors": [
+      {
+        "place": "1st",
+        "time": "4.23",
+        "player": "9113Guest & Cavern",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "4.27",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "4.30",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "4th",
+        "time": "4.43",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      }
+    ],
+    "Withering Wasteland": [
+      {
+        "place": "1st",
+        "time": "4.08",
+        "player": "Cavern & ProYo",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "4.18",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "4.25",
+        "player": "Kurozen & Саня кинг",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "4.28",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "5th",
+        "time": "4.29",
+        "player": "Cavern & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "6th",
+        "time": "4.31",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "7th",
+        "time": "7.44",
+        "player": "Francis357 & Kiwis🎀",
+        "hero": "Fac/Ign"
+      }
+    ],
+    "Dusty Depths": [
+      {
+        "place": "1st",
+        "time": "4.57",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "2nd",
+        "time": "5.08",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "3rd",
+        "time": "5.19",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Wacky Wonderland Hard": [
+      {
+        "place": "1st",
+        "time": "9.20",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "9.32",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "3rd",
+        "time": "9.34",
+        "player": "Cavern & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "4th",
+        "time": "9.38",
+        "player": "тимонубы & MagmaxOnly",
+        "hero": "Can/Dem"
+      },
+      {
+        "place": "5th",
+        "time": "9.42",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Research Lab": [
+      {
+        "place": "1st",
+        "time": "4.50",
+        "player": "AniFonG & DD1",
+        "hero": "2Magmax"
+      },
+      {
+        "place": "2nd",
+        "time": "5.07",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "3rd",
+        "time": "5.23",
+        "player": "Cavern & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "4th",
+        "time": "5.44",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "5th",
+        "time": "5.50",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Ign/Can"
+      }
+    ],
+    "Ancient Abyss": [
+      {
+        "place": "1st",
+        "time": "4.43",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Fac"
+      },
+      {
+        "place": "2nd",
+        "time": "4.48",
+        "player": "Cavern & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "3rd",
+        "time": "4.55",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "4th",
+        "time": "5.11",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Fac/Can"
+      },
+      {
+        "place": "5th",
+        "time": "9.09",
+        "player": "Francis357 & arras",
+        "hero": "Ign/Ram"
+      }
+    ],
+    "Vast Void 50": [
+      {
+        "place": "1st",
+        "time": "11.33",
+        "player": "Cavern & Lunari",
+        "hero": "Ign/Ort"
+      },
+      {
+        "place": "2nd",
+        "time": "18.53",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ort/Rea"
+      },
+      {
+        "place": "3rd",
+        "time": "20.35",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Rea/Ort"
+      }
+    ],
+    "Haunted Halls: Deep Woods 25": [
+      {
+        "place": "1st",
+        "time": "4.53",
+        "player": "Kurozen & 𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖",
+        "hero": "Ign/Can"
+      },
+      {
+        "place": "2nd",
+        "time": "5.38",
+        "player": "𝐅𝐚𝐧𝐭𝐨𝐦𝟓𝟒𝟖 & KaBo0M",
+        "hero": "Can/Ign"
+      },
+      {
+        "place": "3rd",
+        "time": "5.57",
+        "player": "Cavern & Lunari",
+        "hero": "Can/Ign"
+      }
+    ],
+    "Pristine Purgatory": [
+      {
+        "place": "1st",
+        "time": "2.42",
+        "player": "Showed & nagalsuper",
+        "hero": "2Ignis"
+      },
+      {
+        "place": "2nd",
+        "time": "2.52",
+        "player": "EvadesIsMid & ProYo",
+        "hero": "2Ignis"
+      },
+      {
+        "place": "3rd",
+        "time": "3.31",
+        "player": "AniFonG & DD1",
+        "hero": "Euc/Vey"
+      },
+      {
+        "place": "4th",
+        "time": "3.34",
+        "player": "Vikenti & Incstinct",
+        "hero": "Vey/Ign"
+      },
+      {
+        "place": "5th",
+        "time": "3.57",
+        "player": "EvadesIsMid & RadicalLarry",
+        "hero": "Vey/Ign"
+      },
+      {
+        "place": "6th",
+        "time": "3.58",
+        "player": "Kurozen & nagalsuper",
+        "hero": "Vey/Ign"
+      },
+      {
+        "place": "7th",
+        "time": "4.18",
+        "player": "nagalsuper & KaBo0M",
+        "hero": "Vey/Ign"
+      },
+      {
+        "place": "8th",
+        "time": "4.32",
+        "player": "Incstinct & Vikenti",
+        "hero": "Ign/Vey"
+      },
+      {
+        "place": "9th",
+        "time": "4.42",
+        "player": "Cavern & ProYo",
+        "hero": "Ign/Vey"
+      },
+      {
+        "place": "10th",
+        "time": "5.06",
+        "player": "Kurozen & KaBo0M",
+        "hero": "Vey/Ign"
+      }
+    ]
+  }
+}
