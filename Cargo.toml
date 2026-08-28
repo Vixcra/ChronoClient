@@ -1,10 +1,10 @@
 [package]
 name = "chrono-evades"
-version = "1.0.0"
-edition = "2024"
+version = "1.1.0"
+edition = "2026"
 default-run = "chrono-evades"
 description = "Native Evades.io desktop client — low-latency, unlocked FPS"
-authors = ["Vince"]
+authors = ["Vixino3rd"]
 
 [dependencies]
 # Async runtime & networking
