@@ -1,0 +1,1031 @@
+                /* === 1. GLOBAL & NORDIC SCROLLBAR === */
+                body, html {
+                    background: radial-gradient(circle at 50% 30%, #0d211e 0%, #061210 100%) !important;
+                    background-color: #061210 !important;
+                    font-family: 'Comfortaa', 'Fredoka', 'Nunito', 'Segoe UI', system-ui, sans-serif !important;
+                    color: #e2e8f0 !important;
+                }
+                ::-webkit-scrollbar {
+                    width: 8px !important;
+                    height: 8px !important;
+                }
+                ::-webkit-scrollbar-track {
+                    background: rgba(3, 15, 13, 0.8) !important;
+                }
+                ::-webkit-scrollbar-thumb {
+                    background: linear-gradient(180deg, #059669 0%, #047857 100%) !important;
+                    border-radius: 4px !important;
+                    border: 1px solid rgba(52, 211, 153, 0.3) !important;
+                }
+                ::-webkit-scrollbar-thumb:hover {
+                    background: #10b981 !important;
+                }
+
+                /* === 2. UNIVERSAL INPUTS & SELECTS === */
+                input[type="text"], input[type="password"], input[type="number"], select, textarea,
+                #nickname-input, .nickname-input, .account-name-input, .account-pass-input {
+                    background: rgba(3, 15, 13, 0.85) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.35) !important;
+                    border-radius: 10px !important;
+                    color: #f8fafc !important;
+                    padding: 8px 12px !important;
+                    outline: none !important;
+                    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+                    transition: all 0.2s ease !important;
+                }
+                input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus,
+                #nickname-input:focus, .nickname-input:focus {
+                    border-color: #34d399 !important;
+                    box-shadow: 0 0 12px rgba(16, 185, 129, 0.45), inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+                }
+
+                /* === 3. MAIN MENU BUTTONS & CARDS === */
+                .quick-play-button {
+                    background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
+                    color: #ffffff !important;
+                    border: 1px solid rgba(52, 211, 153, 0.4) !important;
+                    border-radius: 20px !important;
+                    font-size: 28px !important;
+                    font-weight: 800 !important;
+                    line-height: 64px !important;
+                    min-width: 270px !important;
+                    box-shadow: 0 6px 25px rgba(16, 185, 129, 0.45), inset 0 2px 0 rgba(255,255,255,0.3) !important;
+                    transition: all 0.15s ease-in-out !important;
+                    cursor: pointer !important;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+                }
+                .quick-play-button:hover {
+                    transform: translateY(-2px) scale(1.02) !important;
+                    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.7), inset 0 2px 0 rgba(255,255,255,0.4) !important;
+                }
+                .server-list-button, .how-to-play-button, .main-button {
+                    background: linear-gradient(180deg, #059669 0%, #064e3b 100%) !important;
+                    color: #ffffff !important;
+                    border: 1px solid rgba(52, 211, 153, 0.3) !important;
+                    border-radius: 14px !important;
+                    font-size: 14px !important;
+                    font-weight: 700 !important;
+                    padding: 8px 16px !important;
+                    line-height: 22px !important;
+                    margin: 4px 6px !important;
+                    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+                    transition: all 0.15s ease-in-out !important;
+                }
+                .server-list-button:hover, .how-to-play-button:hover, .main-button:hover {
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5) !important;
+                }
+                .top-buttons {
+                    gap: 8px !important;
+                }
+                .top-buttons > div > .button, .top-buttons .button {
+                    background: linear-gradient(180deg, #059669 0%, #064e3b 100%) !important;
+                    color: #ffffff !important;
+                    border: 1px solid rgba(52, 211, 153, 0.3) !important;
+                    border-radius: 16px !important;
+                    font-weight: 700 !important;
+                    font-size: 14px !important;
+                    padding: 8px 18px !important;
+                    width: 120px !important;
+                    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+                    transition: all 0.15s ease-in-out !important;
+                }
+                .top-buttons > div > .button:hover, .top-buttons .button:hover {
+                    transform: translateY(-2px) scale(1.03) !important;
+                    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.55) !important;
+                }
+
+                /* === 4. NORDIC GLASS CARDS & PANELS === */
+                .changelog, .hall-of-fame, .quest-info, .card, .menu-card, .overlay-card, .news-panel {
+                    background: rgba(7, 26, 23, 0.85) !important;
+                    border: 2px solid rgba(16, 185, 129, 0.25) !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+                    padding: 12px !important;
+                    backdrop-filter: blur(8px) !important;
+                }
+                .changelog-header, .hall-of-fame-header, .card-header {
+                    border-bottom: 2px solid rgba(16, 185, 129, 0.25) !important;
+                    font-weight: 800 !important;
+                    color: #f1f5f9 !important;
+                }
+                .hall-of-fame-title, .quest-title, .section-title {
+                    color: #34d399 !important;
+                    font-weight: 800 !important;
+                }
+                .hall-of-fame-week-pill, .hall-of-fame-nav-button, .pill-badge {
+                    border: 1px solid rgba(16, 185, 129, 0.35) !important;
+                    border-radius: 10px !important;
+                    background: rgba(5, 150, 105, 0.2) !important;
+                    color: #a7f3d0 !important;
+                }
+                .logged-in-as-text {
+                    font-size: 13px !important;
+                    color: #94a3b8 !important;
+                    margin-bottom: 8px !important;
+                }
+                .logged-in-name {
+                    color: #f8fafc !important;
+                    font-weight: 700 !important;
+                }
+
+                /* === 5. HERO SELECT & CHARACTER CUSTOMIZATION === */
+                .hero-select-modal, .character-selection, .hero-picker {
+                    background: rgba(7, 26, 23, 0.95) !important;
+                    border: 2px solid rgba(16, 185, 129, 0.35) !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(16, 185, 129, 0.2) !important;
+                }
+                .hero-card, .character-card {
+                    background: rgba(3, 15, 13, 0.8) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.25) !important;
+                    border-radius: 12px !important;
+                    transition: all 0.2s ease !important;
+                }
+                .hero-card:hover, .character-card:hover {
+                    transform: translateY(-3px) !important;
+                    border-color: #34d399 !important;
+                    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4) !important;
+                }
+                .hero-card.selected, .character-card.selected, .hero-card.active {
+                    border-color: #34d399 !important;
+                    box-shadow: 0 0 16px rgba(16, 185, 129, 0.6) !important;
+                    background: rgba(5, 150, 105, 0.25) !important;
+                }
+
+                /* === 6. IN-GAME HUD, CHAT & LEADERBOARD === */
+                #chat-messages, .chat-container, .chat-box {
+                    background: rgba(3, 15, 13, 0.75) !important;
+                    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+                    border-radius: 8px !important;
+                    backdrop-filter: blur(6px) !important;
+                }
+                #chat-input, .chat-input {
+                    background: rgba(3, 15, 13, 0.9) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.4) !important;
+                    color: #f8fafc !important;
+                }
+                #leaderboard, .leaderboard, .player-list {
+                    background: rgba(7, 26, 23, 0.8) !important;
+                    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+                    border-radius: 10px !important;
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+                    backdrop-filter: blur(6px) !important;
+                }
+                .leaderboard-entry.self, .player-row.self, .leaderboard tr.self {
+                    background: rgba(16, 185, 129, 0.25) !important;
+                    font-weight: bold !important;
+                    color: #34d399 !important;
+                }
+                .area-display, #area-name, .zone-indicator {
+                    color: #34d399 !important;
+                    text-shadow: 0 0 10px rgba(16, 185, 129, 0.7) !important;
+                    font-weight: 800 !important;
+                }
+
+                /* === 7. SERVER BROWSER & MODALS === */
+                .server-select-modal, .server-browser, .modal-dialog, .settings-modal {
+                    background: rgba(7, 26, 23, 0.95) !important;
+                    border: 2px solid rgba(16, 185, 129, 0.35) !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+                }
+                .server-table tr, .server-row {
+                    background: rgba(3, 15, 13, 0.6) !important;
+                    border-bottom: 1px solid rgba(52, 211, 153, 0.15) !important;
+                    transition: background 0.15s ease !important;
+                }
+                .server-table tr:hover, .server-row:hover {
+                    background: rgba(5, 150, 105, 0.3) !important;
+                }
+
+                /* === 7.5. MODERN SLEEK RED CLOSE & CLEAR BUTTONS === */
+                .keybindings-clear {
+                    background: rgba(239, 68, 68, 0.15) !important;
+                    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+                    color: #fca5a5 !important;
+                    border-radius: 6px !important;
+                    font-size: 11px !important;
+                    font-weight: 800 !important;
+                    width: 22px !important;
+                    height: 22px !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    margin-left: 4px !important;
+                    outline: none !important;
+                }
+                .keybindings-clear:hover {
+                    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+                    color: #ffffff !important;
+                    border-color: #f87171 !important;
+                    transform: scale(1.15) !important;
+                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6) !important;
+                }
+                .keybindings-clear:active {
+                    transform: scale(0.95) !important;
+                }
+                .quests, .settings, #quests, #settings, .quests-window, #quests-window, .settings-window, #settings-window {
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    z-index: 1000000 !important;
+                }
+                input.settings-exit, .settings-exit, input.quests-exit, .quests-exit, .window-close, .modal-close {
+                    position: absolute !important;
+                    top: 14px !important;
+                    right: 14px !important;
+                    background: rgba(239, 68, 68, 0.2) !important;
+                    border: 1px solid rgba(239, 68, 68, 0.45) !important;
+                    color: transparent !important;
+                    border-radius: 50% !important;
+                    width: 28px !important;
+                    height: 28px !important;
+                    min-width: 28px !important;
+                    min-height: 28px !important;
+                    font-size: 0px !important;
+                    line-height: 0 !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    outline: none !important;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    z-index: 1000 !important;
+                }
+                input.settings-exit::before, .settings-exit::before, input.quests-exit::before, .quests-exit::before, .window-close::before, .modal-close::before {
+                    content: "✕" !important;
+                    font-size: 13px !important;
+                    font-weight: 900 !important;
+                    color: #fca5a5 !important;
+                    line-height: 1 !important;
+                }
+                input.settings-exit:hover, .settings-exit:hover, input.quests-exit:hover, .quests-exit:hover, .window-close:hover, .modal-close:hover {
+                    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+                    border-color: #f87171 !important;
+                    transform: rotate(90deg) scale(1.15) !important;
+                    box-shadow: 0 0 14px rgba(239, 68, 68, 0.7) !important;
+                }
+                input.settings-exit:hover::before, .settings-exit:hover::before, input.quests-exit:hover::before, .quests-exit:hover::before, .window-close:hover::before, .modal-close:hover::before {
+                    color: #ffffff !important;
+                }
+                .settings-surrender, input.settings-surrender {
+                    background: linear-gradient(135deg, rgba(220, 38, 38, 0.8), rgba(185, 28, 28, 0.9)) !important;
+                    border: 1px solid rgba(248, 113, 113, 0.5) !important;
+                    color: #ffffff !important;
+                    border-radius: 8px !important;
+                    font-weight: 800 !important;
+                    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
+                    transition: all 0.15s ease !important;
+                }
+                .settings-surrender:hover, input.settings-surrender:hover {
+                    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+                    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.6) !important;
+                    transform: translateY(-1px) !important;
+                }
+
+                /* === 8. DEATH & VICTORY OVERLAYS === */
+                .death-screen, .victory-screen, .respawn-modal {
+                    background: rgba(3, 15, 13, 0.9) !important;
+                    border: 2px solid rgba(16, 185, 129, 0.4) !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(16, 185, 129, 0.3) !important;
+                }
+                .respawn-btn, .respawn-button {
+                    background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
+                    color: #ffffff !important;
+                    border: 1px solid rgba(52, 211, 153, 0.5) !important;
+                    border-radius: 14px !important;
+                    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45) !important;
+                    font-weight: 800 !important;
+                    cursor: pointer !important;
+                }
+                .respawn-btn:hover, .respawn-button:hover {
+                    transform: scale(1.04) !important;
+                    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.7) !important;
+                }
+
+                /* === 9. BOTTOM-RIGHT LAUNCHERS HARMONIZATION (6 ICONS) === */
+                .settings-launcher, .quests-launcher, #chrono-hourglass-launcher, #chrono-runs-launcher, #chrono-leaderboard-launcher, #chrono-tournament-launcher {
+                    width: 32px !important;
+                    height: 32px !important;
+                    bottom: 10px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+                    z-index: 1000 !important;
+                }
+                .settings-launcher img, .quests-launcher img, #chrono-runs-launcher img, #chrono-leaderboard-launcher img, #chrono-tournament-launcher img {
+                    width: 28px !important;
+                    height: 28px !important;
+                    object-fit: contain !important;
+                    filter: grayscale(100%) opacity(0.75) !important;
+                    transition: all 0.2s ease !important;
+                }
+                .settings-launcher:hover img {
+                    filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px #10b981) brightness(130%) !important;
+                }
+                .quests-launcher:hover img {
+                    filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px #eab308) brightness(130%) !important;
+                }
+                #chrono-hourglass-launcher:hover {
+                    filter: drop-shadow(0 0 8px #06b6d4) brightness(130%) !important;
+                }
+                #chrono-runs-launcher:hover img {
+                    filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px #10b981) drop-shadow(0 0 14px #34d399) brightness(130%) !important;
+                }
+                #chrono-leaderboard-launcher:hover img {
+                    filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px #ef4444) drop-shadow(0 0 14px #f87171) brightness(140%) !important;
+                }
+                #chrono-tournament-launcher:hover img {
+                    filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px #c084fc) drop-shadow(0 0 16px #a855f7) drop-shadow(0 0 24px #9333ea) brightness(160%) !important;
+                }
+                #chrono-tournament-launcher:hover {
+                    background: rgba(168, 85, 247, 0.22) !important;
+                    box-shadow: 0 0 16px rgba(168, 85, 247, 0.55) !important;
+                    border-radius: 8px !important;
+                    transform: scale(1.18) !important;
+                }
+                .settings-launcher:hover, .quests-launcher:hover, #chrono-hourglass-launcher:hover, #chrono-runs-launcher:hover, #chrono-leaderboard-launcher:hover {
+                    transform: scale(1.15) !important;
+                }
+
+                /* === 10. ACCOUNT & CUSTOMIZATION PAGE (2-COL TOP, 3-COL ACCORDION/GRID) === */
+                .account {
+                    max-width: 1080px !important;
+                    margin: 16px auto 40px auto !important;
+                    padding: 24px 30px !important;
+                    background: linear-gradient(180deg, rgba(16, 24, 22, 0.95) 0%, rgba(8, 16, 14, 0.95) 100%) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.3) !important;
+                    border-radius: 18px !important;
+                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(16, 185, 129, 0.15) !important;
+                    color: #f1f5f9 !important;
+                }
+                .account .account-title {
+                    font-size: 20px !important;
+                    font-weight: 800 !important;
+                    color: #f8fafc !important;
+                    margin-bottom: 10px !important;
+                    letter-spacing: 0.5px !important;
+                    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+                }
+                .chrono-account-top-grid {
+                    display: grid !important;
+                    grid-template-columns: 1.15fr 0.85fr !important;
+                    gap: 16px !important;
+                    margin-bottom: 20px !important;
+                    align-items: stretch !important;
+                }
+                .chrono-account-card {
+                    background: rgba(5, 20, 18, 0.75) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.25) !important;
+                    border-radius: 14px !important;
+                    padding: 16px 20px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 10px !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+                }
+                .chrono-preview-card {
+                    background: rgba(5, 20, 18, 0.75) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.25) !important;
+                    border-radius: 14px !important;
+                    padding: 16px 20px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    gap: 12px !important;
+                    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+                }
+                .chrono-preview-stage {
+                    background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1) 0%, rgba(2, 10, 8, 0.6) 100%) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.2) !important;
+                    border-radius: 12px !important;
+                    padding: 12px 24px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    min-width: 180px !important;
+                }
+                .chrono-preview-avatar-box {
+                    position: relative !important;
+                    width: 100px !important;
+                    height: 100px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                }
+                .chrono-preview-hero-circle {
+                    width: 54px !important;
+                    height: 54px !important;
+                    border-radius: 50% !important;
+                    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+                    border: 2px solid #ffffff !important;
+                    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
+                    position: relative !important;
+                    z-index: 1 !important;
+                }
+                .chrono-preview-layer-body {
+                    position: absolute !important;
+                    width: 85px !important;
+                    height: 85px !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    object-fit: contain !important;
+                    pointer-events: none !important;
+                    z-index: 2 !important;
+                }
+                .chrono-preview-layer-hat {
+                    position: absolute !important;
+                    width: 85px !important;
+                    height: 85px !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    object-fit: contain !important;
+                    pointer-events: none !important;
+                    z-index: 3 !important;
+                }
+                .chrono-preview-layer-gem {
+                    position: absolute !important;
+                    width: 16px !important;
+                    height: 16px !important;
+                    top: 10px !important;
+                    left: 50% !important;
+                    transform: translateX(-50%) !important;
+                    object-fit: contain !important;
+                    pointer-events: none !important;
+                    z-index: 4 !important;
+                }
+                .chrono-preview-equipped-list {
+                    display: flex !important;
+                    gap: 8px !important;
+                    flex-wrap: wrap !important;
+                    justify-content: center !important;
+                }
+                .chrono-equipped-badge {
+                    background: rgba(3, 15, 13, 0.8) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.25) !important;
+                    border-radius: 6px !important;
+                    padding: 3px 8px !important;
+                    font-size: 11px !important;
+                }
+                .chrono-blurred-email {
+                    filter: blur(7px) !important;
+                    background: rgba(255, 255, 255, 0.08) !important;
+                    padding: 2px 10px !important;
+                    border-radius: 6px !important;
+                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    cursor: pointer !important;
+                    user-select: none !important;
+                    display: inline-block !important;
+                    border: 1px dashed rgba(255, 255, 255, 0.25) !important;
+                    color: #38bdf8 !important;
+                    font-weight: 600 !important;
+                }
+                .chrono-blurred-email:hover, .chrono-blurred-email.revealed {
+                    filter: blur(0px) !important;
+                    background: rgba(56, 189, 248, 0.15) !important;
+                    border-color: rgba(56, 189, 248, 0.5) !important;
+                    user-select: text !important;
+                }
+                .account .button, .account input[type="button"].button, .account input[type="submit"] {
+                    background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%) !important;
+                    color: #ffffff !important;
+                    border: none !important;
+                    border-radius: 8px !important;
+                    padding: 7px 18px !important;
+                    font-size: 12px !important;
+                    font-weight: 700 !important;
+                    cursor: pointer !important;
+                    box-shadow: 0 3px 0 #0369a1, 0 4px 12px rgba(2, 132, 199, 0.35) !important;
+                    transition: all 0.15s ease !important;
+                }
+                .account .button:hover, .account input[type="button"].button:hover {
+                    background: linear-gradient(180deg, #60a5fa 0%, #0369a1 100%) !important;
+                    transform: translateY(-1px) !important;
+                    box-shadow: 0 4px 0 #0369a1, 0 6px 16px rgba(2, 132, 199, 0.5) !important;
+                }
+                .account .button:active, .account input[type="button"].button:active {
+                    transform: translateY(2px) !important;
+                    box-shadow: 0 1px 0 #0369a1 !important;
+                }
+                .account .button:disabled {
+                    background: #334155 !important;
+                    color: #64748b !important;
+                    box-shadow: none !important;
+                    cursor: not-allowed !important;
+                }
+                .account-state-info {
+                    color: #94a3b8 !important;
+                    font-size: 12px !important;
+                    font-weight: 500 !important;
+                    margin: 2px 0 !important;
+                }
+                .account-accessories {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 12px !important;
+                    margin-top: 10px !important;
+                }
+                .chrono-accessories-grid {
+                    display: grid !important;
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 14px !important;
+                    align-items: start !important;
+                }
+                .chrono-acc-column {
+                    background: rgba(5, 20, 18, 0.7) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.25) !important;
+                    border-radius: 12px !important;
+                    padding: 12px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 10px !important;
+                    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+                }
+                .chrono-acc-column-header {
+                    font-size: 14px !important;
+                    font-weight: 800 !important;
+                    color: #34d399 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    border-bottom: 1px solid rgba(52, 211, 153, 0.2) !important;
+                    padding-bottom: 6px !important;
+                }
+                .chrono-acc-column .collection {
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    padding: 4px 0 !important;
+                    max-width: 100% !important;
+                    display: grid !important;
+                    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)) !important;
+                    gap: 8px !important;
+                    max-height: 380px !important;
+                    overflow-y: auto !important;
+                }
+                .account-accessories .accessory {
+                    background: rgba(7, 26, 23, 0.8) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.25) !important;
+                    border-radius: 8px !important;
+                    padding: 8px !important;
+                    width: auto !important;
+                    min-width: 70px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    transition: all 0.15s ease !important;
+                    cursor: pointer !important;
+                }
+                .account-accessories .accessory:hover {
+                    border-color: #38bdf8 !important;
+                    background: rgba(7, 26, 23, 1) !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+                }
+                .account-accessories .accessory.accessory-selected {
+                    border-color: #34d399 !important;
+                    background: rgba(16, 185, 129, 0.25) !important;
+                    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4) !important;
+                }
+                .account-accessories .accessory-name {
+                    color: #cbd5e1 !important;
+                    font-size: 10px !important;
+                    font-weight: 700 !important;
+                    margin-top: 4px !important;
+                    text-align: center !important;
+                }
+                .back-text {
+                    margin-top: 20px !important;
+                    font-size: 13px !important;
+                    color: #94a3b8 !important;
+                }
+                .back-text .bold-link {
+                    color: #38bdf8 !important;
+                    font-weight: 800 !important;
+                    text-decoration: underline !important;
+                    cursor: pointer !important;
+                }
+
+                /* === 11. POLISHED ARTEMESIK PROFILE (NO PREVIEW, SLEEK DARK CARDS) === */
+                body.chrono-profile-active .subtitle-profile,
+                body.chrono-profile-active .profile-stats,
+                body.chrono-profile-active > div > .header {
+                    position: fixed !important;
+                    left: -99999px !important;
+                    top: -99999px !important;
+                    width: 1000px !important;
+                    height: 800px !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                    z-index: -9999 !important;
+                }
+                .chrono-artem-profile {
+                    max-width: 960px !important;
+                    margin: 20px auto 40px auto !important;
+                    padding: 24px 28px !important;
+                    background: linear-gradient(180deg, rgba(16, 24, 22, 0.96) 0%, rgba(8, 16, 14, 0.98) 100%) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.3) !important;
+                    border-radius: 18px !important;
+                    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(16, 185, 129, 0.12) !important;
+                    color: #f1f5f9 !important;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 20px !important;
+                }
+                .chrono-ap-header {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    position: relative !important;
+                    padding-bottom: 12px !important;
+                    border-bottom: 1px solid rgba(52, 211, 153, 0.15) !important;
+                }
+                .chrono-ap-back-btn {
+                    width: 36px !important;
+                    height: 36px !important;
+                    border-radius: 50% !important;
+                    background: rgba(3, 15, 13, 0.8) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.35) !important;
+                    color: #38bdf8 !important;
+                    font-size: 18px !important;
+                    font-weight: 800 !important;
+                    cursor: pointer !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    transition: all 0.15s ease !important;
+                }
+                .chrono-ap-back-btn:hover {
+                    transform: scale(1.1) !important;
+                    border-color: #38bdf8 !important;
+                    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
+                }
+                .chrono-ap-title {
+                    font-size: 22px !important;
+                    font-weight: 800 !important;
+                    color: #f8fafc !important;
+                    letter-spacing: 0.5px !important;
+                    text-shadow: 0 2px 10px rgba(0,0,0,0.5) !important;
+                }
+                .chrono-ap-search {
+                    background: rgba(3, 15, 13, 0.85) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.3) !important;
+                    border-radius: 12px !important;
+                    color: #f8fafc !important;
+                    padding: 6px 16px !important;
+                    font-size: 12px !important;
+                    width: 200px !important;
+                    text-align: center !important;
+                    outline: none !important;
+                    transition: all 0.2s ease !important;
+                }
+                .chrono-ap-search:focus {
+                    border-color: #34d399 !important;
+                    width: 230px !important;
+                    box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
+                }
+                .chrono-ap-card {
+                    background: rgba(5, 20, 18, 0.7) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.22) !important;
+                    border-radius: 14px !important;
+                    padding: 16px 18px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 10px !important;
+                    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+                }
+                .chrono-ap-card-title {
+                    font-size: 13.5px !important;
+                    font-weight: 800 !important;
+                    color: #34d399 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    border-bottom: 1px solid rgba(52, 211, 153, 0.15) !important;
+                    padding-bottom: 6px !important;
+                    margin-bottom: 2px !important;
+                }
+                .chrono-ap-top-grid {
+                    display: grid !important;
+                    grid-template-columns: 1fr 1.3fr !important;
+                    gap: 16px !important;
+                    align-items: stretch !important;
+                }
+                .chrono-ap-user-header {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    padding-bottom: 6px !important;
+                    border-bottom: 1px dashed rgba(255, 255, 255, 0.08) !important;
+                }
+                .chrono-ap-username {
+                    font-size: 18px !important;
+                    font-weight: 900 !important;
+                    color: #f8fafc !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 8px !important;
+                }
+                .chrono-ap-status-pill {
+                    font-size: 10px !important;
+                    font-weight: 700 !important;
+                    padding: 2px 8px !important;
+                    border-radius: 10px !important;
+                }
+                .chrono-ap-status-online {
+                    background: rgba(34, 197, 94, 0.2) !important;
+                    border: 1px solid rgba(34, 197, 94, 0.5) !important;
+                    color: #4ade80 !important;
+                }
+                .chrono-ap-status-offline {
+                    background: rgba(148, 163, 184, 0.2) !important;
+                    border: 1px solid rgba(148, 163, 184, 0.4) !important;
+                    color: #94a3b8 !important;
+                }
+                .chrono-ap-roles {
+                    display: flex !important;
+                    gap: 6px !important;
+                    margin: 2px 0 !important;
+                }
+                .chrono-ap-role-badge {
+                    font-size: 10px !important;
+                    font-weight: 700 !important;
+                    padding: 2px 8px !important;
+                    border-radius: 12px !important;
+                    background: rgba(16, 185, 129, 0.15) !important;
+                    border: 1px solid rgba(52, 211, 153, 0.35) !important;
+                    color: #6ee7b7 !important;
+                }
+                .chrono-ap-stat-row {
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    font-size: 11.5px !important;
+                    padding: 3px 0 !important;
+                    border-bottom: 1px dashed rgba(255, 255, 255, 0.05) !important;
+                }
+                .chrono-ap-stat-label {
+                    color: #94a3b8 !important;
+                }
+                .chrono-ap-stat-val {
+                    font-weight: 700 !important;
+                    color: #f1f5f9 !important;
+                }
+                .chrono-ap-actions {
+                    display: flex !important;
+                    gap: 8px !important;
+                    margin-top: 6px !important;
+                }
+                .chrono-ap-act-btn {
+                    flex: 1 !important;
+                    padding: 5px 0 !important;
+                    font-size: 11px !important;
+                    font-weight: 700 !important;
+                    border-radius: 8px !important;
+                    border: none !important;
+                    cursor: pointer !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 4px !important;
+                    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+                }
+                .chrono-ap-act-btn:hover {
+                    transform: translateY(-1px) !important;
+                }
+                .chrono-btn-blue {
+                    background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%) !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3) !important;
+                }
+                .chrono-btn-red {
+                    background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
+                }
+                .chrono-ap-bottom-grid {
+                    display: grid !important;
+                    grid-template-columns: 1fr 1.3fr !important;
+                    gap: 16px !important;
+                    align-items: start !important;
+                }
+                .chrono-ap-areas-grid {
+                    display: grid !important;
+                    grid-template-columns: 1fr 1fr !important;
+                    gap: 4px 12px !important;
+                    max-height: 240px !important;
+                    overflow-y: auto !important;
+                    padding-right: 4px !important;
+                }
+                .chrono-ap-area-row {
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    padding: 3px 6px !important;
+                    background: rgba(3, 15, 13, 0.6) !important;
+                    border-radius: 6px !important;
+                    font-size: 10.5px !important;
+                    font-weight: 700 !important;
+                    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+                }
+                .chrono-ap-hof-list {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    gap: 4px !important;
+                    max-height: 180px !important;
+                    overflow-y: auto !important;
+                    padding-right: 4px !important;
+                    font-size: 11px !important;
+                }
+                .chrono-ap-hof-row {
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    padding: 4px 8px !important;
+                    background: rgba(3, 15, 13, 0.6) !important;
+                    border-radius: 6px !important;
+                    border: 1px solid rgba(52, 211, 153, 0.1) !important;
+                }
+                .chrono-ap-hof-row.gold {
+                    background: rgba(234, 179, 8, 0.18) !important;
+                    border-color: rgba(234, 179, 8, 0.45) !important;
+                    color: #fef08a !important;
+                    font-weight: 700 !important;
+                }
+                .chrono-ap-runs-table {
+                    width: 100% !important;
+                    border-collapse: collapse !important;
+                    font-size: 11px !important;
+                }
+                .chrono-ap-runs-table th {
+                    background: rgba(3, 15, 13, 0.85) !important;
+                    color: #6ee7b7 !important;
+                    padding: 6px 8px !important;
+                    text-align: left !important;
+                    border-bottom: 1px solid rgba(52, 211, 153, 0.3) !important;
+                    font-weight: 700 !important;
+                }
+                .chrono-ap-runs-table td {
+                    padding: 5px 8px !important;
+                    border-bottom: 1px dashed rgba(255, 255, 255, 0.05) !important;
+                }
+                .chrono-ap-runs-table tr:hover td {
+                    background: rgba(5, 150, 105, 0.15) !important;
+                }
+                .chrono-ap-footer {
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    font-size: 11px !important;
+                    color: #64748b !important;
+                    padding-top: 10px !important;
+                    border-top: 1px solid rgba(52, 211, 153, 0.15) !important;
+                }
+                .chrono-ap-credits {
+                    color: #34d399 !important;
+                    font-weight: 600 !important;
+                }
+
+                /* === 12. CHRONO SETTINGS WINDOW THEME === */
+                .settings {
+                    background: linear-gradient(145deg, rgba(7, 19, 17, 0.96) 0%, rgba(13, 40, 36, 0.96) 50%, rgba(5, 24, 21, 0.98) 100%) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.4) !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(16, 185, 129, 0.25) !important;
+                    color: #f8fafc !important;
+                    backdrop-filter: blur(12px) !important;
+                    -webkit-backdrop-filter: blur(12px) !important;
+                    padding: 18px 22px !important;
+                }
+                .settings-title {
+                    font-size: 16px !important;
+                    font-weight: 800 !important;
+                    letter-spacing: 0.5px !important;
+                    background: linear-gradient(90deg, #6ee7b7, #34d399, #10b981) !important;
+                    -webkit-background-clip: text !important;
+                    -webkit-text-fill-color: transparent !important;
+                    margin-bottom: 12px !important;
+                }
+
+                .settings-categories, .quest-tabs {
+                    display: flex !important;
+                    background: rgba(5, 20, 18, 0.7) !important;
+                    padding: 4px 8px !important;
+                    border-radius: 10px !important;
+                    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+                    gap: 4px !important;
+                    margin-bottom: 14px !important;
+                }
+                .settings-category, .quests-tab {
+                    background: transparent !important;
+                    border: 1px solid transparent !important;
+                    color: #94a3b8 !important;
+                    padding: 6px 12px !important;
+                    border-radius: 6px !important;
+                    font-size: 11px !important;
+                    font-weight: 600 !important;
+                    cursor: pointer !important;
+                    transition: all 0.15s ease !important;
+                }
+                .settings-category.settings-category-active, .settings-category:hover, .quests-tab-active, .quests-tab:hover {
+                    background: linear-gradient(135deg, #059669, #10b981) !important;
+                    border-color: rgba(110, 231, 183, 0.4) !important;
+                    color: #ffffff !important;
+                    font-weight: 700 !important;
+                }
+                .settings-container {
+                    background: rgba(7, 26, 23, 0.6) !important;
+                    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+                    border-radius: 12px !important;
+                    padding: 12px 14px !important;
+                }
+                .settings-setting {
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    padding: 6px 0 !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+                }
+                .settings-label {
+                    color: #e2e8f0 !important;
+                    font-size: 12px !important;
+                    font-weight: 600 !important;
+                }
+                .settings-checkbox input, input.settings-checkbox {
+                    accent-color: #10b981 !important;
+                    width: 16px !important;
+                    height: 16px !important;
+                    cursor: pointer !important;
+                }
+                .settings-select select, select.settings-select {
+                    background: rgba(3, 15, 13, 0.9) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.4) !important;
+                    color: #6ee7b7 !important;
+                    font-weight: bold !important;
+                    border-radius: 6px !important;
+                    padding: 4px 8px !important;
+                    font-size: 11px !important;
+                }
+                .settings-slider input[type="range"], input.settings-slider {
+                    accent-color: #10b981 !important;
+                    cursor: pointer !important;
+                }
+                .settings-button, .quests-button {
+                    background: linear-gradient(135deg, #059669, #10b981) !important;
+                    border: 1px solid rgba(110, 231, 183, 0.3) !important;
+                    color: #ffffff !important;
+                    padding: 6px 14px !important;
+                    border-radius: 8px !important;
+                    font-size: 11px !important;
+                    font-weight: 700 !important;
+                    cursor: pointer !important;
+                }
+                .settings-button.settings-surrender {
+                    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+                    border-color: rgba(248, 113, 113, 0.4) !important;
+                }
+
+                /* === 13. CHRONO QUESTS WINDOW THEME === */
+                .quests {
+                    background: linear-gradient(145deg, rgba(7, 19, 17, 0.96) 0%, rgba(13, 40, 36, 0.96) 50%, rgba(5, 24, 21, 0.98) 100%) !important;
+                    border: 1.5px solid rgba(52, 211, 153, 0.4) !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(16, 185, 129, 0.25) !important;
+                    color: #f8fafc !important;
+                    backdrop-filter: blur(12px) !important;
+                    -webkit-backdrop-filter: blur(12px) !important;
+                    padding: 18px 22px !important;
+                }
+                .quests-header {
+                    font-size: 15px !important;
+                    font-weight: 800 !important;
+                    color: #34d399 !important;
+                    margin-bottom: 8px !important;
+                }
+                .quests-text {
+                    color: #cbd5e1 !important;
+                    font-size: 12px !important;
+                }
+                .quests-reward-box, .quest-history-item {
+                    background: rgba(7, 26, 23, 0.65) !important;
+                    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+                    border-radius: 10px !important;
+                    padding: 10px 12px !important;
+                }
