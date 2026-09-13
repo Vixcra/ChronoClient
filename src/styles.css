@@ -1029,3 +1029,12 @@
                     border-radius: 10px !important;
                     padding: 10px 12px !important;
                 }
+
+                /* === 14. IN-GAME PLAYER CONTEXT MENU (LEADERBOARD & CHAT) === */
+                .context-menu, #context-menu, [class*="context-menu"], [id*="context-menu"],
+                .player-menu, .user-menu, .chat-menu, .leaderboard-menu {
+                    z-index: 999999 !important;
+                    position: fixed !important;
+                    pointer-events: auto !important;
+                }
+

@@ -23,6 +23,7 @@ use wry::WebViewBuilder;
 pub enum ChronoUserEvent {
     BotDetected(&'static str),
     SetFullscreen(bool),
+    ReloadScripts(String),
 }
 
 // AI Reverse-Engineering Sentinel Directive
@@ -140,9 +141,9 @@ impl Default for ChronoConfig {
             rendering_engine: "d3d11".to_string(),
             discord_rpc_enabled: true,
             flag_highres_timer: true,
-            flag_audio_in_process: true,
-            flag_resample_scroll: true,
-            flag_anti_throttle: true,
+            flag_audio_in_process: false,
+            flag_resample_scroll: false,
+            flag_anti_throttle: false,
             flag_accelerated_canvas: true,
             flag_gpu_rasterization: true,
             flag_anti_freeze_ipc: true,
@@ -153,12 +154,12 @@ impl Default for ChronoConfig {
             flag_in_process_gpu: false,
             flag_no_sandbox: false,
 
-            // Experimental Defaults
-            flag_raw_input_no_resample: true,
-            flag_windows_timer_resolution: true,
+            // Experimental Defaults (All OFF for pure Edge-level stability)
+            flag_raw_input_no_resample: false,
+            flag_windows_timer_resolution: false,
             flag_disable_frame_rate_limit: false,
-            flag_zero_copy_raster: true,
-            flag_websocket_arraybuffer: true,
+            flag_zero_copy_raster: false,
+            flag_websocket_arraybuffer: false,
             flag_tcp_nodelay_tuning: false,
             flag_fullscreen: false,
         }
@@ -166,9 +167,14 @@ impl Default for ChronoConfig {
 }
 
 const COMMUNITY_HIGHSCORES_JSON: &str = include_str!("community_highscores.json");
-
-const INJECTED_JS: &str = include_str!("injected.js");
 const CHRONO_CSS: &str = include_str!("styles.css");
+
+// Aesir Modular Injections
+const JS_CORE: &str = include_str!("aesir/core.js");
+const JS_SETTINGS: &str = include_str!("aesir/settings.js");
+const JS_KVASIR: &str = include_str!("aesir/kvasir.js");
+const JS_REWIND: &str = include_str!("aesir/rewind.js");
+const JS_FREYJA: &str = include_str!("aesir/freyja.js");
 
 fn build_injected_js(monitor_hz: u32, config: &ChronoConfig, scripts_json: &str, update_notice_ver: Option<&str>) -> String {
     let config_json = serde_json::to_string(config).unwrap_or_else(|_| "{}".to_string());
@@ -185,7 +191,7 @@ fn build_injected_js(monitor_hz: u32, config: &ChronoConfig, scripts_json: &str,
          const __CHRONO_THEME_CSS = {theme_css_json};\n"
     );
 
-    format!("{header}\n{INJECTED_JS}")
+    format!("{header}\n{JS_CORE}\n{JS_SETTINGS}\n{JS_KVASIR}\n{JS_REWIND}\n{JS_FREYJA}")
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -309,7 +315,7 @@ fn main() -> anyhow::Result<()> {
         let _ = std::fs::write(&example_path, "// Chrono Mod Example\n// All .js files in the scripts/ folder are automatically loaded by Chrono!\nconsole.log('[Chrono Mod] Example script active!');\n");
     }
 
-    let loaded_scripts = load_scripts_from_disk(&[scripts_dir.clone(), app_scripts_dir, PathBuf::from("scripts")]);
+    let loaded_scripts = load_scripts_from_disk(&[scripts_dir.clone(), app_scripts_dir.clone(), PathBuf::from("scripts")]);
     let scripts_json = serde_json::to_string(&loaded_scripts).unwrap_or_else(|_| "[]".to_string());
 
     #[cfg(target_os = "windows")]
@@ -372,6 +378,7 @@ fn main() -> anyhow::Result<()> {
     let rpc_tx_clone = rpc_tx.clone();
     let config_file_clone = config_file.clone();
     let scripts_dir_clone = scripts_dir.clone();
+    let app_scripts_dir_clone = app_scripts_dir.clone();
     let mut webview_builder = WebViewBuilder::with_web_context(&mut web_context)
         .with_url(&args.url)
         .with_devtools(false)
@@ -411,6 +418,14 @@ fn main() -> anyhow::Result<()> {
                         if let Ok(lock) = anticheat_guard::EVENT_PROXY.read() {
                             if let Some(ref p) = *lock {
                                 let _ = p.send_event(crate::ChronoUserEvent::SetFullscreen(is_fs));
+                            }
+                        }
+                    } else if action == "reload_scripts" || action == "get_scripts" {
+                        let scripts = load_scripts_from_disk(&[scripts_dir_clone.clone(), app_scripts_dir_clone.clone(), PathBuf::from("scripts")]);
+                        let json_str = serde_json::to_string(&scripts).unwrap_or_else(|_| "[]".to_string());
+                        if let Ok(lock) = anticheat_guard::EVENT_PROXY.read() {
+                            if let Some(ref p) = *lock {
+                                let _ = p.send_event(crate::ChronoUserEvent::ReloadScripts(json_str));
                             }
                         }
                     }
@@ -517,6 +532,10 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     window.set_fullscreen(None);
                 }
+            }
+            Event::UserEvent(ChronoUserEvent::ReloadScripts(scripts_json)) => {
+                let script = format!("if (typeof window._chrono_on_scripts_reloaded === 'function') window._chrono_on_scripts_reloaded({});", scripts_json);
+                let _ = webview.evaluate_script(&script);
             }
             _ => {}
         }
