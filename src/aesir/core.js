@@ -510,157 +510,167 @@
         window._chrono_enable_visual_tells = true;
     }
 
-    if (!window._chrono_visuals_hooked && typeof CanvasRenderingContext2D !== "undefined") {
-        window._chrono_visuals_hooked = true;
+    // High-performance direct Enemy.prototype.render hook
+    // Replaces the heavy Canvas.arc/fill prototype interceptor.
+    // 0 canvas hook overhead, 0 shadowBlur lag, 0 V8 JIT de-opt.
+    if (!window._chrono_enemy_render_hooked) {
+        window._chrono_enemy_render_hooked = true;
 
-        let lastArcX = 0;
-        let lastArcY = 0;
-        let lastArcRadius = 0;
-        let lastArcCtx = null;
-        let hasArcData = false;
+        function hookEnemyPrototype(proto) {
+            if (!proto || proto._chrono_hooked) return;
+            proto._chrono_hooked = true;
 
-        // 1. Hook arc: Fast pass-through if visual tells not explicitly active
-        const origArc = CanvasRenderingContext2D.prototype.arc;
-        CanvasRenderingContext2D.prototype.arc = function(x, y, radius, startAngle, endAngle, counterclockwise) {
-            if (!window._chrono_enable_visual_tells) {
-                return origArc.apply(this, arguments);
-            }
-            if (this.canvas && (this.canvas.id === "game" || this.canvas.id === "canvas" || this.canvas.width > 300)) {
-                if (radius >= 10 && Math.abs(endAngle - startAngle) >= Math.PI * 1.8) {
-                    lastArcX = x;
-                    lastArcY = y;
-                    lastArcRadius = radius;
-                    lastArcCtx = this;
-                    hasArcData = true;
-                } else {
-                    hasArcData = false;
-                }
-            }
-            return origArc.apply(this, arguments);
-        };
+            const origRender = proto.render;
+            if (typeof origRender !== "function") return;
 
-        // 2. Hook fill: Fast pass-through if visual tells not active
-        const origFill = CanvasRenderingContext2D.prototype.fill;
-        CanvasRenderingContext2D.prototype.fill = function(...args) {
-            if (!window._chrono_enable_visual_tells || !hasArcData || lastArcCtx !== this || typeof this.fillStyle !== "string") {
-                return origFill.apply(this, args);
-            }
-            const arcX = lastArcX;
-            const arcY = lastArcY;
-            const arcRadius = lastArcRadius;
-            hasArcData = false;
-            const fs = this.fillStyle.trim();
+            proto.render = function(ctx, camera) {
+                // 1. Draw base enemy first
+                origRender.call(this, ctx, camera);
 
-            // ── 1. SNIPER / PROJECTILE EMITTER PRE-FIRE TELL (Evades exact: rgba(1, 1, 1, t)) ──
-            if (fs.startsWith("rgba(1, 1, 1,") || fs.startsWith("rgba(1,1,1,")) {
-                const m = fs.match(/[\d.]+/g);
-                const t = (m && m.length >= 4) ? parseFloat(m[3]) : 0.15;
-                const progress = Math.min(1.0, Math.max(0.05, (t - 0.05) / 0.20));
+                if (!window._chrono_enable_visual_tells || !ctx || !camera) return;
 
-                this.save();
-                this.fillStyle = "rgba(255, 45, 85, " + (0.15 + progress * 0.45) + ")";
-                this.shadowColor = "#ff0055";
-                this.shadowBlur = 14;
-                origFill.apply(this, args);
+                // 2. High-performance tell check directly on enemy properties
+                // In Evades.io:
+                // - Snipers charge their shot using `releaseTime` (500ms window before firing, where game draws rgba(1,1,1,t))
+                // - Slashers charge using `slashTime` (200-600ms window)
+                // - `this.fading` is only for spawn fade-in (which was falsely triggering on sizing enemies!)
+                if (this.radius > 35) return;
 
-                this.beginPath();
-                this.arc(arcX, arcY, arcRadius + 4, 0, Math.PI * 2);
-                this.lineWidth = 2.5;
-                if (progress < 0.5) {
-                    this.strokeStyle = "rgba(255, 170, 0, 0.85)";
-                    this.shadowColor = "#ffaa00";
-                    this.shadowBlur = 8;
-                } else if (progress < 0.82) {
-                    this.strokeStyle = "rgba(255, 70, 0, 0.95)";
-                    this.shadowColor = "#ff4600";
-                    this.shadowBlur = 14;
-                } else {
-                    const flash = (Math.floor(performance.now() / 60) % 2 === 0);
-                    this.strokeStyle = flash ? "#ffffff" : "#ff0055";
-                    this.shadowColor = "#ff0055";
-                    this.shadowBlur = 20;
-                    this.lineWidth = 3.5;
-                }
-                origStroke.call(this);
+                const pred = (typeof this.predictedTimeLeft === "function") ? (t => this.predictedTimeLeft(t)) : (t => t);
+                let isSniperTell = false;
+                let isSlasherTell = false;
+                let progress = 0;
 
-                this.beginPath();
-                const startAngle = -Math.PI / 2;
-                const endAngle = startAngle + (Math.PI * 2 * progress);
-                this.arc(arcX, arcY, arcRadius + 7.5, startAngle, endAngle);
-                this.lineWidth = 3.0;
-                this.strokeStyle = progress > 0.82 ? "#ff0055" : (progress > 0.5 ? "#ff9f1a" : "#00f2fe");
-                this.shadowColor = this.strokeStyle;
-                this.shadowBlur = 10;
-                origStroke.call(this);
+                // ── A. Snipers: releaseTime countdown (charges 500ms before firing) ──
+                if (typeof this.releaseTime === "number") {
+                    const s = (typeof this.predictedTimeLeft === "function")
+                        ? this.predictedTimeLeft(this.releaseTime)
+                        : ((typeof this.getEffectiveTimeLeft === "function") ? this.getEffectiveTimeLeft() : this.releaseTime);
 
-                if (progress >= 0.75) {
-                    this.beginPath();
-                    this.arc(arcX, arcY, arcRadius * 0.45, 0, Math.PI * 2);
-                    this.fillStyle = "rgba(255, 255, 255, 0.92)";
-                    this.shadowColor = "#ff0055";
-                    this.shadowBlur = 16;
-                    origFill.call(this);
-                }
-
-                this.restore();
-                return;
-            }
-
-            // ── 2. SWITCH ENEMY FADING TELL ──
-            if (fs.startsWith("rgba(25, 25, 25,") || fs.startsWith("rgba(25,25,25,") ||
-                fs.startsWith("rgba(127, 127, 127,") || fs.startsWith("rgba(127,127,127,")) {
-                this.save();
-                this.beginPath();
-                this.arc(arcX, arcY, arcRadius + 3.5, 0, Math.PI * 2);
-                this.lineWidth = 2.5;
-                this.strokeStyle = "rgba(56, 189, 248, 0.85)";
-                this.shadowColor = "#38bdf8";
-                this.shadowBlur = 10;
-                origStroke.call(this);
-                this.restore();
-            }
-
-            // ── 3. SLASHER ATTACK TELL ──
-            if (fs.startsWith("rgba(") || fs.startsWith("rgb(")) {
-                const m = fs.match(/\d+/g);
-                if (m && m.length >= 4) {
-                    const r = parseInt(m[0], 10), g = parseInt(m[1], 10), b = parseInt(m[2], 10);
-                    if (r === g && g === b && r >= 54 && r <= 120) {
-                        const slashProg = (r - 54) / 66;
-                        this.save();
-                        this.beginPath();
-                        this.arc(arcX, arcY, arcRadius + 4, 0, Math.PI * 2);
-                        this.lineWidth = 2.5;
-                        if (slashProg < 0.7) {
-                            this.strokeStyle = "rgba(255, 170, 0, 0.85)";
-                            this.shadowColor = "#ffaa00";
-                            this.shadowBlur = 8;
-                        } else {
-                            const flash = (Math.floor(performance.now() / 60) % 2 === 0);
-                            this.strokeStyle = flash ? "#ffffff" : "#a855f7";
-                            this.shadowColor = "#a855f7";
-                            this.shadowBlur = 16;
-                            this.lineWidth = 3.5;
-                        }
-                        origStroke.call(this);
-
-                        this.beginPath();
-                        const startAngle = -Math.PI / 2;
-                        const endAngle = startAngle + (Math.PI * 2 * slashProg);
-                        this.arc(arcX, arcY, arcRadius + 7.5, startAngle, endAngle);
-                        this.lineWidth = 3.0;
-                        this.strokeStyle = slashProg > 0.7 ? "#a855f7" : "#00f2fe";
-                        this.shadowColor = this.strokeStyle;
-                        this.shadowBlur = 10;
-                        origStroke.call(this);
-
-                        this.restore();
+                    if (s >= -100 && s <= 550) {
+                        isSniperTell = true;
+                        progress = Math.min(1.0, Math.max(0.05, (500 - Math.max(0, s)) / 500));
                     }
                 }
-            }
 
-            return origFill.apply(this, args);
-        };
+                // ── B. Slashers: slashTime pre-attack animation (200-600ms) ──
+                if (!isSniperTell && typeof this.slashTime === "number") {
+                    const f = pred(this.slashTime);
+                    if (f >= 200 && f <= 600) {
+                        isSlasherTell = true;
+                        progress = Math.min(1.0, Math.max(0.05, (f - 200) / 400));
+                    }
+                }
+
+                if (!isSniperTell && !isSlasherTell) return;
+
+                const pos = (typeof this.getRenderPos === "function") ? this.getRenderPos() : { x: this.x, y: this.y };
+                if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number") return;
+                if (!camera || typeof camera.getX !== "function" || typeof camera.getY !== "function" || typeof camera.toScale !== "function") return;
+
+                const cx = camera.getX(pos.x);
+                const cy = camera.getY(pos.y);
+                const rad = camera.toScale(this.visualRadius ?? this.radius);
+                if (!Number.isFinite(cx) || !Number.isFinite(cy) || !Number.isFinite(rad) || rad <= 0) return;
+
+                ctx.save();
+
+                // Outer warning ring
+                ctx.beginPath();
+                ctx.arc(cx, cy, rad + 4, 0, Math.PI * 2);
+                ctx.lineWidth = 2.5;
+
+                if (isSlasherTell) {
+                    if (progress < 0.7) {
+                        ctx.strokeStyle = "rgba(255, 170, 0, 0.85)";
+                    } else {
+                        const flash = (Math.floor(performance.now() / 60) % 2 === 0);
+                        ctx.strokeStyle = flash ? "#ffffff" : "#a855f7";
+                        ctx.lineWidth = 3.5;
+                    }
+                } else {
+                    if (progress < 0.5) {
+                        ctx.strokeStyle = "rgba(255, 170, 0, 0.85)";
+                    } else if (progress < 0.82) {
+                        ctx.strokeStyle = "rgba(255, 70, 0, 0.95)";
+                    } else {
+                        const flash = (Math.floor(performance.now() / 60) % 2 === 0);
+                        ctx.strokeStyle = flash ? "#ffffff" : "#ff0055";
+                        ctx.lineWidth = 3.5;
+                    }
+                }
+                ctx.globalAlpha = 1;
+                ctx.stroke();
+
+                // Progress countdown arc
+                ctx.beginPath();
+                ctx.arc(cx, cy, rad + 7.5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+                ctx.lineWidth = 3.0;
+                ctx.strokeStyle = isSlasherTell
+                    ? (progress > 0.7 ? "#a855f7" : "#00f2fe")
+                    : (progress > 0.82 ? "#ff0055" : (progress > 0.5 ? "#ff9f1a" : "#00f2fe"));
+                ctx.stroke();
+
+                // Core flash at critical threshold
+                if (progress >= 0.75) {
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, rad * 0.4, 0, Math.PI * 2);
+                    ctx.fillStyle = isSlasherTell ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.92)";
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            };
+        }
+
+        function tryHookProto(obj) {
+            let curr = Object.getPrototypeOf(obj);
+            while (curr && curr !== Object.prototype) {
+                if (Object.prototype.hasOwnProperty.call(curr, "render")) {
+                    hookEnemyPrototype(curr);
+                    return true;
+                }
+                curr = Object.getPrototypeOf(curr);
+            }
+            return false;
+        }
+
+        // Intercept Enemy class definition as soon as the first enemy is instantiated
+        try {
+            let _fadingStateVal = false;
+            Object.defineProperty(Object.prototype, "fadingState", {
+                configurable: true,
+                enumerable: false,
+                get() { return _fadingStateVal; },
+                set(val) {
+                    Object.defineProperty(this, "fadingState", {
+                        value: val,
+                        writable: true,
+                        configurable: true,
+                        enumerable: true
+                    });
+                    if (tryHookProto(this)) {
+                        try { delete Object.prototype.fadingState; } catch(e) {}
+                    }
+                }
+            });
+            Object.defineProperty(Object.prototype, "isEnemy", {
+                configurable: true,
+                enumerable: false,
+                get() { return undefined; },
+                set(val) {
+                    Object.defineProperty(this, "isEnemy", {
+                        value: val,
+                        writable: true,
+                        configurable: true,
+                        enumerable: true
+                    });
+                    if (tryHookProto(this)) {
+                        try { delete Object.prototype.isEnemy; } catch(e) {}
+                    }
+                }
+            });
+        } catch(e) {}
     }
 
     // Dynamic Script Protection Hook

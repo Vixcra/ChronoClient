@@ -188,7 +188,9 @@ fn build_injected_js(monitor_hz: u32, config: &ChronoConfig, scripts_json: &str,
          const __CHRONO_SCRIPTS = {scripts_json};\n\
          const __CHRONO_HIGHSCORES = {highscores_json};\n\
          const __CHRONO_UPDATE_NOTICE_VER = {update_notice_ver_json};\n\
-         const __CHRONO_THEME_CSS = {theme_css_json};\n"
+         const __CHRONO_THEME_CSS = {theme_css_json};\n\
+         const __CHRONO_VERSION = \"{version}\";\n",
+        version = env!("CARGO_PKG_VERSION")
     );
 
     format!("{header}\n{JS_CORE}\n{JS_SETTINGS}\n{JS_KVASIR}\n{JS_REWIND}\n{JS_FREYJA}")

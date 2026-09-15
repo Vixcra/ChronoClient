@@ -46,7 +46,7 @@
                     '<span style="font-size: 22px;">⏳</span>' +
                     '<div>' +
                         '<div style="font-weight: 800; font-size: 16px; letter-spacing: 0.5px; background: linear-gradient(90deg, #6ee7b7, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CHRONO CLIENT HUB</div>' +
-                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v1.0.0</span></div>' +
+                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "1.1.2") + '</span></div>' +
                     '</div>' +
                 '</div>' +
                 '<button id="chrono-close-btn" style="' +
