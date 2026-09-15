@@ -10,6 +10,29 @@
         if (local) Object.assign(currentConfig, local);
     } catch(e) {}
 
+    // Early Theme CSS Injection
+    function injectThemeCss() {
+        if (document.getElementById("chrono-artem-theme")) return;
+        const target = document.head || document.documentElement || document.body;
+        if (target) {
+            const customStyle = document.createElement("style");
+            customStyle.id = "chrono-artem-theme";
+            let __themeCss = typeof __CHRONO_THEME_CSS !== 'undefined' ? __CHRONO_THEME_CSS : "";
+            const __uiC = JSON.parse(localStorage.getItem('chrono_ui_cfg') || '{}');
+            if (__uiC.bg1) __themeCss = __themeCss.replace(/#0d211e/gi, __uiC.bg1);
+            if (__uiC.bg2) __themeCss = __themeCss.replace(/#061210/gi, __uiC.bg2);
+            if (__uiC.acc1) __themeCss = __themeCss.replace(/#059669/gi, __uiC.acc1);
+            if (__uiC.acc2) __themeCss = __themeCss.replace(/#047857/gi, __uiC.acc2);
+            if (__uiC.acc3) __themeCss = __themeCss.replace(/#10b981/gi, __uiC.acc3);
+            customStyle.textContent = __themeCss;
+            target.appendChild(customStyle);
+        }
+    }
+    injectThemeCss();
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", injectThemeCss);
+    }
+
     
     // 1. Intercept high-frequency IPC console warnings to prevent combat freeze
     const origWarn = console.warn;
@@ -351,9 +374,12 @@
 
         let lastArcData = null;
 
-        // 1. Hook arc: Track all circular enemy paths
+        // 1. Hook arc: Fast pass-through if visual tells not explicitly active
         const origArc = CanvasRenderingContext2D.prototype.arc;
         CanvasRenderingContext2D.prototype.arc = function(x, y, radius, startAngle, endAngle, counterclockwise) {
+            if (!window._chrono_enable_visual_tells) {
+                return origArc.apply(this, arguments);
+            }
             if (this.canvas && (this.canvas.id === "game" || this.canvas.id === "canvas" || this.canvas.width > 300)) {
                 if (radius >= 10 && Math.abs(endAngle - startAngle) >= Math.PI * 1.8) {
                     lastArcData = { x, y, radius, ctx: this };
@@ -364,10 +390,12 @@
             return origArc.apply(this, arguments);
         };
 
-        // 2. Hook fill: Target the exact Evades fadingEffects & releaseTime tell calls
+        // 2. Hook fill: Fast pass-through if visual tells not active
         const origFill = CanvasRenderingContext2D.prototype.fill;
         CanvasRenderingContext2D.prototype.fill = function(...args) {
-            if (lastArcData && lastArcData.ctx === this && typeof this.fillStyle === "string") {
+            if (!window._chrono_enable_visual_tells || !lastArcData || lastArcData.ctx !== this || typeof this.fillStyle !== "string") {
+                return origFill.apply(this, args);
+            }
                 const arc = lastArcData;
                 const fs = this.fillStyle.trim();
 
@@ -485,89 +513,88 @@
                         this.restore();
                     }
                 }
-            }
 
             return origFill.apply(this, args);
         };
 
-        // 3. Hook stroke for Enemy Outlines & High-Visibility Edges
-        const origStroke = CanvasRenderingContext2D.prototype.stroke;
+        // 3. Hook stroke for Enemy Outlines (Zero-cost pass-through when default)
         CanvasRenderingContext2D.prototype.stroke = function(...args) {
-            if (enemyOutlineMode !== "default" && typeof this.strokeStyle === "string") {
-                const st = this.strokeStyle.toLowerCase().trim();
-                const isStandardOutline = (st === "#000000" || st === "#000" || st === "black" ||
-                    st === "#ffffff" || st === "#fff" || st === "white" ||
-                    st === "rgb(0, 0, 0)" || st === "rgb(0,0,0)" ||
-                    st === "rgb(255, 255, 255)" || st === "rgb(255,255,255)" ||
-                    st.startsWith("rgba(0, 0, 0") || st.startsWith("rgba(0,0,0") ||
-                    st.startsWith("rgba(255, 255, 255") || st.startsWith("rgba(255,255,255"));
+            if (enemyOutlineMode === "default" || typeof this.strokeStyle !== "string") {
+                return origStroke.apply(this, args);
+            }
+            const st = this.strokeStyle.toLowerCase().trim();
+            const isStandardOutline = (st === "#000000" || st === "#000" || st === "black" ||
+                st === "#ffffff" || st === "#fff" || st === "white" ||
+                st === "rgb(0, 0, 0)" || st === "rgb(0,0,0)" ||
+                st === "rgb(255, 255, 255)" || st === "rgb(255,255,255)" ||
+                st.startsWith("rgba(0, 0, 0") || st.startsWith("rgba(0,0,0") ||
+                st.startsWith("rgba(255, 255, 255") || st.startsWith("rgba(255,255,255"));
 
-                if (isStandardOutline) {
-                    const prevStyle = this.strokeStyle;
-                    const prevWidth = this.lineWidth;
-                    const prevShadowColor = this.shadowColor;
-                    const prevShadowBlur = this.shadowBlur;
+            if (isStandardOutline) {
+                const prevStyle = this.strokeStyle;
+                const prevWidth = this.lineWidth;
+                const prevShadowColor = this.shadowColor;
+                const prevShadowBlur = this.shadowBlur;
 
-                    if (enemyOutlineMode === "chrono") {
-                        this.strokeStyle = "#34d399";
-                        this.shadowColor = "#10b981";
-                        this.shadowBlur = 8;
-                        this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
-                    } else if (enemyOutlineMode === "volcano") {
-                        this.strokeStyle = "#ef4444";
-                        this.shadowColor = "#f97316";
-                        this.shadowBlur = 10;
-                        this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
-                    } else if (enemyOutlineMode === "rainbow") {
-                        const hue = Math.floor((performance.now() / 8) % 360);
-                        this.strokeStyle = "hsl(" + hue + ", 100%, 55%)";
-                        this.shadowColor = "hsl(" + hue + ", 100%, 50%)";
-                        this.shadowBlur = 8;
-                        this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
-                    } else if (enemyOutlineMode === "smart") {
-                        let r=0, g=0, b=0;
-                        let f = this.fillStyle;
-                        if (typeof f === 'string') {
-                            if (f.startsWith('#')) {
-                                if (f.length === 4) {
-                                    r = parseInt(f[1]+f[1], 16);
-                                    g = parseInt(f[2]+f[2], 16);
-                                    b = parseInt(f[3]+f[3], 16);
-                                } else {
-                                    r = parseInt(f.substring(1,3), 16);
-                                    g = parseInt(f.substring(3,5), 16);
-                                    b = parseInt(f.substring(5,7), 16);
-                                }
-                            } else if (f.startsWith('rgb')) {
-                                let parts = f.match(/\\d+/g);
-                                if (parts && parts.length >= 3) {
-                                    r = parseInt(parts[0]);
-                                    g = parseInt(parts[1]);
-                                    b = parseInt(parts[2]);
-                                }
+                if (enemyOutlineMode === "chrono") {
+                    this.strokeStyle = "#34d399";
+                    this.shadowColor = "#10b981";
+                    this.shadowBlur = 8;
+                    this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
+                } else if (enemyOutlineMode === "volcano") {
+                    this.strokeStyle = "#ef4444";
+                    this.shadowColor = "#f97316";
+                    this.shadowBlur = 10;
+                    this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
+                } else if (enemyOutlineMode === "rainbow") {
+                    const hue = Math.floor((performance.now() / 8) % 360);
+                    this.strokeStyle = "hsl(" + hue + ", 100%, 55%)";
+                    this.shadowColor = "hsl(" + hue + ", 100%, 50%)";
+                    this.shadowBlur = 8;
+                    this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
+                } else if (enemyOutlineMode === "smart") {
+                    let r=0, g=0, b=0;
+                    let f = this.fillStyle;
+                    if (typeof f === 'string') {
+                        if (f.startsWith('#')) {
+                            if (f.length === 4) {
+                                r = parseInt(f[1]+f[1], 16);
+                                g = parseInt(f[2]+f[2], 16);
+                                b = parseInt(f[3]+f[3], 16);
+                            } else {
+                                r = parseInt(f.substring(1,3), 16);
+                                g = parseInt(f.substring(3,5), 16);
+                                b = parseInt(f.substring(5,7), 16);
+                            }
+                        } else if (f.startsWith('rgb')) {
+                            let parts = f.match(/\d+/g);
+                            if (parts && parts.length >= 3) {
+                                r = parseInt(parts[0]);
+                                g = parseInt(parts[1]);
+                                b = parseInt(parts[2]);
                             }
                         }
-                        let lum = 0.299*r + 0.587*g + 0.114*b;
-                        this.strokeStyle = lum > 127 ? "#000000" : "#ffffff";
-                        this.shadowBlur = 0;
-                        this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
-                    } else if (enemyOutlineMode === "custom") {
-                        this.strokeStyle = enemyOutlineColor || "#34d399";
-                        if (enemyOutlineGlow > 0) {
-                            this.shadowColor = enemyOutlineColor || "#34d399";
-                            this.shadowBlur = enemyOutlineGlow;
-                        }
-                        this.lineWidth = Math.max(prevWidth || 1.5, enemyOutlineWidth || 2.0);
                     }
-
-                    origStroke.apply(this, args);
-
-                    this.strokeStyle = prevStyle;
-                    this.lineWidth = prevWidth;
-                    this.shadowColor = prevShadowColor;
-                    this.shadowBlur = prevShadowBlur;
-                    return;
+                    let lum = 0.299*r + 0.587*g + 0.114*b;
+                    this.strokeStyle = lum > 127 ? "#000000" : "#ffffff";
+                    this.shadowBlur = 0;
+                    this.lineWidth = Math.max(prevWidth || 1.5, 2.5);
+                } else if (enemyOutlineMode === "custom") {
+                    this.strokeStyle = enemyOutlineColor || "#34d399";
+                    if (enemyOutlineGlow > 0) {
+                        this.shadowColor = enemyOutlineColor || "#34d399";
+                        this.shadowBlur = enemyOutlineGlow;
+                    }
+                    this.lineWidth = Math.max(prevWidth || 1.5, enemyOutlineWidth || 2.0);
                 }
+
+                origStroke.apply(this, args);
+
+                this.strokeStyle = prevStyle;
+                this.lineWidth = prevWidth;
+                this.shadowColor = prevShadowColor;
+                this.shadowBlur = prevShadowBlur;
+                return;
             }
             return origStroke.apply(this, args);
         };
@@ -1218,6 +1245,10 @@
                     '<option value="Factorb" style="color: #6e391e; background: #061815; font-weight: 700;">● Factorb</option>' +
                     '<option value="Leono" style="color: #820b0d; background: #061815; font-weight: 700;">● Leono</option>' +
                     '<option value="Veydris" style="color: #752656; background: #061815; font-weight: 700;">● Veydris</option>' +
+                '<select id="chrono-runs-filter-mode" style="background: rgba(7, 26, 23, 0.9); border: 1.5px solid rgba(52, 211, 153, 0.4); color: #6ee7b7; font-weight: bold; border-radius: 8px; padding: 6px 10px; font-size: 11px; outline: none; cursor: pointer;">' +
+                    '<option value="all" style="color: #6ee7b7; background: #061815; font-weight: 800;">👥 All Types (Solo & Duo)</option>' +
+                    '<option value="0" style="color: #38bdf8; background: #061815; font-weight: 700;">👤 Solo Only</option>' +
+                    '<option value="1" style="color: #f59e0b; background: #061815; font-weight: 700;">👥 Duo / Co-op Only</option>' +
                 '</select>' +
                 '<select id="chrono-runs-filter-date" style="background: rgba(7, 26, 23, 0.9); border: 1.5px solid rgba(52, 211, 153, 0.4); color: #6ee7b7; font-weight: bold; border-radius: 8px; padding: 6px 10px; font-size: 11px; outline: none; cursor: pointer;">' +
                     '<option value="all" style="color: #6ee7b7; background: #061815; font-weight: 800;">🗓️ All Dates / Seasons</option>' +
@@ -1481,15 +1512,27 @@
 
             const partners = Array.isArray(run.interactions) && run.interactions.length > 0 ? run.interactions.join(", ") : "";
 
+            // Relics detection: Dark Crystal (♦) and Ghost Amulet (⏣)
+            const flags = Array.isArray(run.flags) ? run.flags : (typeof run.flags === "string" ? [run.flags] : []);
+            const hasCrystal = flags.includes("obtained_crystal") || run.obtained_crystal === true;
+            const hasAmulet = flags.includes("obtained_amulet") || run.obtained_amulet === true;
+
+            const crystalBadge = hasCrystal 
+                ? '<span title="Dark Crystal" style="color: #ce82ea; font-size: 13px; font-weight: 900; margin-left: 4px; text-shadow: 0 0 8px #ce82ea88; cursor: help;">♦</span>' 
+                : '';
+            const amuletBadge = hasAmulet 
+                ? '<span title="Ghost Amulet" style="color: #90ee90; font-size: 13px; font-weight: 900; margin-left: 4px; text-shadow: 0 0 8px #90ee9088; cursor: help;">⏣</span>' 
+                : '';
+
             card.innerHTML = 
                 '<div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;">' +
                     '<div style="min-width: 36px; display: flex; align-items: center; justify-content: center;">' + rankBadge + '</div>' +
                     '<div style="flex: 1; min-width: 0;">' +
-                        '<!-- Top Row: Map + Area + Hero + Duo -->' +
+                        '<!-- Top Row: Map + Area + Hero + Relics + Duo -->' +
                         '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
                             '<span style="color: ' + mapColor + '; font-weight: 800; font-size: 14px; text-shadow: 0 0 12px ' + mapColor + '55;">' + mapName + '</span>' +
                             '<span style="background: rgba(16, 185, 129, 0.18); color: #a7f3d0; border: 1px solid rgba(52, 211, 153, 0.35); font-size: 10px; padding: 1px 7px; border-radius: 5px; font-weight: 800;">Area ' + areaIndex + '</span>' +
-                            '<span style="background: ' + heroColor + '18; color: ' + heroColor + '; border: 1px solid ' + heroColor + '66; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 800; text-shadow: 0 0 8px ' + heroColor + '66;">' + heroName + '</span>' +
+                            '<span style="background: ' + heroColor + '18; color: ' + heroColor + '; border: 1px solid ' + heroColor + '66; font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 800; text-shadow: 0 0 8px ' + heroColor + '66; display: inline-flex; align-items: center;">' + heroName + crystalBadge + amuletBadge + '</span>' +
                             (partners ? ('<span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); font-size: 10px; padding: 1px 7px; border-radius: 5px; font-weight: 700;">👥 Duo w/ ' + partners + '</span>') : '') +
                         '</div>' +
                         '<!-- Bottom Row: Player + Survival Time + Timestamp -->' +
@@ -1531,6 +1574,7 @@
         const searchVal = (document.getElementById("chrono-runs-search") ? document.getElementById("chrono-runs-search").value : "").trim();
         const mapVal = document.getElementById("chrono-runs-filter-map") ? document.getElementById("chrono-runs-filter-map").value : "all";
         const heroVal = document.getElementById("chrono-runs-filter-hero") ? document.getElementById("chrono-runs-filter-hero").value : "all";
+        const modeVal = document.getElementById("chrono-runs-filter-mode") ? document.getElementById("chrono-runs-filter-mode").value : "all";
         const dateVal = document.getElementById("chrono-runs-filter-date") ? document.getElementById("chrono-runs-filter-date").value : "all";
         const sortVal = document.getElementById("chrono-runs-sort") ? document.getElementById("chrono-runs-sort").value : "newest";
 
@@ -1541,6 +1585,7 @@
         params.set("offset", finalOffset);
         if (heroVal && heroVal !== "all") params.set("hero", heroVal);
         if (mapVal && mapVal !== "all") params.set("region", mapVal);
+        if (modeVal && modeVal !== "all") params.set("interactions", modeVal);
         if (searchVal) {
             if (HERO_COLORS[searchVal]) params.set("hero", searchVal);
             else if (MAP_COLORS[searchVal]) params.set("region", searchVal);
@@ -3650,6 +3695,40 @@
             document.body.appendChild(tourBtn);
         }
 
+        // 5. Screen Recorder Launcher (📹 REC) - Placed to the left of the tournament launcher
+        if (!document.getElementById("chrono-recorder-launcher")) {
+            const recBtn = document.createElement("div");
+            recBtn.id = "chrono-recorder-launcher";
+            recBtn.title = "Chrono Screen Recorder (📹 F9) • Click to Record";
+            recBtn.style.position = "fixed";
+            recBtn.style.bottom = "10px";
+            recBtn.style.right = "304px";
+            recBtn.style.width = "32px";
+            recBtn.style.height = "32px";
+            recBtn.style.cursor = "pointer";
+            recBtn.style.zIndex = "1000";
+            recBtn.style.display = "flex";
+            recBtn.style.alignItems = "center";
+            recBtn.style.justifyContent = "center";
+            recBtn.style.background = "linear-gradient(145deg, #071f1a, #03120f)";
+            recBtn.style.border = "1.5px solid #10b981";
+            recBtn.style.borderRadius = "8px";
+            recBtn.style.fontSize = "16px";
+            recBtn.style.boxShadow = "0 4px 12px rgba(0,0,0,0.5)";
+            recBtn.style.transition = "transform 0.15s, border-color 0.15s";
+            recBtn.innerHTML = '📹';
+            recBtn.onmouseover = () => { recBtn.style.transform = "scale(1.1)"; recBtn.style.borderColor = "#34d399"; };
+            recBtn.onmouseout = () => { recBtn.style.transform = "scale(1)"; recBtn.style.borderColor = "#10b981"; };
+            recBtn.onclick = () => {
+                if (isChronoRecording) {
+                    stopChronoRecording();
+                } else {
+                    startChronoRecording();
+                }
+            };
+            document.body.appendChild(recBtn);
+        }
+
         // 5. Attach Runs Window, Leaderboard Window & Tournament Window
         if (!document.getElementById("chrono-runs-window")) {
             document.body.appendChild(runsWindow);
@@ -3680,6 +3759,9 @@
 
             const runsFilterHero = document.getElementById("chrono-runs-filter-hero");
             if (runsFilterHero) runsFilterHero.onchange = () => fetchLiveRuns(1);
+
+            const runsFilterMode = document.getElementById("chrono-runs-filter-mode");
+            if (runsFilterMode) runsFilterMode.onchange = () => fetchLiveRuns(1);
 
             const runsFilterDate = document.getElementById("chrono-runs-filter-date");
             if (runsFilterDate) runsFilterDate.onchange = () => fetchLiveRuns(1);
@@ -4656,7 +4738,7 @@
                         el.style.setProperty("top", cfg.top, "important");
                         el.style.setProperty("right", "auto", "important");
                         el.style.setProperty("bottom", "auto", "important");
-                        el.style.setProperty("z-index", "99999", "important");
+                        el.style.setProperty("z-index", "25", "important");
                     }
                     if (cfg && cfg.scale) {
                         el.style.setProperty("transform", "scale(" + cfg.scale + ")", "important");
@@ -4664,8 +4746,29 @@
                     }
                 });
             }
+            applyHudLayout();
 
-            setInterval(applyHudLayout, 600);
+            // Right-click context menu guard (Ensure player menus are always on top of leaderboard and chat)
+            if (!window._chrono_context_menu_hooked) {
+                window._chrono_context_menu_hooked = true;
+                const bringMenuToFront = () => {
+                    setTimeout(() => {
+                        document.querySelectorAll("body > div, #overlay > div").forEach(div => {
+                            if (div.id && div.id.startsWith("chrono-")) return;
+                            if (div.id === "canvas" || div.id === "game") return;
+                            const text = div.innerText || "";
+                            if (text.includes("Profile") || text.includes("Spectate") || text.includes("Send Message") || text.includes("Copy Name")) {
+                                div.style.setProperty("z-index", "999999", "important");
+                                div.style.setProperty("pointer-events", "auto", "important");
+                            }
+                        });
+                    }, 10);
+                };
+                window.addEventListener("contextmenu", bringMenuToFront, true);
+                window.addEventListener("mousedown", (e) => {
+                    if (e.button === 2) bringMenuToFront();
+                }, true);
+            }
 
             function cleanupStrayElements() {
                 document.querySelectorAll("body > .leaderboard, body > .chat, body > #leaderboard, body > #chat").forEach(el => {
@@ -5066,7 +5169,243 @@
                 }
             }
             // --- END CUSTOM UI ---
+
+            // Attach Screen Recorder HUD Pill & Save Modal
+            if (!document.getElementById("chrono-rec-hud-pill")) {
+                document.body.appendChild(recHudPill);
+            }
+            if (!document.getElementById("chrono-save-rec-modal")) {
+                document.body.appendChild(saveRecModal);
+                const btnYes = document.getElementById("chrono-btn-save-rec-yes");
+                const btnNo = document.getElementById("chrono-btn-save-rec-no");
+                const btnFolder = document.getElementById("chrono-btn-open-rec-folder");
+                if (btnYes) btnYes.onclick = () => confirmSaveRec();
+                if (btnNo) btnNo.onclick = () => discardRec();
+                if (btnFolder) btnFolder.onclick = () => {
+                    if (window.ipc) window.ipc.postMessage(JSON.stringify({ action: "open_recordings_folder" }));
+                };
+            }
         }
+    }
+
+    // === CHRONO NATIVE MP4 SCREEN RECORDER ===
+    let chronoMediaRecorder = null;
+    let chronoRecordedChunks = [];
+    let chronoRecordingStartTime = 0;
+    let chronoRecordingTimer = null;
+    let chronoRecordingProfile = localStorage.getItem("chrono_rec_profile") || "Tourny";
+    let isChronoRecording = false;
+
+    // 1. HUD Pill: 🔴 REC [00:14] • Tourny
+    const recHudPill = document.createElement("div");
+    recHudPill.id = "chrono-rec-hud-pill";
+    recHudPill.style.display = "none";
+    recHudPill.style.position = "fixed";
+    recHudPill.style.top = "16px";
+    recHudPill.style.right = "16px";
+    recHudPill.style.zIndex = "999999";
+    recHudPill.style.background = "rgba(7, 26, 23, 0.92)";
+    recHudPill.style.border = "1.5px solid #ef4444";
+    recHudPill.style.boxShadow = "0 0 20px rgba(239, 68, 68, 0.4)";
+    recHudPill.style.borderRadius = "20px";
+    recHudPill.style.padding = "6px 14px";
+    recHudPill.style.color = "#ffffff";
+    recHudPill.style.fontSize = "12px";
+    recHudPill.style.fontWeight = "bold";
+    recHudPill.style.alignItems = "center";
+    recHudPill.style.gap = "8px";
+    recHudPill.style.cursor = "pointer";
+    recHudPill.title = "Click or press F9 to stop recording";
+    recHudPill.innerHTML = '<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#ef4444; animation:chrono-rec-pulse 1s infinite alternate;"></span><span id="chrono-rec-hud-text">REC 00:00 • Tourny</span>';
+
+    recHudPill.onclick = () => stopChronoRecording();
+
+    // 2. Save Confirmation Modal: "Save the rec ?"
+    const saveRecModal = document.createElement("div");
+    saveRecModal.id = "chrono-save-rec-modal";
+    saveRecModal.style.display = "none";
+    saveRecModal.style.position = "fixed";
+    saveRecModal.style.top = "0";
+    saveRecModal.style.left = "0";
+    saveRecModal.style.width = "100vw";
+    saveRecModal.style.height = "100vh";
+    saveRecModal.style.background = "rgba(4, 15, 13, 0.85)";
+    saveRecModal.style.backdropFilter = "blur(8px)";
+    saveRecModal.style.webkitBackdropFilter = "blur(8px)";
+    saveRecModal.style.zIndex = "10000005";
+    saveRecModal.style.alignItems = "center";
+    saveRecModal.style.justifyContent = "center";
+    saveRecModal.style.fontFamily = "system-ui, -apple-system, sans-serif";
+
+    saveRecModal.innerHTML = 
+        '<div style="background: linear-gradient(145deg, #071a17 0%, #03100e 100%); border: 1.5px solid #10b981; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(16, 185, 129, 0.3); border-radius: 16px; width: 440px; max-width: 90vw; padding: 24px; color: #f8fafc; text-align: center;">' +
+            '<div style="font-size: 32px; margin-bottom: 8px;">📹</div>' +
+            '<div style="font-size: 18px; font-weight: 800; color: #34d399; margin-bottom: 6px;">Recording Completed</div>' +
+            '<div style="font-size: 16px; font-weight: 800; color: #f1f5f9; margin-bottom: 12px;">Save the rec ?</div>' +
+            '<div id="chrono-save-rec-meta" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(52, 211, 153, 0.2); border-radius: 8px; padding: 10px; font-size: 12px; color: #94a3b8; margin-bottom: 20px;">' +
+                'Profile: <b id="chrono-rec-info-prof" style="color:#38bdf8;">Tourny</b> • Duration: <b id="chrono-rec-info-dur" style="color:#34d399;">00:00</b> • Size: <b id="chrono-rec-info-size" style="color:#f59e0b;">0 KB</b>' +
+            '</div>' +
+            '<div style="display: flex; gap: 12px; justify-content: center;">' +
+                '<button id="chrono-btn-save-rec-yes" style="flex: 1; background: linear-gradient(135deg, #059669, #10b981); border: 1px solid #34d399; color: #fff; padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: 0.15s;" onmouseover="this.style.transform=\'scale(1.03)\'" onmouseout="this.style.transform=\'scale(1)\'">' +
+                    '✅ Oui / Save <span style="opacity: 0.75; font-size: 10px;">[Entrée]</span>' +
+                '</button>' +
+                '<button id="chrono-btn-save-rec-no" style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; transition: 0.15s;" onmouseover="this.style.background=\'rgba(239,68,68,0.25)\'" onmouseout="this.style.background=\'rgba(239,68,68,0.15)\'">' +
+                    '🗑️ Non / Supprimer <span style="opacity: 0.75; font-size: 10px;">[Échap/Suppr]</span>' +
+                '</button>' +
+            '</div>' +
+            '<div style="margin-top: 14px;">' +
+                '<button id="chrono-btn-open-rec-folder" style="background: transparent; border: none; color: #6ee7b7; font-size: 11px; text-decoration: underline; cursor: pointer;">📂 Ouvrir le dossier des enregistrements</button>' +
+            '</div>' +
+        '</div>';
+
+    async function startChronoRecording() {
+        if (isChronoRecording) return;
+        const canvas = document.getElementById("canvas") || document.getElementById("game") || document.querySelector("canvas");
+        if (!canvas) {
+            alert("Cannot find game canvas to record.");
+            return;
+        }
+
+        try {
+            chronoRecordedChunks = [];
+            const fps = 60;
+            const stream = canvas.captureStream(fps);
+
+            const isTourny = (chronoRecordingProfile === "Tourny");
+            const videoBitsPerSecond = isTourny ? 1_200_000 : 5_000_000;
+
+            let options = { mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"', videoBitsPerSecond };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/mp4', videoBitsPerSecond };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/webm; codecs=h264', videoBitsPerSecond };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                        options = { mimeType: 'video/webm', videoBitsPerSecond };
+                    }
+                }
+            }
+
+            chronoMediaRecorder = new MediaRecorder(stream, options);
+
+            if (window.ipc) {
+                window.ipc.postMessage(JSON.stringify({
+                    action: "start_recording",
+                    profile: chronoRecordingProfile
+                }));
+            }
+
+            chronoMediaRecorder.ondataavailable = async (e) => {
+                if (e.data && e.data.size > 0) {
+                    chronoRecordedChunks.push(e.data);
+                    if (window.ipc) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const res = reader.result;
+                            if (typeof res === "string" && res.includes(",")) {
+                                const base64 = res.split(',')[1];
+                                if (base64) {
+                                    window.ipc.postMessage(JSON.stringify({
+                                        action: "append_recording_chunk",
+                                        chunk: base64
+                                    }));
+                                }
+                            }
+                        };
+                        reader.readAsDataURL(e.data);
+                    }
+                }
+            };
+
+            chronoMediaRecorder.start(1000);
+            isChronoRecording = true;
+            chronoRecordingStartTime = Date.now();
+
+            recHudPill.style.display = "flex";
+            clearInterval(chronoRecordingTimer);
+            chronoRecordingTimer = setInterval(updateRecHudText, 500);
+            updateRecHudText();
+
+        } catch(err) {
+            console.error("[Chrono Recorder] Start failed:", err);
+            alert("Failed to start recording: " + err.message);
+        }
+    }
+
+    function updateRecHudText() {
+        if (!isChronoRecording) return;
+        const elapsed = Math.floor((Date.now() - chronoRecordingStartTime) / 1000);
+        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        const el = document.getElementById("chrono-rec-hud-text");
+        if (el) el.innerText = "REC " + mins + ":" + secs + " • " + chronoRecordingProfile;
+    }
+
+    function stopChronoRecording() {
+        if (!isChronoRecording || !chronoMediaRecorder) return;
+        isChronoRecording = false;
+        clearInterval(chronoRecordingTimer);
+        recHudPill.style.display = "none";
+
+        const elapsed = Math.floor((Date.now() - chronoRecordingStartTime) / 1000);
+        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        const durationFormatted = mins + ":" + secs;
+
+        chronoMediaRecorder.onstop = () => {
+            if (window.ipc) {
+                window.ipc.postMessage(JSON.stringify({
+                    action: "stop_recording"
+                }));
+            }
+
+            const totalBytes = chronoRecordedChunks.reduce((acc, chunk) => acc + chunk.size, 0);
+            const sizeFormatted = totalBytes >= 1048576 
+                ? (totalBytes / 1048576).toFixed(1) + " MB"
+                : (totalBytes / 1024).toFixed(1) + " KB";
+
+            showSaveRecModal(chronoRecordingProfile, durationFormatted, sizeFormatted);
+        };
+
+        chronoMediaRecorder.stop();
+    }
+
+    function showSaveRecModal(profile, duration, size) {
+        const pEl = document.getElementById("chrono-rec-info-prof");
+        const dEl = document.getElementById("chrono-rec-info-dur");
+        const sEl = document.getElementById("chrono-rec-info-size");
+        if (pEl) pEl.innerText = profile;
+        if (dEl) dEl.innerText = duration;
+        if (sEl) sEl.innerText = size;
+        saveRecModal.style.display = "flex";
+    }
+
+    function confirmSaveRec() {
+        saveRecModal.style.display = "none";
+        if (window.ipc) {
+            window.ipc.postMessage(JSON.stringify({
+                action: "confirm_save_recording",
+                profile: chronoRecordingProfile
+            }));
+        } else {
+            const blob = new Blob(chronoRecordedChunks, { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "Chrono_" + chronoRecordingProfile + "_" + Date.now() + ".mp4";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        chronoRecordedChunks = [];
+    }
+
+    function discardRec() {
+        saveRecModal.style.display = "none";
+        if (window.ipc) {
+            window.ipc.postMessage(JSON.stringify({
+                action: "discard_recording"
+            }));
+        }
+        chronoRecordedChunks = [];
     }
 
     attachChronoUI();
@@ -5074,7 +5413,6 @@
         window.addEventListener("DOMContentLoaded", attachChronoUI);
     }
     window.addEventListener("load", attachChronoUI);
-    setInterval(attachChronoUI, 350);
 
     // 8. Account & Customization Enhancer (2-Col Top Layout, Live Preview & 3-Col Categories)
     function enhanceAccountPage() {
@@ -5841,7 +6179,7 @@
         }
         if (typeof trackCurrentUser === "function") trackCurrentUser();
         if (typeof syncKeybindsFromDom === "function") syncKeybindsFromDom();
-        if (typeof applyHudLayout === "function") applyHudLayout();
+        if (!isEvadesInGame() && typeof applyHudLayout === "function") applyHudLayout();
         
         const inGame = isEvadesInGame();
         const isSpectating = isPlayerSpectating();
@@ -5903,6 +6241,33 @@
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
+            return;
+        }
+
+        // Check Save Recording Dialog Hotkeys
+        const saveRecModalEl = document.getElementById("chrono-save-rec-modal");
+        if (saveRecModalEl && saveRecModalEl.style.display === "flex") {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                e.stopPropagation();
+                confirmSaveRec();
+                return;
+            } else if (e.key === "Escape" || e.key === "Delete" || e.key === "Backspace") {
+                e.preventDefault();
+                e.stopPropagation();
+                discardRec();
+                return;
+            }
+        }
+
+        if (e.key === "F9") {
+            e.preventDefault();
+            e.stopPropagation();
+            if (isChronoRecording) {
+                stopChronoRecording();
+            } else {
+                startChronoRecording();
+            }
             return;
         }
 

@@ -327,11 +327,15 @@ fn main() -> anyhow::Result<()> {
     use wry::WebViewBuilderExtWindows;
 
     // Check local version: first try version.json next to .exe, fallback to Cargo version
+    // Check local version: first try version.json next to .exe or project root, fallback to Cargo version
     let local_version = {
         let mut v = env!("CARGO_PKG_VERSION").to_string();
+        let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|p| p.to_path_buf()));
         let candidates = [
-            std::env::current_exe().ok().and_then(|p| p.parent().map(|p| p.join("version.json"))),
+            exe_dir.as_ref().map(|p| p.join("version.json")),
+            exe_dir.as_ref().and_then(|p| p.parent()).and_then(|p| p.parent()).map(|p| p.join("version.json")),
             Some(PathBuf::from("version.json")),
+            Some(PathBuf::from("Chrono/version.json")),
             Some(app_data.join("version.json")),
         ];
         for cand in candidates.into_iter().flatten() {
@@ -350,14 +354,20 @@ fn main() -> anyhow::Result<()> {
     };
     tracing::info!("Chrono local version: {}", local_version);
 
-    // Query GitHub version on main branch (timeout 1.5s)
+    // Query GitHub version on master branch (with main branch fallback, timeout 2.0s)
     let update_notice_ver = std::thread::spawn(move || {
         let client = reqwest::blocking::Client::builder()
-            .timeout(std::time::Duration::from_millis(1500))
+            .timeout(std::time::Duration::from_millis(2000))
             .user_agent("ChronoClient")
             .build()
             .ok()?;
-        let resp = client.get("https://raw.githubusercontent.com/Vixcra/ChronoClient/main/version.json").send().ok()?;
+        
+        let url_master = "https://raw.githubusercontent.com/Vixcra/ChronoClient/master/version.json";
+        let url_main = "https://raw.githubusercontent.com/Vixcra/ChronoClient/main/version.json";
+
+        let resp = client.get(url_master).send().ok().filter(|r| r.status().is_success())
+            .or_else(|| client.get(url_main).send().ok().filter(|r| r.status().is_success()))?;
+
         let json: serde_json::Value = resp.json().ok()?;
         let remote_ver = json.get("version").and_then(|v| v.as_str())?;
         tracing::info!("Chrono GitHub remote version: {}", remote_ver);

@@ -1,6 +1,6 @@
 [package]
 name = "chrono-evades"
-version = "1.1.1"
+version = "1.1.2"
 edition = "2024"
 default-run = "chrono-evades"
 description = "Native Evades.io desktop client — low-latency, unlocked FPS"

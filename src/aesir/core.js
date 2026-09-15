@@ -98,14 +98,13 @@
         frameCount++;
         const elapsed = now - lastHudTime;
         if (elapsed >= 350) {
-            const fps = Math.round((frameCount * 1000) / elapsed);
-            fpsDiv.innerText = fps + " FPS (" + MONITOR_HZ + "Hz VSync)";
-            if (fps >= 120) {
-                fpsDiv.style.color = "#34d399";
-            } else if (fps >= 60) {
-                fpsDiv.style.color = "#38bdf8";
-            } else {
-                fpsDiv.style.color = "#f87171";
+            if (fpsDiv.style.display !== "none") {
+                const fps = Math.round((frameCount * 1000) / elapsed);
+                fpsDiv.innerText = fps + " FPS (" + MONITOR_HZ + "Hz VSync)";
+                const targetCol = fps >= 120 ? "#34d399" : (fps >= 60 ? "#38bdf8" : "#f87171");
+                if (fpsDiv.style.color !== targetCol) {
+                    fpsDiv.style.color = targetCol;
+                }
             }
             frameCount = 0;
             lastHudTime = now;
@@ -345,27 +344,30 @@
     }
     window.CHRONO_ENEMY_CATALOG = CHRONO_ENEMY_CATALOG;
 
+    const colorNormCache = Object.create(null);
     function normalizeColor(str) {
         if (!str || typeof str !== "string") return "";
-        str = str.trim().toLowerCase();
-        if (str.startsWith("#")) {
-            if (str.length === 4) {
-                return "#" + str[1] + str[1] + str[2] + str[2] + str[3] + str[3];
+        const cached = colorNormCache[str];
+        if (cached !== undefined) return cached;
+        const s = str.trim().toLowerCase();
+        let res = s;
+        if (s.startsWith("#")) {
+            if (s.length === 4) {
+                res = "#" + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+            } else if (s.length >= 7) {
+                res = s.substring(0, 7);
             }
-            if (str.length >= 7) {
-                return str.substring(0, 7);
-            }
-        }
-        if (str.startsWith("rgb")) {
-            const m = str.match(/\d+/g);
+        } else if (s.startsWith("rgb")) {
+            const m = s.match(/\d+/g);
             if (m && m.length >= 3) {
                 const r = parseInt(m[0], 10).toString(16).padStart(2, '0');
                 const g = parseInt(m[1], 10).toString(16).padStart(2, '0');
                 const b = parseInt(m[2], 10).toString(16).padStart(2, '0');
-                return "#" + r + g + b;
+                res = "#" + r + g + b;
             }
         }
-        return str;
+        colorNormCache[str] = res;
+        return res;
     }
 
     function registerEnemyColor(enemyId, rawColor) {
@@ -501,10 +503,21 @@
     };
 
     // ── Exact Evades Fading Effects & Pre-Attack Visual Engine ──
+    try {
+        const savedTells = localStorage.getItem("chrono_mod_visualtells");
+        window._chrono_enable_visual_tells = (savedTells === null) ? true : (savedTells === "1");
+    } catch(e) {
+        window._chrono_enable_visual_tells = true;
+    }
+
     if (!window._chrono_visuals_hooked && typeof CanvasRenderingContext2D !== "undefined") {
         window._chrono_visuals_hooked = true;
 
-        let lastArcData = null;
+        let lastArcX = 0;
+        let lastArcY = 0;
+        let lastArcRadius = 0;
+        let lastArcCtx = null;
+        let hasArcData = false;
 
         // 1. Hook arc: Fast pass-through if visual tells not explicitly active
         const origArc = CanvasRenderingContext2D.prototype.arc;
@@ -514,9 +527,13 @@
             }
             if (this.canvas && (this.canvas.id === "game" || this.canvas.id === "canvas" || this.canvas.width > 300)) {
                 if (radius >= 10 && Math.abs(endAngle - startAngle) >= Math.PI * 1.8) {
-                    lastArcData = { x, y, radius, ctx: this };
+                    lastArcX = x;
+                    lastArcY = y;
+                    lastArcRadius = radius;
+                    lastArcCtx = this;
+                    hasArcData = true;
                 } else {
-                    lastArcData = null;
+                    hasArcData = false;
                 }
             }
             return origArc.apply(this, arguments);
@@ -525,10 +542,13 @@
         // 2. Hook fill: Fast pass-through if visual tells not active
         const origFill = CanvasRenderingContext2D.prototype.fill;
         CanvasRenderingContext2D.prototype.fill = function(...args) {
-            if (!window._chrono_enable_visual_tells || !lastArcData || lastArcData.ctx !== this || typeof this.fillStyle !== "string") {
+            if (!window._chrono_enable_visual_tells || !hasArcData || lastArcCtx !== this || typeof this.fillStyle !== "string") {
                 return origFill.apply(this, args);
             }
-            const arc = lastArcData;
+            const arcX = lastArcX;
+            const arcY = lastArcY;
+            const arcRadius = lastArcRadius;
+            hasArcData = false;
             const fs = this.fillStyle.trim();
 
             // ── 1. SNIPER / PROJECTILE EMITTER PRE-FIRE TELL (Evades exact: rgba(1, 1, 1, t)) ──
@@ -544,7 +564,7 @@
                 origFill.apply(this, args);
 
                 this.beginPath();
-                this.arc(arc.x, arc.y, arc.radius + 4, 0, Math.PI * 2);
+                this.arc(arcX, arcY, arcRadius + 4, 0, Math.PI * 2);
                 this.lineWidth = 2.5;
                 if (progress < 0.5) {
                     this.strokeStyle = "rgba(255, 170, 0, 0.85)";
@@ -566,7 +586,7 @@
                 this.beginPath();
                 const startAngle = -Math.PI / 2;
                 const endAngle = startAngle + (Math.PI * 2 * progress);
-                this.arc(arc.x, arc.y, arc.radius + 7.5, startAngle, endAngle);
+                this.arc(arcX, arcY, arcRadius + 7.5, startAngle, endAngle);
                 this.lineWidth = 3.0;
                 this.strokeStyle = progress > 0.82 ? "#ff0055" : (progress > 0.5 ? "#ff9f1a" : "#00f2fe");
                 this.shadowColor = this.strokeStyle;
@@ -575,7 +595,7 @@
 
                 if (progress >= 0.75) {
                     this.beginPath();
-                    this.arc(arc.x, arc.y, arc.radius * 0.45, 0, Math.PI * 2);
+                    this.arc(arcX, arcY, arcRadius * 0.45, 0, Math.PI * 2);
                     this.fillStyle = "rgba(255, 255, 255, 0.92)";
                     this.shadowColor = "#ff0055";
                     this.shadowBlur = 16;
@@ -591,7 +611,7 @@
                 fs.startsWith("rgba(127, 127, 127,") || fs.startsWith("rgba(127,127,127,")) {
                 this.save();
                 this.beginPath();
-                this.arc(arc.x, arc.y, arc.radius + 3.5, 0, Math.PI * 2);
+                this.arc(arcX, arcY, arcRadius + 3.5, 0, Math.PI * 2);
                 this.lineWidth = 2.5;
                 this.strokeStyle = "rgba(56, 189, 248, 0.85)";
                 this.shadowColor = "#38bdf8";
@@ -601,39 +621,41 @@
             }
 
             // ── 3. SLASHER ATTACK TELL ──
-            const m = fs.match(/\d+/g);
-            if (m && m.length >= 4) {
-                const r = parseInt(m[0]), g = parseInt(m[1]), b = parseInt(m[2]);
-                if (r === g && g === b && r >= 54 && r <= 120) {
-                    const slashProg = (r - 54) / 66;
-                    this.save();
-                    this.beginPath();
-                    this.arc(arc.x, arc.y, arc.radius + 4, 0, Math.PI * 2);
-                    this.lineWidth = 2.5;
-                    if (slashProg < 0.7) {
-                        this.strokeStyle = "rgba(255, 170, 0, 0.85)";
-                        this.shadowColor = "#ffaa00";
-                        this.shadowBlur = 8;
-                    } else {
-                        const flash = (Math.floor(performance.now() / 60) % 2 === 0);
-                        this.strokeStyle = flash ? "#ffffff" : "#a855f7";
-                        this.shadowColor = "#a855f7";
-                        this.shadowBlur = 16;
-                        this.lineWidth = 3.5;
+            if (fs.startsWith("rgba(") || fs.startsWith("rgb(")) {
+                const m = fs.match(/\d+/g);
+                if (m && m.length >= 4) {
+                    const r = parseInt(m[0], 10), g = parseInt(m[1], 10), b = parseInt(m[2], 10);
+                    if (r === g && g === b && r >= 54 && r <= 120) {
+                        const slashProg = (r - 54) / 66;
+                        this.save();
+                        this.beginPath();
+                        this.arc(arcX, arcY, arcRadius + 4, 0, Math.PI * 2);
+                        this.lineWidth = 2.5;
+                        if (slashProg < 0.7) {
+                            this.strokeStyle = "rgba(255, 170, 0, 0.85)";
+                            this.shadowColor = "#ffaa00";
+                            this.shadowBlur = 8;
+                        } else {
+                            const flash = (Math.floor(performance.now() / 60) % 2 === 0);
+                            this.strokeStyle = flash ? "#ffffff" : "#a855f7";
+                            this.shadowColor = "#a855f7";
+                            this.shadowBlur = 16;
+                            this.lineWidth = 3.5;
+                        }
+                        origStroke.call(this);
+
+                        this.beginPath();
+                        const startAngle = -Math.PI / 2;
+                        const endAngle = startAngle + (Math.PI * 2 * slashProg);
+                        this.arc(arcX, arcY, arcRadius + 7.5, startAngle, endAngle);
+                        this.lineWidth = 3.0;
+                        this.strokeStyle = slashProg > 0.7 ? "#a855f7" : "#00f2fe";
+                        this.shadowColor = this.strokeStyle;
+                        this.shadowBlur = 10;
+                        origStroke.call(this);
+
+                        this.restore();
                     }
-                    origStroke.call(this);
-
-                    this.beginPath();
-                    const startAngle = -Math.PI / 2;
-                    const endAngle = startAngle + (Math.PI * 2 * slashProg);
-                    this.arc(arc.x, arc.y, arc.radius + 7.5, startAngle, endAngle);
-                    this.lineWidth = 3.0;
-                    this.strokeStyle = slashProg > 0.7 ? "#a855f7" : "#00f2fe";
-                    this.shadowColor = this.strokeStyle;
-                    this.shadowBlur = 10;
-                    origStroke.call(this);
-
-                    this.restore();
                 }
             }
 
@@ -727,13 +749,8 @@
                     if (window.game.self.dead && window.game.players && window.game.players.length > 0) return true;
                 }
             }
-            const spectateDom = document.querySelector(".spectating-banner, .spectator-controls, .spectate-info, .spectator-bar, .spectating-ui");
+            const spectateDom = document.querySelector(".spectating-banner, .spectator-controls, .spectate-info, .spectator-bar, .spectating-ui, .spectating, [class*='spectat']");
             if (spectateDom && spectateDom.offsetParent !== null) return true;
-
-            const bodyText = document.body ? document.body.innerText : "";
-            if (bodyText.includes("Spectating ") || bodyText.includes("Spectating:") || bodyText.includes("Click to spectate")) {
-                return true;
-            }
         } catch(e) {}
         return false;
     }
@@ -834,13 +851,19 @@
     function chronoTick() {
         const path = window.location.pathname;
         if (path.startsWith("/profile")) {
-            if (typeof enhanceProfilePage === "function") enhanceProfilePage();
+            if (typeof window.enhanceProfilePage === "function") window.enhanceProfilePage();
+            else if (typeof enhanceProfilePage === "function") enhanceProfilePage();
         } else if (path.startsWith("/account")) {
-            if (typeof enhanceAccountPage === "function") enhanceAccountPage();
+            if (typeof window.enhanceAccountPage === "function") window.enhanceAccountPage();
+            else if (typeof enhanceAccountPage === "function") enhanceAccountPage();
         }
-        if (typeof trackCurrentUser === "function") trackCurrentUser();
+        if (typeof window.trackCurrentUser === "function") window.trackCurrentUser();
+        else if (typeof trackCurrentUser === "function") trackCurrentUser();
         if (typeof syncKeybindsFromDom === "function") syncKeybindsFromDom();
-        if (!isEvadesInGame() && typeof applyHudLayout === "function") applyHudLayout();
+        if (!isEvadesInGame()) {
+            if (typeof window.applyHudLayout === "function") window.applyHudLayout();
+            else if (typeof applyHudLayout === "function") applyHudLayout();
+        }
         
         const inGame = isEvadesInGame();
         const isSpectating = isPlayerSpectating();
@@ -906,8 +929,12 @@
         }
 
         if (e.key === "Escape") {
+            if (window._chrono_is_binding_key) {
+                return;
+            }
             if (window._chrono_hud_editing) {
-                if (typeof closeHudLayoutEditor === "function") closeHudLayoutEditor(false);
+                if (typeof window.closeHudLayoutEditor === "function") window.closeHudLayoutEditor(false);
+                else if (typeof closeHudLayoutEditor === "function") closeHudLayoutEditor(false);
                 e.preventDefault();
                 e.stopPropagation();
                 return;
@@ -944,6 +971,11 @@
         }
 
         if (isAnyMenuOpen()) {
+            if (window._chrono_is_binding_key) return;
+            const inGameModal = document.getElementById("modal");
+            if (inGameModal && inGameModal.contains(document.activeElement)) {
+                return;
+            }
             const activeTag = document.activeElement ? document.activeElement.tagName : "";
             if (activeTag === "INPUT" || activeTag === "TEXTAREA" || activeTag === "SELECT") {
                 e.stopPropagation();
@@ -957,6 +989,11 @@
 
     window.addEventListener("keyup", (e) => {
         if (isAnyMenuOpen()) {
+            if (window._chrono_is_binding_key) return;
+            const inGameModal = document.getElementById("modal");
+            if (inGameModal && inGameModal.contains(document.activeElement)) {
+                return;
+            }
             const activeTag = document.activeElement ? document.activeElement.tagName : "";
             if (activeTag === "INPUT" || activeTag === "TEXTAREA" || activeTag === "SELECT") {
                 e.stopPropagation();

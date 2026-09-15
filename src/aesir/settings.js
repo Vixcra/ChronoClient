@@ -438,6 +438,10 @@
                                 '<div><b style="color: #6ee7b7;">🎯 Canvas Pixel-Sharp Mode :</b> Disables image blur for crisp pixels</div>' +
                                 '<input type="checkbox" id="chrono-mod-pixelsharp" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
                             '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                                '<div><b style="color: #6ee7b7;">🎯 Sniper &amp; Slasher Pre-fire Tells :</b> Dynamic countdown rings, charge pulses &amp; strobe warning</div>' +
+                                '<input type="checkbox" id="chrono-mod-visualtells" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
                         '</div>' +
                         '<div style="margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">' +
                         '<div style="display: flex; justify-content: space-between; align-items: center;">' +
@@ -684,8 +688,11 @@
 
     function runAutoBootScripts() {
         if (localStorage.getItem("chrono_tournament_mode") === "true") return;
-        const enabledMap = getEnabledScriptMap();
         const scripts = window._chrono_loaded_scripts || INITIAL_CHRONO_SCRIPTS || [];
+        if (scripts.length === 0 || executedScriptFilenames.size >= scripts.length) {
+            return;
+        }
+        const enabledMap = getEnabledScriptMap();
         scripts.forEach(s => {
             if (enabledMap[s.filename] && s.code && !executedScriptFilenames.has(s.filename)) {
                 executedScriptFilenames.add(s.filename);
@@ -1582,12 +1589,12 @@
 
             // === 5. CUSTOM IN-HUD KEYMAPPER ENGINE & LIVE KEYSTROKES HUD ===
             let customKeyMap = {
-                "chrono-k-w": { type: "key", key: "Z", code: "KeyW", name: "Z" },
-                "chrono-k-a": { type: "key", key: "Q", code: "KeyA", name: "Q" },
+                "chrono-k-w": { type: "key", key: "W", code: "KeyW", name: "W" },
+                "chrono-k-a": { type: "key", key: "A", code: "KeyA", name: "A" },
                 "chrono-k-s": { type: "key", key: "S", code: "KeyS", name: "S" },
                 "chrono-k-d": { type: "key", key: "D", code: "KeyD", name: "D" },
-                "chrono-k-z": { type: "key", key: "A", code: "KeyQ", name: "A" },
-                "chrono-k-x": { type: "mouse", button: 1, name: "Mouse 3" },
+                "chrono-k-z": { type: "key", key: "Z", code: "KeyZ", name: "Z" },
+                "chrono-k-x": { type: "key", key: "X", code: "KeyX", name: "X" },
                 "chrono-k-c": { type: "key", key: "C", code: "KeyC", name: "C" },
                 "chrono-k-1": { type: "key", key: "1", code: "Digit1", name: "1" },
                 "chrono-k-2": { type: "key", key: "2", code: "Digit2", name: "2" },
@@ -1600,7 +1607,11 @@
                 try {
                     const saved = JSON.parse(localStorage.getItem("chrono_custom_keystrokes_mapping") || "null");
                     if (saved && typeof saved === "object") {
-                        Object.assign(customKeyMap, saved);
+                        if (saved["chrono-k-x"] && saved["chrono-k-x"].type === "mouse" && saved["chrono-k-x"].button === 1 && saved["chrono-k-w"] && saved["chrono-k-w"].key === "Z") {
+                            localStorage.removeItem("chrono_custom_keystrokes_mapping");
+                        } else {
+                            Object.assign(customKeyMap, saved);
+                        }
                     }
                 } catch(e) {}
             }
@@ -1615,19 +1626,28 @@
             let activeListeningBox = null;
             let bindingListenerActive = false;
 
+            function updateKeyBoxLabels() {
+                for (const [boxId, binding] of Object.entries(customKeyMap)) {
+                    const box = document.getElementById(boxId);
+                    if (box && binding && binding.name) {
+                        box.textContent = binding.name;
+                        box.dataset.origText = binding.name;
+                        box.title = "Bound to: " + binding.name + " (Click in HUD Editor or Shift+Click to remap)";
+                    }
+                }
+            }
+
             function getMatchingBoxForKey(e) {
                 const k = (e.key || "").toUpperCase();
                 const c = e.code || "";
                 for (const [boxId, binding] of Object.entries(customKeyMap)) {
-                    if (binding && binding.type === "key") {
-                        if (binding.key && binding.key.toUpperCase() === k) return boxId;
-                        if (binding.code && binding.code === c) return boxId;
-                        if (binding.key === "↑" && c === "ArrowUp") return boxId;
-                        if (binding.key === "↓" && c === "ArrowDown") return boxId;
-                        if (binding.key === "←" && c === "ArrowLeft") return boxId;
-                        if (binding.key === "→" && c === "ArrowRight") return boxId;
-                        if (binding.key === "Space" && c === "Space") return boxId;
-                        if (binding.key === "Shift" && (c === "ShiftLeft" || c === "ShiftRight")) return boxId;
+                    if (binding && binding.type === "key" && binding.code && binding.code === c) {
+                        return boxId;
+                    }
+                }
+                for (const [boxId, binding] of Object.entries(customKeyMap)) {
+                    if (binding && binding.type === "key" && binding.key && binding.key.toUpperCase() === k) {
+                        return boxId;
                     }
                 }
                 return null;
@@ -1661,8 +1681,10 @@
             }
 
             function startRemappingBox(boxId) {
+                if (bindingListenerActive && activeListeningBox) cancelRemapping();
                 activeListeningBox = boxId;
                 bindingListenerActive = true;
+                window._chrono_is_binding_key = true;
                 const box = document.getElementById(boxId);
                 if (box) {
                     box.dataset.origText = box.textContent;
@@ -1671,38 +1693,51 @@
                     box.style.boxShadow = "0 0 15px #38bdf8";
                 }
                 const topBarSub = document.getElementById("chrono-hud-editor-subtext");
-                if (topBarSub) topBarSub.innerHTML = '<span style="color:#38bdf8; font-weight:800;">Press any Keyboard key or Mouse button to bind (ESC to cancel)</span>';
+                if (topBarSub) {
+                    topBarSub.innerHTML = '<span style="color:#38bdf8; font-weight:800;">Press any Key or Mouse button to bind (ESC to cancel)</span>';
+                }
             }
 
             function finishRemapping(boundName) {
                 if (!activeListeningBox) return;
                 const box = document.getElementById(activeListeningBox);
                 if (box) {
-                    box.textContent = box.dataset.origText || box.textContent;
-                    box.style.border = "";
-                    box.style.boxShadow = "";
-                    box.title = "Bound to: " + boundName + " (Click to remap)";
+                    box.textContent = boundName;
+                    box.dataset.origText = boundName;
+                    box.style.border = "2px solid #10b981";
+                    box.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.7)";
+                    box.title = "Bound to: " + boundName + " (Click in HUD Editor or Shift+Click to remap)";
+                    setTimeout(() => {
+                        if (box && activeListeningBox !== box.id) {
+                            box.style.border = "";
+                            box.style.boxShadow = "";
+                        }
+                    }, 500);
                 }
-                const savedBox = activeListeningBox;
                 activeListeningBox = null;
                 bindingListenerActive = false;
+                window._chrono_is_binding_key = false;
                 const topBarSub = document.getElementById("chrono-hud-editor-subtext");
-                if (topBarSub) topBarSub.innerHTML = '<span style="color:#34d399; font-weight:700;">Bound [' + (box ? box.textContent : savedBox) + '] to ' + boundName + '!</span>';
-                setTimeout(() => {
-                    if (topBarSub && !bindingListenerActive) topBarSub.textContent = "Drag any element to reposition • Click keys to remap • Use [-] / [+] to scale";
-                }, 2000);
+                if (topBarSub) {
+                    topBarSub.innerHTML = '<span style="color:#34d399; font-weight:700;">Bound to ' + boundName + '!</span>';
+                    setTimeout(() => {
+                        if (topBarSub && !bindingListenerActive) topBarSub.textContent = "Drag any element to reposition • Click keys to remap • Use [-] / [+] to scale";
+                    }, 2000);
+                }
             }
 
             function cancelRemapping() {
                 if (!activeListeningBox) return;
                 const box = document.getElementById(activeListeningBox);
                 if (box) {
-                    box.textContent = box.dataset.origText || box.textContent;
+                    const binding = customKeyMap[activeListeningBox];
+                    box.textContent = (binding && binding.name) ? binding.name : (box.dataset.origText || box.textContent);
                     box.style.border = "";
                     box.style.boxShadow = "";
                 }
                 activeListeningBox = null;
                 bindingListenerActive = false;
+                window._chrono_is_binding_key = false;
                 const topBarSub = document.getElementById("chrono-hud-editor-subtext");
                 if (topBarSub) topBarSub.textContent = "Drag any element to reposition • Click keys to remap • Use [-] / [+] to scale";
             }
@@ -1747,12 +1782,14 @@
                                 '<div class="chrono-key-box" id="chrono-k-c" style="width:30px; height:28px; background:rgba(3,15,13,0.85); border:1px solid rgba(56,189,248,0.3); border-radius:5px; color:#93c5fd; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer;" title="Ability 3">C</div>' +
                             '</div>';
                         document.body.appendChild(keystrokesDiv);
+                        updateKeyBoxLabels();
 
                         keystrokesDiv.querySelectorAll(".chrono-key-box").forEach(box => {
                             box.onclick = (e) => {
-                                if (!window._chrono_hud_editing) return;
-                                e.stopPropagation();
-                                startRemappingBox(box.id);
+                                if (window._chrono_hud_editing || e.shiftKey || e.altKey) {
+                                    e.stopPropagation();
+                                    startRemappingBox(box.id);
+                                }
                             };
                         });
 
@@ -1760,14 +1797,26 @@
                             if (bindingListenerActive) {
                                 e.preventDefault();
                                 e.stopPropagation();
+                                if (e.stopImmediatePropagation) e.stopImmediatePropagation();
                                 if (e.key === "Escape") {
                                     cancelRemapping();
                                     return;
                                 }
-                                const keyName = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+                                let keyName = e.key;
+                                if (e.code === "Space" || keyName === " ") keyName = "SPC";
+                                else if (e.code === "ArrowUp") keyName = "↑";
+                                else if (e.code === "ArrowDown") keyName = "↓";
+                                else if (e.code === "ArrowLeft") keyName = "←";
+                                else if (e.code === "ArrowRight") keyName = "→";
+                                else if (e.code === "ShiftLeft" || e.code === "ShiftRight") keyName = "SHF";
+                                else if (e.code === "ControlLeft" || e.code === "ControlRight") keyName = "CTRL";
+                                else if (e.code === "AltLeft" || e.code === "AltRight") keyName = "ALT";
+                                else if (e.code === "Tab") keyName = "TAB";
+                                else if (keyName.length === 1) keyName = keyName.toUpperCase();
+
                                 customKeyMap[activeListeningBox] = {
                                     type: "key",
-                                    key: keyName,
+                                    key: e.key.length === 1 ? e.key.toUpperCase() : e.key,
                                     code: e.code,
                                     name: keyName
                                 };
@@ -1777,6 +1826,9 @@
                             }
 
                             if (!keystrokesHudActive) return;
+                            const activeEl = document.activeElement;
+                            if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable)) return;
+
                             const id = getMatchingBoxForKey(e);
                             if (id) setKeyVisual(id, true);
                         }, true);
@@ -1792,8 +1844,9 @@
                             if (bindingListenerActive) {
                                 e.preventDefault();
                                 e.stopPropagation();
+                                if (e.stopImmediatePropagation) e.stopImmediatePropagation();
                                 const btn = e.button;
-                                const btnName = btn === 0 ? "Mouse 1" : btn === 1 ? "Mouse 3" : btn === 2 ? "Mouse 2" : "Mouse " + (btn + 1);
+                                const btnName = btn === 0 ? "M1" : btn === 1 ? "M3" : btn === 2 ? "M2" : "M" + (btn + 1);
                                 customKeyMap[activeListeningBox] = {
                                     type: "mouse",
                                     button: btn,
@@ -1815,8 +1868,16 @@
                             const id = getMatchingBoxForMouse(e.button);
                             if (id) setKeyVisual(id, false);
                         }, true);
+
+                        window.addEventListener("contextmenu", e => {
+                            if (bindingListenerActive) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }
+                        }, true);
                     } else {
                         keystrokesDiv.style.display = "flex";
+                        updateKeyBoxLabels();
                     }
                 } else {
                     if (keystrokesDiv) keystrokesDiv.style.display = "none";
@@ -1841,8 +1902,14 @@
                 { key: "chat", name: "💬 In-Game Chat Box", sel: "#chat" }
             ];
 
-            function applyHudLayout() {
+            let lastHudLayoutJson = "";
+            let hudLayoutAppliedOnce = false;
+            function applyHudLayout(force) {
                 if (window._chrono_hud_editing) return;
+                const raw = localStorage.getItem("chrono_hud_layout") || "{}";
+                if (!force && hudLayoutAppliedOnce && raw === lastHudLayoutJson) return;
+                lastHudLayoutJson = raw;
+                hudLayoutAppliedOnce = true;
                 const layout = getStoredHudLayout();
                 HUD_TARGETS.forEach(t => {
                     const el = document.querySelector(t.sel);
@@ -2196,6 +2263,7 @@
             const btnOpenHudEd = document.getElementById("chrono-btn-open-hud-editor");
             const modChat = document.getElementById("chrono-mod-chatmacro");
             const modPixel = document.getElementById("chrono-mod-pixelsharp");
+            const modTells = document.getElementById("chrono-mod-visualtells");
 
             if (modKs) {
                 const savedKs = localStorage.getItem("chrono_mod_keystrokes");
@@ -2215,6 +2283,15 @@
                 modPixel.checked = (localStorage.getItem("chrono_mod_pixelsharp") === "1");
                 togglePixelSharp(modPixel.checked);
                 modPixel.onchange = () => togglePixelSharp(modPixel.checked);
+            }
+            if (modTells) {
+                const savedTells = localStorage.getItem("chrono_mod_visualtells");
+                modTells.checked = (savedTells === null) ? true : (savedTells === "1");
+                window._chrono_enable_visual_tells = modTells.checked;
+                modTells.onchange = () => {
+                    window._chrono_enable_visual_tells = modTells.checked;
+                    localStorage.setItem("chrono_mod_visualtells", modTells.checked ? "1" : "0");
+                };
             }
 
             const openScriptsDirBtn = document.getElementById("chrono-btn-open-scripts-dir");
@@ -2573,22 +2650,12 @@
                 '<div class="chrono-ap-top-grid">' +
                     '<div class="chrono-ap-card">' +
                         '<div class="chrono-ap-user-header">' +
-                            '<div class="chrono-ap-username">👤 ' + cleanUsername + '</div>' +
                             '<div class="chrono-ap-status-pill ' + (isOnline ? 'chrono-ap-status-online' : 'chrono-ap-status-offline') + '">' + (isOnline ? '● Online' : '○ Offline') + '</div>' +
-                        '</div>' +
-                        '<div class="chrono-ap-roles">' +
-                            '<span class="chrono-ap-role-badge">Player</span>' +
-                            '<span class="chrono-ap-role-badge" style="border-color:#38bdf8; color:#38bdf8;">Chrono Client ⚡</span>' +
                         '</div>' +
                         '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Career VP:</span><span class="chrono-ap-stat-val" id="chrono-ap-career-vp" style="color:#f59e0b;">...</span></div>' +
                         '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Quest Points:</span><span class="chrono-ap-stat-val" id="chrono-ap-quest-pts" style="color:#10b981;">...</span></div>' +
                         '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Achievements:</span><span class="chrono-ap-stat-val">20 / 37</span></div>' +
                         '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Rank Status:</span><span class="chrono-ap-stat-val" style="color:#38bdf8;">Active Explorer</span></div>' +
-                        '<div class="chrono-ap-actions">' +
-                            '<button class="chrono-ap-act-btn chrono-btn-blue" title="Add Friend">👤 Add Friend</button>' +
-                            '<button class="chrono-ap-act-btn chrono-btn-blue" title="Message">💬 Message</button>' +
-                            '<button class="chrono-ap-act-btn chrono-btn-red" title="Report">⚠️ Report</button>' +
-                        '</div>' +
                     '</div>' +
                     '<div class="chrono-ap-card">' +
                         '<div class="chrono-ap-card-title"><span>📈 VP Graph & Performance</span></div>' +
@@ -2637,6 +2704,75 @@
                 });
             }
 
+            const PROFILE_MAP_COLORS = Object.assign({
+                "Ancient Abyss": "#9363b1",
+                "Assorted Alcove": "#c19762",
+                "Assorted Alcove Hard": "#d08e29",
+                "Burning Bunker": "#ef4444",
+                "Burning Bunker Hard": "#ff5252",
+                "Catastrophic Core": "#84cc16",
+                "Central Core": "#84cc16",
+                "Central Core Hard": "#65a30d",
+                "Coupled Corridors": "#f0e87a",
+                "Cyber Castle": "#21bad9",
+                "Cyber Castle Hard": "#53c8e0",
+                "Dangerous District": "#f43f5e",
+                "Dangerous District Hard": "#f3b9b9",
+                "Dusty Depths": "#d19264",
+                "Elite Expanse": "#60a5fa",
+                "Elite Expanse Hard": "#3b82f6",
+                "Endless Echo": "#9ac2ff",
+                "Endless Echo Hard": "#9ac2ff",
+                "Frozen Fjord": "#a5bfda",
+                "Frozen Fjord Hard": "#a5bfda",
+                "Glacial Gorge": "#a7d1d6",
+                "Glacial Gorge Hard": "#b3e0de",
+                "Grand Garden": "#83c05b",
+                "Grand Garden Hard": "#83c05b",
+                "Haunted Halls": "#f37250",
+                "Haunted Halls Hard": "#854d0e",
+                "Humongous Hollow": "#b45309",
+                "Humongous Hollow Hard": "#92400e",
+                "Infinite Inferno": "#b33e50",
+                "Infinite Inferno Hard": "#ff4b6e",
+                "Lonely Laboratory": "#21bad9",
+                "Magnetic Monopole": "#d043ff",
+                "Magnetic Monopole Hard": "#cb30ff",
+                "Monumental Migration": "#c084fc",
+                "Monumental Migration Hard": "#a855f7",
+                "Mysterious Mansion": "#c446eb",
+                "Ominous Occult": "#8fb2c2",
+                "Ominous Occult Hard": "#8fb2c2",
+                "Peculiar Pyramid": "#eab308",
+                "Peculiar Pyramid Hard": "#ca8a04",
+                "Powered Plains": "#b9d026",
+                "Pristine Purgatory": "#c472c2",
+                "Quiet Quarry": "#b2b6b9",
+                "Quiet Quarry Hard": "#b2b6b9",
+                "Research Lab": "#21bad9",
+                "Restless Ridge": "#d4af7f",
+                "Restless Ridge Hard": "#d4af7f",
+                "Shifting Sands": "#eda764",
+                "Sparkling Shrine": "#4c25cb",
+                "Sparkling Shrine Hard": "#4520bd",
+                "Stellar Square": "#d6d2a7",
+                "Terrifying Temple": "#ff7381",
+                "Terrifying Temple Hard": "#ff91b9",
+                "Toxic Terraces": "#bcbcbc",
+                "Toxic Territory": "#bcbcbc",
+                "Toxic Territory Hard": "#bcbcbc",
+                "Transforming Turbidity": "#38bdf8",
+                "Vast Void": "#a855f7",
+                "Vicious Valley": "#e11d48",
+                "Vicious Valley Hard": "#be123c",
+                "Voidborne": "#9333ea",
+                "Wacky Wonderland": "#eab308",
+                "Wacky Wonderland Hard": "#ca8a04",
+                "Withering Wasteland": "#d97706"
+            }, (window.Chrono && window.Chrono.MAP_COLORS) || {});
+
+            const getProfileMapColor = (m) => PROFILE_MAP_COLORS[m] || "#38bdf8";
+
             // 1. Fetch Account Data from /api/account/
             (async () => {
                 try {
@@ -2660,11 +2796,11 @@
                             let html = "";
                             entries.forEach(([mapName, val]) => {
                                 if (mapName === "Transforming Turbidity" || mapName === "Powered Plains") return;
-                                const color = MAP_COLORS[mapName] || "#38bdf8";
+                                const color = getProfileMapColor(mapName);
                                 html += '<div class="chrono-ap-area-row" style="color:' + color + ';">' +
                                     '<span>' + mapName + '</span>' +
                                     '<span style="color:#ffffff;">Area ' + val + '</span>' +
-                                '</div>';
+                                    '</div>';
                             });
                             areasGrid.innerHTML = html;
                         }
@@ -2687,7 +2823,7 @@
                                 html += '<div class="chrono-ap-hof-row' + (isGold ? ' gold' : '') + '">' +
                                     '<span><b>Week ' + wk + '</b> ' + (finish ? '<span style="color:' + (isGold ? '#f59e0b' : isSilver ? '#cbd5e1' : '#d97706') + '; font-weight:700;">(' + finishLabel + ')</span>' : '') + '</span>' +
                                     '<span style="color:#34d399; font-weight:700;">' + wins + ' VP</span>' +
-                                '</div>';
+                                    '</div>';
                             }
                         });
                         hofList.innerHTML = html || '<div style="color:#64748b; font-size:11px; padding:6px;">No weekly scores recorded yet.</div>';
@@ -2698,8 +2834,11 @@
                     if (vpCanvas && stats.week_record) {
                         window._chrono_cached_week_record = stats.week_record;
                         drawVpGraph(vpCanvas, stats.week_record);
+                        setTimeout(() => drawVpGraph(vpCanvas, stats.week_record), 80);
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.error("[Chrono Account API Error]", e);
+                }
             })();
 
             // 2. Fetch Runs from /api/runs?username=
@@ -2715,10 +2854,10 @@
                         return;
                     }
                     let html = '<table class="chrono-ap-runs-table"><thead><tr><th>Map</th><th>Hero</th><th>Level</th><th>Survival Time</th><th>Date</th></tr></thead><tbody>';
-                    runsList.slice(0, 10).forEach(r => {
+                    runsList.slice(0, 15).forEach(r => {
                         const map = r.region_name || r.region || "Unknown";
                         if (map === "Transforming Turbidity" || map === "Powered Plains") return;
-                        const color = MAP_COLORS[map] || "#38bdf8";
+                        const color = getProfileMapColor(map);
                         const hero = r.hero || r.hero_name || "Unknown";
                         const lvl = r.exp_level || r.level || 1;
                         const timeStr = r.survival_time ? (Math.floor(r.survival_time / 60) + "m " + (r.survival_time % 60) + "s") : "-";
@@ -2734,7 +2873,9 @@
                     });
                     html += '</tbody></table>';
                     runsBox.innerHTML = html;
-                } catch(e) {}
+                } catch(e) {
+                    console.error("[Chrono Runs API Error]", e);
+                }
             })();
         }
 
@@ -2774,10 +2915,13 @@
 
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
-        const w = rect.width || 420;
-        const h = rect.height || 160;
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
+        const host = canvas.parentElement;
+        const w = Math.max(300, rect.width || (host ? host.clientWidth : 0) || 420);
+        const h = Math.max(120, rect.height || (host ? host.clientHeight : 0) || 160);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = w + "px";
+        canvas.style.height = h + "px";
         ctx.scale(dpr, dpr);
 
         ctx.clearRect(0, 0, w, h);
@@ -2911,12 +3055,33 @@
             toggle: toggleChronoMenu,
             modal: menuContainer,
             syncUi: syncUiFromConfig,
-            saveConfig: saveConfig
+            saveConfig: saveConfig,
+            enhanceAccountPage: enhanceAccountPage,
+            enhanceProfilePage: enhanceProfilePage,
+            trackCurrentUser: trackCurrentUser
         };
 
         window.toggleChronoMenu = toggleChronoMenu;
         window.closeHudLayoutEditor = closeHudLayoutEditor;
         window.applyHudLayout = applyHudLayout;
+        window.enhanceAccountPage = enhanceAccountPage;
+        window.enhanceProfilePage = enhanceProfilePage;
+        window.trackCurrentUser = trackCurrentUser;
+
+        // Auto-run page enhancers on navigation & initial load
+        function checkAndEnhanceCurrentPage() {
+            const p = window.location.pathname;
+            if (p.startsWith("/account")) {
+                enhanceAccountPage();
+            } else if (p.startsWith("/profile")) {
+                enhanceProfilePage();
+            }
+            trackCurrentUser();
+        }
+        checkAndEnhanceCurrentPage();
+        window.addEventListener("DOMContentLoaded", checkAndEnhanceCurrentPage);
+        window.addEventListener("load", checkAndEnhanceCurrentPage);
+        window.addEventListener("popstate", checkAndEnhanceCurrentPage);
     } catch(err) {
         console.error("[Aesir::Settings Error]", err);
     }

@@ -87,8 +87,8 @@ END
             res.set("CompanyName", "Vixino3rd");
             res.set("LegalCopyright", "Copyright (c) 2026 Vixino3rd. All Rights Reserved.");
             res.set("OriginalFilename", "chrono-evades.exe");
-            res.set("FileVersion", "1.0.0.0");
-            res.set("ProductVersion", "1.0.0.0");
+            res.set("FileVersion", "1.1.2.0");
+            res.set("ProductVersion", "1.1.2.0");
             let _ = res.compile();
         }
     }
