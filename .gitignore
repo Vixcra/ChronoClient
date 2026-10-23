@@ -3,5 +3,4 @@
 *.pdb
 *.exe
 .chronolog.cache
-/scripts
 chrono-evades.exe
