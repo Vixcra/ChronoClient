@@ -8,6 +8,12 @@ pub struct RawMouseInput {
     // state
 }
 
+impl Default for RawMouseInput {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RawMouseInput {
     pub fn new() -> Self {
         Self {}

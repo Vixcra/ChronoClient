@@ -46,8 +46,8 @@ impl Codex {
         let mut codex = Self::default();
 
         let heroes_path = dir.join("heroes.json");
-        if heroes_path.exists() {
-            if let Ok(file) = File::open(&heroes_path) {
+        if heroes_path.exists()
+            && let Ok(file) = File::open(&heroes_path) {
                 let val: serde_json::Value = serde_json::from_reader(file)
                     .with_context(|| format!("Failed to parse {:?}", heroes_path))?;
                 if let Some(heroes_arr) = val.get("heroes").and_then(|v| v.as_array()) {
@@ -58,28 +58,25 @@ impl Codex {
                     }
                 }
             }
-        }
 
         let enemies_path = dir.join("enemies.json");
-        if enemies_path.exists() {
-            if let Ok(file) = File::open(&enemies_path) {
+        if enemies_path.exists()
+            && let Ok(file) = File::open(&enemies_path) {
                 let val: serde_json::Value = serde_json::from_reader(file)
                     .with_context(|| format!("Failed to parse {:?}", enemies_path))?;
                 if let Some(cats) = val.get("categories").and_then(|v| v.as_object()) {
                     for (_cat_name, enemy_list) in cats {
                         if let Some(arr) = enemy_list.as_array() {
                             for e_val in arr {
-                                if let Ok(enemy) = serde_json::from_value::<EnemyData>(e_val.clone()) {
-                                    if let Some(t) = &enemy.enemy_type {
+                                if let Ok(enemy) = serde_json::from_value::<EnemyData>(e_val.clone())
+                                    && let Some(t) = &enemy.enemy_type {
                                         codex.enemies.insert(t.to_lowercase(), enemy);
                                     }
-                                }
                             }
                         }
                     }
                 }
             }
-        }
 
         tracing::info!(
             "Loaded Codex: {} heroes, {} enemies",

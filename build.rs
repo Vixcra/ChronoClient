@@ -17,11 +17,19 @@ fn main() {
         }
         let ico_str_escaped = ico_str.replace('\\', "/");
 
+        let pkg_version = env!("CARGO_PKG_VERSION");
+        let version_parts: Vec<&str> = pkg_version.split('.').collect();
+        let major = version_parts.first().copied().unwrap_or("1");
+        let minor = version_parts.get(1).copied().unwrap_or("2");
+        let patch = version_parts.get(2).copied().unwrap_or("0");
+        let version_comma = format!("{},{},{},0", major, minor, patch);
+        let version_str = format!("{}.{}.{}.0", major, minor, patch);
+
         let rc_content = format!(
 r#"1 ICON "{ico_path}"
 1 VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
+FILEVERSION {version_comma}
+PRODUCTVERSION {version_comma}
 FILEFLAGSMASK 0x3fL
 FILEFLAGS 0x0L
 FILEOS 0x40004L
@@ -34,12 +42,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Vixino3rd\0"
             VALUE "FileDescription", "Chrono Evades.io Desktop Client\0"
-            VALUE "FileVersion", "1.0.0.0\0"
+            VALUE "FileVersion", "{version_str}\0"
             VALUE "InternalName", "chrono-evades\0"
             VALUE "LegalCopyright", "Copyright (c) 2026 Vixino3rd. All Rights Reserved.\0"
             VALUE "OriginalFilename", "chrono-evades.exe\0"
             VALUE "ProductName", "Chrono Client\0"
-            VALUE "ProductVersion", "1.0.0.0\0"
+            VALUE "ProductVersion", "{version_str}\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -48,7 +56,9 @@ BEGIN
     END
 END
 "#,
-            ico_path = ico_str_escaped
+            ico_path = ico_str_escaped,
+            version_comma = version_comma,
+            version_str = version_str
         );
 
         std::fs::write(&rc_path, rc_content).unwrap();
@@ -68,11 +78,11 @@ END
                     .arg(&res_path)
                     .arg(&rc_path)
                     .status();
-                if let Ok(s) = status {
-                    if s.success() {
-                        compiled = true;
-                        break;
-                    }
+                if let Ok(s) = status
+                    && s.success()
+                {
+                    compiled = true;
+                    break;
                 }
             }
         }
@@ -87,8 +97,8 @@ END
             res.set("CompanyName", "Vixino3rd");
             res.set("LegalCopyright", "Copyright (c) 2026 Vixino3rd. All Rights Reserved.");
             res.set("OriginalFilename", "chrono-evades.exe");
-            res.set("FileVersion", "1.1.2.0");
-            res.set("ProductVersion", "1.1.2.0");
+            res.set("FileVersion", "1.2.0.0");
+            res.set("ProductVersion", "1.2.0.0");
             let _ = res.compile();
         }
     }

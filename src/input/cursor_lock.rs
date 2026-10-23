@@ -5,6 +5,12 @@ pub struct CursorLock {
     locked: bool,
 }
 
+impl Default for CursorLock {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CursorLock {
     pub fn new() -> Self {
         Self { locked: false }

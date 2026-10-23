@@ -46,7 +46,7 @@
                     '<span style="font-size: 22px;">⏳</span>' +
                     '<div>' +
                         '<div style="font-weight: 800; font-size: 16px; letter-spacing: 0.5px; background: linear-gradient(90deg, #6ee7b7, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CHRONO CLIENT HUB</div>' +
-                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "1.1.2") + '</span></div>' +
+                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "1.2.0") + '</span></div>' +
                     '</div>' +
                 '</div>' +
                 '<button id="chrono-close-btn" style="' +
@@ -94,6 +94,10 @@
                     'background: transparent; border: 1px solid transparent; color: #94a3b8;' +
                     'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
                 '">🎨 UI Theme</button>' +
+                '<button id="chrono-tab-bragi" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #38bdf8;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">🌐 Bragi</button>' +
             '</div>' +
 
             '<!-- Content Area -->' +
@@ -261,6 +265,10 @@
                                 '<div><b style="color: #fef08a;">TCP_NODELAY & Delayed ACK Bypass :</b> Disables Nagle buffering and suppresses Windows 40-200ms Delayed ACK mechanism</div>' +
                                 '<input type="checkbox" id="cfg-flag-tcp-nodelay-tuning" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
                             '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #fef08a;">V8 Incremental GC & Nursery Buffer (64MB) :</b> Eliminates 100ms Stop-The-World GC micro-freezes by running continuous background sweeps</div>' +
+                                '<input type="checkbox" id="cfg-flag-anti-freeze-gc" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -297,9 +305,9 @@
                     '<!-- CATEGORY 1: CUSTOM CURSOR -->' +
                     '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">' +
                         '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                            '<span style="font-weight: 800; font-size: 13px; color: #34d399; display: flex; align-items: center; gap: 6px;">🎨 CUSTOM CURSOR</span>' +
+                            '<span style="font-weight: 800; font-size: 13px; color: #34d399; display: flex; align-items: center; gap: 6px;">✨ LUMINOUS CURSORS & GLOW POINTS</span>' +
                         '</div>' +
-                        '<div style="font-size: 11px; color: #94a3b8;">Choose a pre-installed gaming crosshair or enter any image URL:</div>' +
+                        '<div style="font-size: 11px; color: #94a3b8;">Vibrant glowing points, radiant stellar sparks and custom orbs for clean dodging:</div>' +
                         '<div id="chrono-cursor-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px;"></div>' +
                         
                         '<!-- Custom Cursor Builder -->' +
@@ -310,12 +318,13 @@
                             '</div>' +
                             '<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">' +
                                 '<select id="chrono-cb-shape" style="background: rgba(7, 26, 23, 0.9); border: 1px solid rgba(52, 211, 153, 0.4); color: #34d399; font-weight: bold; border-radius: 6px; padding: 4px 8px; font-size: 11px; outline: none;">' +
-                                    '<option value="crosshair">➕ Crosshair (+)</option>' +
-                                    '<option value="dot">● Precision Dot</option>' +
-                                    '<option value="laser">⚡ Laser Beam</option>' +
-                                    '<option value="ring">◎ Circle Reticle</option>' +
-                                    '<option value="box">□ Tactical Box</option>' +
-                                    '<option value="arrow">🏹 Arrow Pointer</option>' +
+                                    '<option value="glow_dot">✨ Luminous Glow Dot</option>' +
+                                    '<option value="star_spark">❇️ Starlight Spark</option>' +
+                                    '<option value="dual_ring">💫 Orbital Halo</option>' +
+                                    '<option value="crystal">💎 Shimmer Diamond</option>' +
+                                    '<option value="pure_dot">⚪ 3D Pearl Sphere</option>' +
+                                    '<option value="laser">⚡ Concentrated Laser</option>' +
+                                    '<option value="crosshair">➕ Micro Crosshair</option>' +
                                 '</select>' +
                                 '<div style="display: flex; align-items: center; gap: 4px;">' +
                                     '<span style="font-size: 10px; color: #94a3b8;">RGB Color:</span>' +
@@ -442,6 +451,10 @@
                                 '<div><b style="color: #6ee7b7;">🎯 Sniper &amp; Slasher Pre-fire Tells :</b> Dynamic countdown rings, charge pulses &amp; strobe warning</div>' +
                                 '<input type="checkbox" id="chrono-mod-visualtells" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
                             '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                                '<div><b style="color: #6ee7b7;">🙈 Hide All UI :</b> Hide all Chrono UI (theme, special buttons &amp; HUDs) • ESC stays active</div>' +
+                                '<input type="checkbox" id="chrono-mod-hideui" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
                         '</div>' +
                         '<div style="margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">' +
                         '<div style="display: flex; justify-content: space-between; align-items: center;">' +
@@ -488,6 +501,48 @@
                     '</div>' +
                 '</div>' +
             '</div>' +
+            '<!-- TAB 8: BRAGI TRANSLATOR -->' +
+            '<div id="chrono-view-bragi" style="display: none; flex-direction: column; gap: 12px;">' +
+                '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px;">' +
+                    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">' +
+                        '<span style="font-weight: 800; font-size: 13px; color: #38bdf8; display: flex; align-items: center; gap: 8px;">🌐 BRAGI • MULTILINGUAL CHAT TRANSLATOR</span>' +
+                        '<span id="chrono-bragi-status-badge" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #86efac; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px;">ACTIVE</span>' +
+                    '</div>' +
+                    '<div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-bottom: 12px;">' +
+                        'Real-time language translation for Evades.io powered by Google Translate GTX. Replaces other players\' foreign chat messages directly in-place. Your own messages are never altered.' +
+                    '</div>' +
+                    '<div style="display: flex; flex-direction: column; gap: 10px; font-size: 11px; color: #cbd5e1;">' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); cursor: pointer;">' +
+                            '<div><b style="color: #7dd3fc;">Enable Bragi Translation Engine :</b><br><span style="font-size: 10px; color: #94a3b8;">Master switch for chat &amp; UI translation</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-master-toggle" style="accent-color: #38bdf8; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06);">' +
+                            '<div><b style="color: #6ee7b7;">Target Language (Receive &amp; UI) :</b><br><span style="font-size: 10px; color: #94a3b8;">Language to translate other players\' messages into</span></div>' +
+                            '<select id="chrono-bragi-target-lang-sel" style="background: rgba(3, 15, 13, 0.9); border: 1px solid #38bdf8; color: #38bdf8; font-weight: bold; border-radius: 6px; padding: 5px 10px; font-size: 11px; outline: none; cursor: pointer;"></select>' +
+                        '</div>' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                            '<div><b style="color: #6ee7b7;">Translate Incoming Chat :</b><br><span style="font-size: 10px; color: #94a3b8;">Replaces other players\' messages in-place with your language. Your own messages are never translated.</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-chat-toggle" style="accent-color: #10b981; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                            '<div><b style="color: #f59e0b;">Xtransceiver (/tr command only) :</b><br><span style="font-size: 10px; color: #94a3b8;">Only translates when you explicitly type /tr &lt;message&gt;. Regular messages are sent 100% as typed without any translation.</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-outgoing-toggle" style="accent-color: #f59e0b; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06);">' +
+                            '<div><b style="color: #f59e0b;">Outgoing Language (/tr target) :</b><br><span style="font-size: 10px; color: #94a3b8;">Language your /tr messages will be converted to</span></div>' +
+                            '<select id="chrono-bragi-outgoing-lang-sel" style="background: rgba(3, 15, 13, 0.9); border: 1px solid #f59e0b; color: #fbbf24; font-weight: bold; border-radius: 6px; padding: 5px 10px; font-size: 11px; outline: none; cursor: pointer;"></select>' +
+                        '</div>' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                            '<div><b style="color: #a78bfa;">Game Interface Localization :</b><br><span style="font-size: 10px; color: #94a3b8;">Translate game menus and buttons into target language</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-ui-toggle" style="accent-color: #a78bfa; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">' +
+                    '<span style="font-size: 11px; color: #94a3b8;">Translation Cache : <b id="chrono-bragi-cache-label" style="color: #34d399;">0 cached phrases</b></span>' +
+                    '<button id="chrono-bragi-clear-cache-btn" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer;">🧹 Clear Cache</button>' +
+                '</div>' +
+            '</div>' +
         '</div>' +
 
             '<!-- Footer -->' +
@@ -526,7 +581,8 @@
             { id: "cfg-flag-disable-frame-rate-limit", key: "flag_disable_frame_rate_limit" },
             { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster" },
             { id: "cfg-flag-websocket-arraybuffer", key: "flag_websocket_arraybuffer" },
-            { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning" }
+            { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning" },
+            { id: "cfg-flag-anti-freeze-gc", key: "flag_anti_freeze_gc" }
         ];
 
         checkboxes.forEach(c => {
@@ -701,11 +757,18 @@
         });
     }
 
-    // Auto-run immediately at injection time
+    // Auto-run at injection time with bounded startup checks (no infinite 1000ms loop)
     runAutoBootScripts();
     window.addEventListener("DOMContentLoaded", runAutoBootScripts);
     window.addEventListener("load", runAutoBootScripts);
-    setInterval(runAutoBootScripts, 1000);
+    let autoBootAttempts = 0;
+    const autoBootInterval = setInterval(() => {
+        runAutoBootScripts();
+        autoBootAttempts++;
+        if (autoBootAttempts >= 5) {
+            clearInterval(autoBootInterval);
+        }
+    }, 1000);
 
     window._chrono_on_scripts_reloaded = function(newScripts) {
         if (Array.isArray(newScripts)) {
@@ -804,7 +867,9 @@
                 chk.onchange = () => {
                     enabledMap[s.filename] = chk.checked;
                     saveEnabledScriptMap(enabledMap);
-                    if (chk.checked) {
+                    if (s.filename === "hide_all_ui.js") {
+                        toggleHideAllUi(chk.checked);
+                    } else if (chk.checked) {
                         executeScript(s);
                     }
                     renderCustomScriptsList();
@@ -967,6 +1032,8 @@
                 hourglassBtn.id = "chrono-hourglass-launcher";
                 hourglassBtn.title = "Chrono Client Hub & Settings (ESC)";
                 hourglassBtn.style.position = "fixed";
+                hourglassBtn.style.transform = "translateZ(0)";
+                hourglassBtn.style.contain = "layout style paint";
                 hourglassBtn.style.bottom = "10px";
                 hourglassBtn.style.right = "136px";
                 hourglassBtn.style.width = "32px";
@@ -1013,7 +1080,8 @@
                 { tab: "chrono-tab-alts", view: "chrono-view-alts" },
                 { tab: "chrono-tab-modes", view: "chrono-view-modes" },
                 { tab: "chrono-tab-discord", view: "chrono-view-discord" },
-                { tab: "chrono-tab-ui", view: "chrono-view-ui" }
+                { tab: "chrono-tab-ui", view: "chrono-view-ui" },
+                { tab: "chrono-tab-bragi", view: "chrono-view-bragi" }
             ];
 
             hubTabs.forEach(t => {
@@ -1027,15 +1095,21 @@
                                 if (otherEl) {
                                     otherEl.style.background = (t.tab === "chrono-tab-experimental") 
                                         ? "linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(147, 51, 234, 0.25) 100%)" 
+                                        : (t.tab === "chrono-tab-bragi")
+                                        ? "linear-gradient(135deg, rgba(14, 165, 233, 0.35) 0%, rgba(2, 132, 199, 0.25) 100%)"
                                         : "linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.2) 100%)";
                                     otherEl.style.color = "#ffffff";
-                                    otherEl.style.borderColor = (t.tab === "chrono-tab-experimental") ? "#c084fc" : "#34d399";
+                                    otherEl.style.borderColor = (t.tab === "chrono-tab-experimental") 
+                                        ? "#c084fc" 
+                                        : (t.tab === "chrono-tab-bragi" ? "#38bdf8" : "#34d399");
                                 }
                                 if (otherView) otherView.style.display = "block";
                             } else {
                                 if (otherEl) {
                                     otherEl.style.background = "transparent";
-                                    otherEl.style.color = (other.tab === "chrono-tab-experimental") ? "#c084fc" : "#94a3b8";
+                                    otherEl.style.color = (other.tab === "chrono-tab-experimental") 
+                                        ? "#c084fc" 
+                                        : (other.tab === "chrono-tab-bragi" ? "#38bdf8" : "#94a3b8");
                                     otherEl.style.borderColor = "transparent";
                                 }
                                 if (otherView) otherView.style.display = "none";
@@ -1077,7 +1151,8 @@
                 { id: "cfg-flag-disable-frame-rate-limit", key: "flag_disable_frame_rate_limit", restart: true },
                 { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster", restart: true },
                 { id: "cfg-flag-websocket-arraybuffer", key: "flag_websocket_arraybuffer", restart: false },
-                { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning", restart: true }
+                { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning", restart: true },
+                { id: "cfg-flag-anti-freeze-gc", key: "flag_anti_freeze_gc", restart: true }
             ];
 
             flagMap.forEach(item => {
@@ -1166,17 +1241,65 @@
                 });
                 grid.innerHTML = html || '<div style="color: #64748b; font-size: 11px;">No active optimizations.</div>';
             }
-
-            // === 4. CUSTOM CURSOR & LASER PICKER SETUP ===
+            // === 4. CUSTOM CURSOR & LUMINOUS GLOW POINTS ===
             const PRESET_CURSORS = [
                 { id: "default", name: "Default", icon: "🖱️", url: "default", x: 0, y: 0 },
-                { id: "emerald_crosshair", name: "Emerald Reticle", icon: "🟢", url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="3" fill="#10b981"/><path d="M16 2v7M16 23v7M2 16h7M23 16h7" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"/></svg>'), x: 16, y: 16 },
-                { id: "ruby_crosshair", name: "Ruby Tactical", icon: "🔴", url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="2.5" fill="#ef4444"/><path d="M16 4v7M16 21v7M4 16h7M21 16h7" stroke="#f87171" stroke-width="2" stroke-linecap="round"/></svg>'), x: 16, y: 16 },
-                { id: "red_laser", name: "Red Laser Beam", icon: "⚡", url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="3.5" fill="#ef4444"/><circle cx="16" cy="16" r="7" fill="none" stroke="#f87171" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M16 2v6M16 24v6M2 16h6M24 16h6" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/></svg>'), x: 16, y: 16 },
-                { id: "blue_laser", name: "Blue Cyber Laser", icon: "🔷", url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="3.5" fill="#38bdf8"/><path d="M16 4l3 9 9 3-9 3-3 9-3-9-9-3 9-3z" fill="none" stroke="#0ea5e9" stroke-width="1.5"/><circle cx="16" cy="16" r="1.5" fill="#ffffff"/></svg>'), x: 16, y: 16 },
-                { id: "green_plasma", name: "Green Plasma Laser", icon: "❇️", url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="3.5" fill="#22c55e"/><circle cx="16" cy="16" r="8" fill="none" stroke="#4ade80" stroke-width="1.5"/><path d="M16 1v8M16 23v8M1 16h8M23 16h8" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/></svg>'), x: 16, y: 16 },
-                { id: "golden_crown", name: "Gold Pointer", icon: "👑", url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M4 4l8 20 4-7 7 4 3-4-7-4 7-4-20-5z" fill="#f59e0b" stroke="#78350f" stroke-width="1.5"/></svg>'), x: 4, y: 4 },
-                { id: "valorant_circle", name: "Pro Circle Ring", icon: "🎯", url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="6" fill="none" stroke="#22c55e" stroke-width="2"/><circle cx="16" cy="16" r="1.5" fill="#22c55e"/><path d="M16 6v3M16 23v3M6 16h3M23 16h3" stroke="#22c55e" stroke-width="2"/></svg>'), x: 16, y: 16 }
+                {
+                    id: "emerald_supernova",
+                    name: "Emerald Glow",
+                    icon: "✨",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="es_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#6ee7b7" stop-opacity="0.95"/><stop offset="55%" stop-color="#10b981" stop-opacity="0.6"/><stop offset="85%" stop-color="#047857" stop-opacity="0.2"/><stop offset="100%" stop-color="#047857" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#es_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#34d399"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "astral_violet",
+                    name: "Astral Violet",
+                    icon: "🔮",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="av_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#f5d0fe" stop-opacity="0.95"/><stop offset="55%" stop-color="#c084fc" stop-opacity="0.65"/><stop offset="85%" stop-color="#7e22ce" stop-opacity="0.2"/><stop offset="100%" stop-color="#7e22ce" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#av_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#c084fc"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "cyan_pulsar",
+                    name: "Cyan Pulsar",
+                    icon: "💎",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="cp_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#bae6fd" stop-opacity="0.95"/><stop offset="55%" stop-color="#38bdf8" stop-opacity="0.65"/><stop offset="85%" stop-color="#0284c7" stop-opacity="0.2"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#cp_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#0ea5e9"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "solar_flare",
+                    name: "Solar Flare",
+                    icon: "🔥",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="sf_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#fef08a" stop-opacity="0.95"/><stop offset="55%" stop-color="#f59e0b" stop-opacity="0.7"/><stop offset="85%" stop-color="#d97706" stop-opacity="0.25"/><stop offset="100%" stop-color="#b45309" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#sf_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#eab308"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "ruby_laser",
+                    name: "Ruby Laser",
+                    icon: "🔴",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="rl_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#fecaca" stop-opacity="0.95"/><stop offset="55%" stop-color="#ef4444" stop-opacity="0.7"/><stop offset="85%" stop-color="#b91c1c" stop-opacity="0.25"/><stop offset="100%" stop-color="#7f1d1d" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#rl_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#ef4444"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "starlight_spark",
+                    name: "Starlight Spark",
+                    icon: "❇️",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="ss_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="35%" stop-color="#4ade80" stop-opacity="0.85"/><stop offset="70%" stop-color="#16a34a" stop-opacity="0.4"/><stop offset="100%" stop-color="#15803d" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="12" fill="url(#ss_g)"/><path d="M16 3 Q16 16 29 16 Q16 16 16 29 Q16 16 3 16 Q16 16 16 3 Z" fill="#86efac" opacity="0.9"/><circle cx="16" cy="16" r="4" fill="rgba(0,0,0,0.5)"/><circle cx="16" cy="16" r="3" fill="#ffffff"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "electric_halo",
+                    name: "Electric Halo",
+                    icon: "💫",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="eh_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="40%" stop-color="#a3e635" stop-opacity="0.9"/><stop offset="100%" stop-color="#65a30d" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="9" fill="url(#eh_g)"/><circle cx="16" cy="16" r="12.5" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-opacity="0.9"/><circle cx="16" cy="16" r="12.5" fill="none" stroke="#000000" stroke-width="0.8" stroke-opacity="0.5"/><circle cx="16" cy="16" r="3.8" fill="rgba(0,0,0,0.6)"/><circle cx="16" cy="16" r="2.8" fill="#ffffff"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "pearl_shimmer",
+                    name: "Pearl Shimmer",
+                    icon: "⚪",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="ps_g" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="45%" stop-color="#f1f5f9" stop-opacity="1"/><stop offset="80%" stop-color="#94a3b8" stop-opacity="0.9"/><stop offset="100%" stop-color="#0f172a" stop-opacity="0.95"/></radialGradient></defs><circle cx="16" cy="16" r="7.5" fill="rgba(0,0,0,0.7)"/><circle cx="16" cy="16" r="6" fill="url(#ps_g)" stroke="#ffffff" stroke-width="0.8"/><circle cx="14" cy="14" r="1.8" fill="#ffffff" opacity="0.95"/></svg>'),
+                    x: 16, y: 16
+                }
             ];
 
             function applyCustomCursor(cursorUrl, hx = 16, hy = 16) {
@@ -1237,50 +1360,122 @@
                     grid.appendChild(card);
                 });
             }
-
-            // Cursor Builder Logic
+            // Cursor Builder Logic (High-Visibility Radiant Glow Points & Orbs)
             function generateBuilderSvg() {
-                const shape = (document.getElementById("chrono-cb-shape") || {}).value || "crosshair";
+                const shape = (document.getElementById("chrono-cb-shape") || {}).value || "glow_dot";
                 const color = (document.getElementById("chrono-cb-color") || {}).value || "#10b981";
                 const size = parseInt((document.getElementById("chrono-cb-size") || {}).value || "28", 10);
-                const mid = size / 2;
+                const mid = Math.round(size / 2);
+                const rCore = Math.max(2.4, mid * 0.22);
+                const rOuter = mid * 0.88;
                 let svg = "";
 
-                if (shape === "crosshair") {
+                if (shape === "glow_dot") {
                     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
-                        '<circle cx="' + mid + '" cy="' + mid + '" r="2" fill="' + color + '"/>' +
-                        '<path d="M' + mid + ' 2v' + (mid - 3) + 'M' + mid + ' ' + (mid + 3) + 'v' + (mid - 5) + 'M2 ' + mid + 'h' + (mid - 3) + 'M' + (mid + 3) + ' ' + mid + 'h' + (mid - 5) + '" stroke="' + color + '" stroke-width="2" stroke-linecap="round"/>' +
+                        '<defs>' +
+                            '<radialGradient id="cb_gd" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="28%" stop-color="' + color + '" stop-opacity="0.95"/>' +
+                                '<stop offset="65%" stop-color="' + color + '" stop-opacity="0.55"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rOuter + '" fill="url(#cb_gd)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore + 1.2) + '" fill="rgba(0,0,0,0.6)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rCore + '" fill="#ffffff"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore * 0.5) + '" fill="' + color + '"/>' +
                         '</svg>';
-                } else if (shape === "dot") {
+                } else if (shape === "star_spark") {
+                    const ray = mid * 0.85;
                     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
-                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + Math.max(3, mid - 4) + '" fill="' + color + '" stroke="#ffffff" stroke-width="1.5"/>' +
+                        '<defs>' +
+                            '<radialGradient id="cb_ss" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="35%" stop-color="' + color + '" stop-opacity="0.9"/>' +
+                                '<stop offset="70%" stop-color="' + color + '" stop-opacity="0.4"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.75) + '" fill="url(#cb_ss)"/>' +
+                        '<path d="M' + mid + ' ' + (mid - ray) + ' Q' + mid + ' ' + mid + ' ' + (mid + ray) + ' ' + mid + ' Q' + mid + ' ' + mid + ' ' + mid + ' ' + (mid + ray) + ' Q' + mid + ' ' + mid + ' ' + (mid - ray) + ' ' + mid + ' Q' + mid + ' ' + mid + ' ' + mid + ' ' + (mid - ray) + ' Z" fill="' + color + '" opacity="0.9"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore + 1) + '" fill="rgba(0,0,0,0.55)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rCore + '" fill="#ffffff"/>' +
+                        '</svg>';
+                } else if (shape === "dual_ring") {
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_dr" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="40%" stop-color="' + color + '" stop-opacity="0.85"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.55) + '" fill="url(#cb_dr)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.78) + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-opacity="0.9"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.78) + '" fill="none" stroke="#000000" stroke-width="0.8" stroke-opacity="0.6"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore + 1) + '" fill="rgba(0,0,0,0.6)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rCore + '" fill="#ffffff"/>' +
+                        '</svg>';
+                } else if (shape === "crystal") {
+                    const ds = mid * 0.75;
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_cr" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="40%" stop-color="' + color + '" stop-opacity="0.75"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.85) + '" fill="url(#cb_cr)"/>' +
+                        '<polygon points="' + mid + ',' + (mid - ds) + ' ' + (mid + ds) + ',' + mid + ' ' + mid + ',' + (mid + ds) + ' ' + (mid - ds) + ',' + mid + '" fill="' + color + '" stroke="#ffffff" stroke-width="1.2" opacity="0.95"/>' +
+                        '<polygon points="' + mid + ',' + (mid - ds*0.45) + ' ' + (mid + ds*0.45) + ',' + mid + ' ' + mid + ',' + (mid + ds*0.45) + ' ' + (mid - ds*0.45) + ',' + mid + '" fill="#ffffff"/>' +
+                        '</svg>';
+                } else if (shape === "pure_dot") {
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_pd" cx="35%" cy="35%" r="65%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="45%" stop-color="' + color + '" stop-opacity="1"/>' +
+                                '<stop offset="85%" stop-color="' + color + '" stop-opacity="0.85"/>' +
+                                '<stop offset="100%" stop-color="#000000" stop-opacity="0.9"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.45 + 1.2) + '" fill="rgba(0,0,0,0.65)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.45) + '" fill="url(#cb_pd)" stroke="#ffffff" stroke-width="1"/>' +
+                        '<circle cx="' + (mid - mid*0.14) + '" cy="' + (mid - mid*0.14) + '" r="' + (mid * 0.13) + '" fill="#ffffff" opacity="0.95"/>' +
                         '</svg>';
                 } else if (shape === "laser") {
                     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
-                        '<circle cx="' + mid + '" cy="' + mid + '" r="3" fill="' + color + '"/>' +
-                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid - 4) + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-dasharray="2 2"/>' +
-                        '<path d="M' + mid + ' 0v' + size + 'M0 ' + mid + 'h' + size + '" stroke="' + color + '" stroke-width="1" opacity="0.6"/>' +
+                        '<defs>' +
+                            '<radialGradient id="cb_lz" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="25%" stop-color="#ffffff" stop-opacity="0.95"/>' +
+                                '<stop offset="50%" stop-color="' + color + '" stop-opacity="0.9"/>' +
+                                '<stop offset="80%" stop-color="' + color + '" stop-opacity="0.35"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.88) + '" fill="url(#cb_lz)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore * 0.9) + '" fill="#ffffff"/>' +
                         '</svg>';
-                } else if (shape === "ring") {
+                } else if (shape === "crosshair") {
                     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
-                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid - 4) + '" fill="none" stroke="' + color + '" stroke-width="2"/>' +
-                        '<circle cx="' + mid + '" cy="' + mid + '" r="1.5" fill="' + color + '"/>' +
-                        '</svg>';
-                } else if (shape === "box") {
-                    const bSize = size - 8;
-                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
-                        '<rect x="4" y="4" width="' + bSize + '" height="' + bSize + '" fill="none" stroke="' + color + '" stroke-width="2" rx="3"/>' +
-                        '<circle cx="' + mid + '" cy="' + mid + '" r="1.5" fill="' + color + '"/>' +
-                        '</svg>';
-                } else if (shape === "arrow") {
-                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
-                        '<path d="M3 3l' + (size*0.7) + ' ' + (size*0.4) + ' -' + (size*0.3) + ' 0 ' + (size*0.35) + ' ' + (size*0.45) + ' -' + (size*0.15) + ' ' + (size*0.1) + ' -' + (size*0.35) + ' -' + (size*0.45) + ' 0 ' + (size*0.3) + 'z" fill="' + color + '" stroke="#000000" stroke-width="1"/>' +
+                        '<defs>' +
+                            '<radialGradient id="cb_ch" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="45%" stop-color="' + color + '" stop-opacity="0.8"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.6) + '" fill="url(#cb_ch)"/>' +
+                        '<path d="M' + mid + ' 2v' + (mid - 3) + 'M' + mid + ' ' + (mid + 3) + 'v' + (mid - 5) + 'M2 ' + mid + 'h' + (mid - 3) + 'M' + (mid + 3) + ' ' + mid + 'h' + (mid - 5) + '" stroke="' + color + '" stroke-width="2" stroke-linecap="round"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="2" fill="#ffffff"/>' +
                         '</svg>';
                 }
 
                 const host = document.getElementById("chrono-cb-preview-host");
                 if (host) host.innerHTML = svg;
-                return { svg: svg, mid: (shape === "arrow" ? 3 : Math.floor(mid)) };
+                return { svg: svg, mid: mid };
             }
 
             const cbShape = document.getElementById("chrono-cb-shape");
@@ -1329,7 +1524,7 @@
             let enemyOutlineMode = localStorage.getItem("chrono_enemy_outline_mode") || (window.Chrono && window.Chrono.enemyOutlineMode) || "default";
             let enemyOutlineColor = localStorage.getItem("chrono_enemy_outline_color") || (window.Chrono && window.Chrono.enemyOutlineColor) || "#34d399";
             let enemyOutlineWidth = parseFloat(localStorage.getItem("chrono_enemy_outline_width") || (window.Chrono && window.Chrono.enemyOutlineWidth) || "2");
-            let enemyOutlineGlow = parseFloat(localStorage.getItem("chrono_enemy_outline_glow") || (window.Chrono && window.Chrono.enemyOutlineGlow) || "8");
+            let enemyOutlineGlow = parseFloat(localStorage.getItem("chrono_enemy_outline_glow") || (window.Chrono && window.Chrono.enemyOutlineGlow) || "0");
 
             let chronoEnemyOverrides = {};
             try {
@@ -1342,8 +1537,8 @@
 
             const ENEMY_OUTLINE_PRESETS = [
                 { id: "default", name: "🎮 Default", desc: "Game standard outline", color: "#64748b", border: "rgba(255,255,255,0.2)" },
-                { id: "chrono", name: "🟢 Chrono Emerald", desc: "Emerald neon glow", color: "#34d399", border: "#10b981", glow: "#10b981" },
-                { id: "volcano", name: "🌋 Volcano Red", desc: "Molten magma red", color: "#ef4444", border: "#f97316", glow: "#f97316" },
+                { id: "chrono", name: "🟢 Chrono Emerald", desc: "Emerald neon", color: "#34d399", border: "#10b981" },
+                { id: "volcano", name: "🌋 Volcano Red", desc: "Molten magma red", color: "#ef4444", border: "#f97316" },
                 { id: "rainbow", name: "🌈 Rainbow RGB", desc: "Dynamic rainbow chroma", color: "linear-gradient(90deg, #f43f5e, #eab308, #10b981, #06b6d4, #8b5cf6)", border: "#a855f7" },
                 { id: "smart", name: "🧠 Smart Dynamic", desc: "Black on light, White on dark", color: "#888888", border: "#ffffff" }
             ];
@@ -1750,6 +1945,9 @@
                         keystrokesDiv = document.createElement("div");
                         keystrokesDiv.id = "chrono-keystrokes-hud";
                         keystrokesDiv.style.position = "fixed";
+                        keystrokesDiv.style.transform = "translateZ(0)";
+                        keystrokesDiv.style.willChange = "transform";
+                        keystrokesDiv.style.contain = "layout style paint";
                         keystrokesDiv.style.bottom = "20px";
                         keystrokesDiv.style.right = "20px";
                         keystrokesDiv.style.zIndex = "999999";
@@ -2259,11 +2457,53 @@
                 }
             }
 
+            function toggleHideAllUi(enable) {
+                localStorage.setItem("chrono_mod_hideui", enable ? "1" : "0");
+                const themeTag = document.getElementById("chrono-artem-theme");
+                if (themeTag) {
+                    themeTag.disabled = enable ? true : (currentConfig.flag_custom_theme === false);
+                }
+                const fpsHud = document.getElementById("chrono-fps-hud");
+                if (fpsHud) fpsHud.style.display = enable ? "none" : "";
+
+                let hideStyle = document.getElementById("chrono-hide-all-ui-style");
+                if (enable) {
+                    if (!hideStyle) {
+                        hideStyle = document.createElement("style");
+                        hideStyle.id = "chrono-hide-all-ui-style";
+                        hideStyle.textContent = 
+                            "#chrono-fps-hud, " +
+                            "#chrono-hourglass-launcher, " +
+                            "#chrono-tournament-launcher, " +
+                            "#chrono-leaderboard-launcher, " +
+                            "#chrono-runs-launcher, " +
+                            "#chrono-bragi-launcher, " +
+                            "#chrono-keystrokes-hud, " +
+                            "#chrono-tournament-watermark, " +
+                            "#chrono-leaderboard-window, " +
+                            "#chrono-runs-window, " +
+                            "#chrono-tournament-window, " +
+                            ".title[data-chrono-logo] img { display: none !important; }";
+                        (document.head || document.documentElement || document.body).appendChild(hideStyle);
+                    }
+                } else {
+                    if (hideStyle) hideStyle.remove();
+                }
+
+                const chk = document.getElementById("chrono-mod-hideui");
+                if (chk && chk.checked !== enable) {
+                    chk.checked = enable;
+                }
+            }
+            window.Chrono.toggleHideAllUi = toggleHideAllUi;
+            window.toggleHideAllUi = toggleHideAllUi;
+
             const modKs = document.getElementById("chrono-mod-keystrokes");
             const btnOpenHudEd = document.getElementById("chrono-btn-open-hud-editor");
             const modChat = document.getElementById("chrono-mod-chatmacro");
             const modPixel = document.getElementById("chrono-mod-pixelsharp");
             const modTells = document.getElementById("chrono-mod-visualtells");
+            const modHideUi = document.getElementById("chrono-mod-hideui");
 
             if (modKs) {
                 const savedKs = localStorage.getItem("chrono_mod_keystrokes");
@@ -2291,6 +2531,19 @@
                 modTells.onchange = () => {
                     window._chrono_enable_visual_tells = modTells.checked;
                     localStorage.setItem("chrono_mod_visualtells", modTells.checked ? "1" : "0");
+                };
+            }
+
+            if (modHideUi) {
+                const isHideActive = (localStorage.getItem("chrono_mod_hideui") === "1");
+                modHideUi.checked = isHideActive;
+                toggleHideAllUi(isHideActive);
+                modHideUi.onchange = () => {
+                    toggleHideAllUi(modHideUi.checked);
+                    const em = getEnabledScriptMap();
+                    em["hide_all_ui.js"] = modHideUi.checked;
+                    saveEnabledScriptMap(em);
+                    renderCustomScriptsList();
                 };
             }
 
@@ -2322,6 +2575,210 @@
             renderCursorGrid();
             renderCustomScriptsList();
             applyHudLayout();
+
+            // --- BRAGI AUTO TRANSLATOR SETTINGS ---
+            function getBragi() {
+                return (window.Chrono && window.Chrono.Bragi) ? window.Chrono.Bragi : null;
+            }
+
+            function initBragiSettingsUI() {
+                const b = getBragi();
+                const masterTgl = document.getElementById("chrono-bragi-master-toggle");
+                const targetSel = document.getElementById("chrono-bragi-target-lang-sel");
+                const chatTgl = document.getElementById("chrono-bragi-chat-toggle");
+                const outTgl = document.getElementById("chrono-bragi-outgoing-toggle");
+                const outSel = document.getElementById("chrono-bragi-outgoing-lang-sel");
+                const uiTgl = document.getElementById("chrono-bragi-ui-toggle");
+                const badge = document.getElementById("chrono-bragi-status-badge");
+                const cacheLbl = document.getElementById("chrono-bragi-cache-label");
+
+                const langs = (b && b.SUPPORTED_LANGUAGES) ? b.SUPPORTED_LANGUAGES : [
+                    { code: "fr", flag: "🇫🇷", name: "Français" },
+                    { code: "en", flag: "🇬🇧", name: "English" },
+                    { code: "es", flag: "🇪🇸", name: "Español" },
+                    { code: "de", flag: "🇩🇪", name: "Deutsch" },
+                    { code: "it", flag: "🇮🇹", name: "Italiano" },
+                    { code: "pt", flag: "🇵🇹", name: "Português" },
+                    { code: "ru", flag: "🇷🇺", name: "Русский" },
+                    { code: "uk", flag: "🇺🇦", name: "Українська" },
+                    { code: "pl", flag: "🇵🇱", name: "Polski" },
+                    { code: "tr", flag: "🇹🇷", name: "Türkçe" },
+                    { code: "nl", flag: "🇳🇱", name: "Nederlands" },
+                    { code: "sv", flag: "🇸🇪", name: "Svenska" },
+                    { code: "no", flag: "🇳🇴", name: "Norsk" },
+                    { code: "da", flag: "🇩🇰", name: "Dansk" },
+                    { code: "fi", flag: "🇫🇮", name: "Suomi" },
+                    { code: "cs", flag: "🇨🇿", name: "Čeština" },
+                    { code: "ro", flag: "🇷🇴", name: "Română" },
+                    { code: "hu", flag: "🇭🇺", name: "Magyar" },
+                    { code: "el", flag: "🇬🇷", name: "Ελληνικά" },
+                    { code: "ar", flag: "🇸🇦", name: "العربية" },
+                    { code: "he", flag: "🇮🇱", name: "עברית" },
+                    { code: "hi", flag: "🇮🇳", name: "हिन्दी" },
+                    { code: "ja", flag: "🇯🇵", name: "日本語" },
+                    { code: "ko", flag: "🇰🇷", name: "한국어" },
+                    { code: "zh-CN", flag: "🇨🇳", name: "简体中文" },
+                    { code: "zh-TW", flag: "🇹🇼", name: "繁體中文" },
+                    { code: "vi", flag: "🇻🇳", name: "Tiếng Việt" },
+                    { code: "th", flag: "🇹🇭", name: "ไทย" },
+                    { code: "id", flag: "🇮🇩", name: "Bahasa Indonesia" }
+                ];
+
+                if (targetSel && targetSel.options.length === 0) {
+                    langs.forEach(l => {
+                        const opt = document.createElement("option");
+                        opt.value = l.code;
+                        opt.textContent = l.flag + " " + l.name + " (" + l.code + ")";
+                        targetSel.appendChild(opt);
+                    });
+                }
+                if (outSel && outSel.options.length === 0) {
+                    langs.forEach(l => {
+                        const opt = document.createElement("option");
+                        opt.value = l.code;
+                        opt.textContent = l.flag + " " + l.name + " (" + l.code + ")";
+                        outSel.appendChild(opt);
+                    });
+                }
+
+                const defaultLang = (navigator.language && navigator.language.toLowerCase().startsWith("fr")) ? "fr" : "fr";
+                const isEnabled = b ? Boolean(b.state && b.state.enabled) : (localStorage.getItem("chrono_bragi_enabled") === "1");
+                const currentTargetLang = b ? (b.state && b.state.targetLang) : (localStorage.getItem("chrono_bragi_target_lang") || defaultLang);
+                const isIncomingChat = b ? Boolean(b.state && b.state.incomingChat) : (localStorage.getItem("chrono_bragi_incoming_chat") !== "0");
+                const isOutgoingChat = b ? Boolean(b.state && b.state.outgoingChat) : (localStorage.getItem("chrono_bragi_outgoing_chat") === "1");
+                const currentOutLang = b ? (b.state && b.state.outgoingLang) : (localStorage.getItem("chrono_bragi_outgoing_lang") || "en");
+                const isGameUI = b ? Boolean(b.state && b.state.gameUI) : (localStorage.getItem("chrono_bragi_game_ui") === "1");
+
+                function updateBadge() {
+                    if (!badge) return;
+                    const active = getBragi() ? Boolean(getBragi().state && getBragi().state.enabled) : (localStorage.getItem("chrono_bragi_enabled") === "1");
+                    if (active) {
+                        badge.innerText = "ACTIVE";
+                        badge.style.background = "rgba(34, 197, 94, 0.2)";
+                        badge.style.borderColor = "rgba(34, 197, 94, 0.5)";
+                        badge.style.color = "#86efac";
+                    } else {
+                        badge.innerText = "DISABLED";
+                        badge.style.background = "rgba(148, 163, 184, 0.2)";
+                        badge.style.borderColor = "rgba(148, 163, 184, 0.4)";
+                        badge.style.color = "#94a3b8";
+                    }
+                }
+
+                function updateCacheCount() {
+                    if (cacheLbl) {
+                        const curB = getBragi();
+                        const count = curB ? curB.getCacheSize() : 0;
+                        cacheLbl.innerText = count + " cached phrases";
+                    }
+                }
+
+                if (masterTgl) {
+                    masterTgl.checked = isEnabled;
+                    if (!masterTgl.hasAttribute("data-bound")) {
+                        masterTgl.setAttribute("data-bound", "1");
+                        masterTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = masterTgl.checked;
+                            localStorage.setItem("chrono_bragi_enabled", val ? "1" : "0");
+                            if (curB) curB.setEnabled(val);
+                            updateBadge();
+                        };
+                    }
+                }
+
+                if (targetSel) {
+                    targetSel.value = currentTargetLang || "fr";
+                    if (!targetSel.hasAttribute("data-bound")) {
+                        targetSel.setAttribute("data-bound", "1");
+                        targetSel.onchange = () => {
+                            const curB = getBragi();
+                            const val = targetSel.value;
+                            localStorage.setItem("chrono_bragi_target_lang", val);
+                            if (curB) curB.setTargetLang(val);
+                        };
+                    }
+                }
+
+                if (chatTgl) {
+                    chatTgl.checked = isIncomingChat;
+                    if (!chatTgl.hasAttribute("data-bound")) {
+                        chatTgl.setAttribute("data-bound", "1");
+                        chatTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = chatTgl.checked;
+                            localStorage.setItem("chrono_bragi_incoming_chat", val ? "1" : "0");
+                            if (curB) curB.setIncomingChat(val);
+                        };
+                    }
+                }
+
+                if (outTgl) {
+                    outTgl.checked = isOutgoingChat;
+                    if (!outTgl.hasAttribute("data-bound")) {
+                        outTgl.setAttribute("data-bound", "1");
+                        outTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = outTgl.checked;
+                            localStorage.setItem("chrono_bragi_outgoing_chat", val ? "1" : "0");
+                            if (curB) curB.setOutgoingChat(val);
+                        };
+                    }
+                }
+
+                if (outSel) {
+                    outSel.value = currentOutLang || "en";
+                    if (!outSel.hasAttribute("data-bound")) {
+                        outSel.setAttribute("data-bound", "1");
+                        outSel.onchange = () => {
+                            const curB = getBragi();
+                            const val = outSel.value;
+                            localStorage.setItem("chrono_bragi_outgoing_lang", val);
+                            if (curB) curB.setOutgoingLang(val);
+                        };
+                    }
+                }
+
+                if (uiTgl) {
+                    uiTgl.checked = isGameUI;
+                    if (!uiTgl.hasAttribute("data-bound")) {
+                        uiTgl.setAttribute("data-bound", "1");
+                        uiTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = uiTgl.checked;
+                            localStorage.setItem("chrono_bragi_game_ui", val ? "1" : "0");
+                            if (curB) curB.setGameUI(val);
+                        };
+                    }
+                }
+
+                const clearCacheBtn = document.getElementById("chrono-bragi-clear-cache-btn");
+                if (clearCacheBtn && !clearCacheBtn.hasAttribute("data-bound")) {
+                    clearCacheBtn.setAttribute("data-bound", "1");
+                    clearCacheBtn.onclick = () => {
+                        const curB = getBragi();
+                        if (curB && curB.clearCache) curB.clearCache();
+                        else localStorage.removeItem("chrono_bragi_cache");
+                        updateCacheCount();
+                        showStatus("Bragi translation cache cleared!");
+                    };
+                }
+
+                updateBadge();
+                updateCacheCount();
+            }
+
+            window.Chrono = window.Chrono || {};
+            window.Chrono.updateBragiSettingsUI = initBragiSettingsUI;
+
+            try { initBragiSettingsUI(); } catch(e) { console.error("[Bragi Settings Error]", e); }
+            const bragiTabBtn = document.getElementById("chrono-tab-bragi");
+            if (bragiTabBtn && !bragiTabBtn.hasAttribute("data-bound-tab")) {
+                bragiTabBtn.setAttribute("data-bound-tab", "1");
+                bragiTabBtn.addEventListener("click", () => {
+                    try { initBragiSettingsUI(); } catch(e) {}
+                });
+            }
 
             // --- CUSTOM UI THEME APPLY ---
             const __uiCfg = JSON.parse(localStorage.getItem('chrono_ui_cfg') || '{}');
@@ -2586,12 +3043,14 @@
 
         // Track logged in user across pages for automatic profile resolution
         function trackCurrentUser() {
-            const nameFromHome = document.querySelector(".logged-in-name")?.innerText;
-            const nameFromAccount = document.querySelector(".account-title")?.innerText?.match(/logged in as\s+(.+)$/i)?.[1];
+            const nameFromHome = document.querySelector(".logged-in-name")?.textContent;
+            const nameFromAccount = document.querySelector(".account-title")?.textContent?.match(/logged in as\s+(.+)$/i)?.[1];
             const storedAlt = getStoredAlts()?.[0]?.username;
             const name = (nameFromHome || nameFromAccount || storedAlt || "").trim();
             if (name && name !== "Player" && name !== "undefined") {
-                localStorage.setItem("chrono_current_user", name);
+                if (localStorage.getItem("chrono_current_user") !== name) {
+                    localStorage.setItem("chrono_current_user", name);
+                }
             }
         }
 

@@ -4,6 +4,7 @@
 (function() {
     try {
         window.Chrono = window.Chrono || {};
+        try { delete window.tsmod; } catch(e) { window.tsmod = undefined; }
 
     // === TOURNAMENT & TS (TOURNAMENT SPECTATOR) WINDOW (Purple Obsidian Theme 🏆) ===
     let isTournamentModeActive = (localStorage.getItem("chrono_tournament_mode") === "true");
@@ -202,6 +203,7 @@
         if (ref && isValidPlayerEntity(ref.player)) return ref.player;
         if (isValidPlayerEntity(chronoLocalPlayer)) return chronoLocalPlayer;
         if (typeof window.client === "object" && window.client) {
+            if (isValidPlayerEntity(window.client.main)) return window.client.main;
             if (isValidPlayerEntity(window.client.main?.entity)) return window.client.main.entity;
             if (isValidPlayerEntity(window.client.self?.entity)) return window.client.self.entity;
             if (isValidPlayerEntity(window.client.player)) return window.client.player;
@@ -855,6 +857,25 @@
                         '</div>' +
                     '</div>' +
                 '</div>' +
+
+                        '<div style="max-height: 220px; overflow-y: auto; border: 1px solid rgba(168, 85, 247, 0.15); border-radius: 8px; background: rgba(5, 2, 12, 0.6);">' +
+                            '<table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left; color: #f3e8ff;">' +
+                                '<thead>' +
+                                    '<tr style="background: rgba(20, 10, 36, 0.85); border-bottom: 1px solid rgba(168, 85, 247, 0.3); color: #cbd5e1; font-size: 10.5px; text-transform: uppercase;">' +
+                                        '<th style="padding: 8px 12px;">Area / Segment</th>' +
+                                        '<th style="padding: 8px 12px;">Split Time</th>' +
+                                        '<th style="padding: 8px 12px;">Segment</th>' +
+                                        '<th style="padding: 8px 12px;">PB Split</th>' +
+                                        '<th style="padding: 8px 12px; text-align: right;">Delta</th>' +
+                                    '</tr>' +
+                                '</thead>' +
+                                '<tbody id="chrono-sr-splits-tbody">' +
+                                    '<tr><td colspan="5" style="padding: 16px; text-align: center; color: #94a3b8; font-style: italic;">Start moving in Area 1 to track live splits in real time.</td></tr>' +
+                                '</tbody>' +
+                            '</table>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
             '</div>' +
         '</div>';
 
@@ -865,33 +886,18 @@
         const paneAc = document.getElementById("chrono-tour-pane-anticheat");
         const paneTs = document.getElementById("chrono-tour-pane-ts");
 
-        if (tab === "anticheat") {
-            if (tabAc) {
-                tabAc.style.background = "rgba(168, 85, 247, 0.25)";
-                tabAc.style.borderColor = "#c084fc";
-                tabAc.style.color = "#f5d0fe";
-            }
-            if (tabTs) {
-                tabTs.style.background = "rgba(255, 255, 255, 0.05)";
-                tabTs.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                tabTs.style.color = "#cbd5e1";
-            }
-            if (paneAc) paneAc.style.display = "flex";
-            if (paneTs) paneTs.style.display = "none";
-        } else {
-            if (tabTs) {
-                tabTs.style.background = "rgba(168, 85, 247, 0.25)";
-                tabTs.style.borderColor = "#c084fc";
-                tabTs.style.color = "#f5d0fe";
-            }
-            if (tabAc) {
-                tabAc.style.background = "rgba(255, 255, 255, 0.05)";
-                tabAc.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                tabAc.style.color = "#cbd5e1";
-            }
-            if (paneAc) paneAc.style.display = "none";
-            if (paneTs) paneTs.style.display = "flex";
-        }
+        const setTabStyle = (el, active) => {
+            if (!el) return;
+            el.style.background = active ? "rgba(168, 85, 247, 0.25)" : "rgba(255, 255, 255, 0.05)";
+            el.style.borderColor = active ? "#c084fc" : "rgba(255, 255, 255, 0.1)";
+            el.style.color = active ? "#f5d0fe" : "#cbd5e1";
+        };
+
+        setTabStyle(tabAc, tab === "anticheat");
+        setTabStyle(tabTs, tab === "ts");
+
+        if (paneAc) paneAc.style.display = (tab === "anticheat" ? "flex" : "none");
+        if (paneTs) paneTs.style.display = (tab === "ts" ? "flex" : "none");
     }
 
     function syncTournamentUi() {
@@ -1035,6 +1041,7 @@
 
         // Sync cargo puzzle sequence
         renderCargoPuzzlePipeline();
+
     }
 
     function renderCargoPuzzlePipeline() {
@@ -1185,31 +1192,20 @@
     }
 
     function toggleTournamentWindow() {
-        const win = document.getElementById("chrono-tournament-window");
-        if (!win) return;
-        const isOpen = (win.style.display === "flex");
-        win.style.display = isOpen ? "none" : "flex";
-        if (!isOpen) {
-            freezePlayerMovement();
+        let modal = document.getElementById("chrono-tournament-window");
+        if (!modal) {
+            mountFreyjaUI();
+            modal = document.getElementById("chrono-tournament-window");
+        }
+        if (!modal) return;
+        if (modal.style.display === "none" || modal.style.display === "") {
+            modal.style.display = "flex";
+            if (typeof window._chrono_freeze_player === "function") window._chrono_freeze_player();
             syncTournamentUi();
+        } else {
+            modal.style.display = "none";
         }
     }
-
-
-        function toggleTournamentWindow() {
-            let modal = document.getElementById("chrono-tournament-window");
-            if (!modal) {
-                mountFreyjaUI();
-                modal = document.getElementById("chrono-tournament-window");
-            }
-            if (!modal) return;
-            if (modal.style.display === "none" || modal.style.display === "") {
-                modal.style.display = "flex";
-                syncTournamentUi();
-            } else {
-                modal.style.display = "none";
-            }
-        }
 
         function mountFreyjaUI() {
             if (!document.body) return;
@@ -1244,10 +1240,10 @@
 
                 const tabAc = document.getElementById("chrono-tour-tab-anticheat");
                 const tabTs = document.getElementById("chrono-tour-tab-ts");
-                if (tabAc) tabAc.onclick = () => switchTourTab("anticheat");
-                if (tabTs) tabTs.onclick = () => switchTourTab("ts");
+                const leftoverHud = document.getElementById("chrono-speedrun-hud");
+                if (leftoverHud) leftoverHud.remove();
 
-                const chkTour = document.getElementById("chrono-tour-enable-chk");
+                const chkTour = document.getElementById("chrono-tour-toggle-btn") || document.getElementById("chrono-tour-enable-chk");
                 if (chkTour) {
                     chkTour.onchange = () => {
                         const enabled = chkTour.checked;
@@ -1256,14 +1252,14 @@
                     };
                 }
 
-                const chkGrb = document.getElementById("chrono-ts-grb-enabled");
+                const chkGrb = document.getElementById("chrono-ts-grb-toggle") || document.getElementById("chrono-ts-grb-enabled");
                 if (chkGrb) {
                     chkGrb.onchange = () => {
                         applyGrbState(chkGrb.checked);
                     };
                 }
 
-                const chkCargo = document.getElementById("chrono-ts-cargo-enabled");
+                const chkCargo = document.getElementById("chrono-ts-cargo-toggle") || document.getElementById("chrono-ts-cargo-enabled");
                 if (chkCargo) {
                     chkCargo.onchange = () => {
                         applyCargoState(chkCargo.checked);

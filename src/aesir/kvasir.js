@@ -127,7 +127,14 @@
         };
         window.Chrono.MAP_COLORS = MAP_COLORS;
 
-        let communityHighscores = typeof __CHRONO_HIGHSCORES !== 'undefined' ? __CHRONO_HIGHSCORES : (window.Chrono.highscores || {});
+        let communityHighscores = (function() {
+            try {
+                const saved = JSON.parse(localStorage.getItem("chrono_community_highscores") || "null");
+                if (saved && (saved.solo || saved.duo)) return saved;
+            } catch(e) {}
+            return typeof __CHRONO_HIGHSCORES !== 'undefined' ? __CHRONO_HIGHSCORES : ((window.Chrono && window.Chrono.highscores) || {});
+        })();
+        if (window.Chrono) window.Chrono.highscores = communityHighscores;
         let currentLbMode = (window.Chrono && window.Chrono.currentLbMode) || "solo";
         window.Chrono.currentLbMode = currentLbMode;
 
@@ -417,8 +424,15 @@
                         }
                     }
                     if (records.length > 0) {
-                        if (!dataByMap[mapName]) dataByMap[mapName] = records;
-                        else dataByMap[mapName].push(...records);
+                        if (!dataByMap[mapName]) {
+                            dataByMap[mapName] = records;
+                        } else {
+                            for (const rec of records) {
+                                if (!dataByMap[mapName].some(x => x.place === rec.place && x.player === rec.player && x.time === rec.time)) {
+                                    dataByMap[mapName].push(rec);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -444,6 +458,26 @@
 
             if (Object.keys(soloParsed).length > 0) communityHighscores.solo = soloParsed;
             if (Object.keys(duoParsed).length > 0) communityHighscores.duo = duoParsed;
+            if (window.Chrono) window.Chrono.highscores = communityHighscores;
+
+            // 1. Instant persistence to localStorage
+            try {
+                localStorage.setItem("chrono_community_highscores", JSON.stringify(communityHighscores));
+            } catch(e) {
+                console.warn("Failed to save highscores to localStorage:", e);
+            }
+
+            // 2. Persistent disk save via Rust IPC
+            try {
+                if (window.ipc && typeof window.ipc.postMessage === "function") {
+                    window.ipc.postMessage(JSON.stringify({
+                        action: "save_highscores",
+                        highscores: communityHighscores
+                    }));
+                }
+            } catch(e) {
+                console.warn("Failed to send save_highscores IPC:", e);
+            }
 
             populateLeaderboardMapSelect();
             renderCommunityLeaderboard();

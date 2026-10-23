@@ -31,7 +31,29 @@
             if (__uiC.acc2) __themeCss = __themeCss.replace(/#047857/gi, __uiC.acc2);
             if (__uiC.acc3) __themeCss = __themeCss.replace(/#10b981/gi, __uiC.acc3);
             customStyle.textContent = __themeCss;
+            if (localStorage.getItem("chrono_mod_hideui") === "1") {
+                customStyle.disabled = true;
+            }
             target.appendChild(customStyle);
+
+            if (localStorage.getItem("chrono_mod_hideui") === "1" && !document.getElementById("chrono-hide-all-ui-style")) {
+                const hideStyle = document.createElement("style");
+                hideStyle.id = "chrono-hide-all-ui-style";
+                hideStyle.textContent = 
+                    "#chrono-fps-hud, " +
+                    "#chrono-hourglass-launcher, " +
+                    "#chrono-tournament-launcher, " +
+                    "#chrono-leaderboard-launcher, " +
+                    "#chrono-runs-launcher, " +
+                    "#chrono-bragi-launcher, " +
+                    "#chrono-keystrokes-hud, " +
+                    "#chrono-tournament-watermark, " +
+                    "#chrono-leaderboard-window, " +
+                    "#chrono-runs-window, " +
+                    "#chrono-tournament-window, " +
+                    ".title[data-chrono-logo] img { display: none !important; }";
+                target.appendChild(hideStyle);
+            }
         }
     }
     injectThemeCss();
@@ -51,25 +73,115 @@
         origDebug.apply(console, args);
     };
 
-    // 1.5. WebSocket Zero-Latency ArrayBuffer Sync Mode
+    // 1.5. WebSocket Zero-Latency Sync Mode
     try {
         if (typeof window !== "undefined" && typeof window.WebSocket !== "undefined") {
-            const OrigWebSocket = window.WebSocket;
-            window.WebSocket = function(...args) {
-                const ws = new OrigWebSocket(...args);
-                if (currentConfig.flag_websocket_arraybuffer) {
-                    try {
-                        ws.binaryType = "arraybuffer";
-                    } catch(e) {}
+            const origAddEventListener = WebSocket.prototype.addEventListener;
+
+            WebSocket.prototype.addEventListener = function(type, listener, options) {
+                if (type === "message" && typeof listener === "function") {
+                    if (currentConfig.flag_websocket_arraybuffer && this.binaryType !== "arraybuffer") {
+                        try { this.binaryType = "arraybuffer"; } catch(e) {}
+                    }
                 }
-                return ws;
+                return origAddEventListener.call(this, type, listener, options);
             };
-            window.WebSocket.prototype = OrigWebSocket.prototype;
-            window.WebSocket.CONNECTING = OrigWebSocket.CONNECTING;
-            window.WebSocket.OPEN = OrigWebSocket.OPEN;
-            window.WebSocket.CLOSING = OrigWebSocket.CLOSING;
-            window.WebSocket.CLOSED = OrigWebSocket.CLOSED;
+
+            const origOnMessageDesc = Object.getOwnPropertyDescriptor(WebSocket.prototype, 'onmessage');
+            if (origOnMessageDesc && origOnMessageDesc.set) {
+                Object.defineProperty(WebSocket.prototype, 'onmessage', {
+                    configurable: true,
+                    enumerable: true,
+                    get() {
+                        return origOnMessageDesc.get.call(this);
+                    },
+                    set(listener) {
+                        if (currentConfig.flag_websocket_arraybuffer && this.binaryType !== "arraybuffer") {
+                            try { this.binaryType = "arraybuffer"; } catch(e) {}
+                        }
+                        origOnMessageDesc.set.call(this, listener);
+                    }
+                });
+            }
         }
+    } catch(e) {}
+
+    // 1.6. Anti-Rollback & Anti-Teleport Smoother Engine
+    // In Evades index.3cc7e136.js, class wg was introduced with:
+    // - if (o && c < 0): brutal snap backward when decelerating/turning directly into mobs
+    // - this.jitterWiden && Bc() > 8 && (m *= 2): doubles lag gap during jitter spikes
+    // - if (b > y) hard snap: snaps at only 4 * speed (~40px), causing instant teleports on any 0.1s lag spike
+    // - Sg.reset() wiping dispX on false-positive teleport detections
+    try {
+        let wgSmootherHooked = false;
+        function hookWgPrototype(proto) {
+            if (!proto || proto._chrono_smoother_hooked || typeof proto.apply !== "function") return;
+            proto._chrono_smoother_hooked = true;
+
+            const origApply = proto.apply;
+
+            proto.reset = function() {
+                this._chrono_pending_reset = true;
+                this.lastVx = 0;
+                this.lastVy = 0;
+            };
+
+            proto.apply = function(e, t, r, i, a, n, o = false) {
+                if (!Number.isFinite(e) || !Number.isFinite(t)) return { x: e, y: t };
+
+                // Handle first frame or explicit portal/death teleport
+                if (void 0 === this.dispX || void 0 === this.dispY) {
+                    this._chrono_pending_reset = false;
+                    return origApply.call(this, e, t, r, i, a, n, false);
+                }
+
+                if (this._chrono_pending_reset) {
+                    this._chrono_pending_reset = false;
+                    const resetDist = Math.hypot(e - this.dispX, t - this.dispY);
+                    if (resetDist > 350) {
+                        this.dispX = e;
+                        this.dispY = t;
+                        this.lastVx = r;
+                        this.lastVy = i;
+                        return { x: e, y: t };
+                    }
+                    // Micro-hitch false alarm: smooth through it instead of snapping!
+                }
+
+                // 1. Permanently neutralize jitterWiden
+                this.jitterWiden = false;
+
+                // 2. Prevent hardSnapFactor from snapping at tiny 40px thresholds
+                const savedHardSnap = this.hardSnapFactor;
+                this.hardSnapFactor = 50;
+
+                // 3. Force o = false: eliminates the harsh "c < 0" deceleration snap that
+                // teleports player backwards into enemies upon key release/turn
+                const res = origApply.call(this, e, t, r, i, a, n, false);
+                this.hardSnapFactor = savedHardSnap;
+                return res;
+            };
+        }
+
+        Object.defineProperty(Object.prototype, "lastVx", {
+            configurable: true,
+            enumerable: false, // Must NEVER be enumerable: prevents core-js polyfill crashes on Math and for..in loops!
+            get() { return this._chrono_lastVx ?? 0; },
+            set(v) {
+                // Define own property on instance so this.lastVx is never undefined/NaN
+                Object.defineProperty(this, "lastVx", {
+                    value: v,
+                    writable: true,
+                    configurable: true,
+                    enumerable: true
+                });
+                if (!wgSmootherHooked && typeof this.apply === "function") {
+                    wgSmootherHooked = true;
+                    hookWgPrototype(Object.getPrototypeOf(this));
+                    try { delete Object.prototype.lastVx; } catch(e) {}
+                }
+            }
+        });
     } catch(e) {}
 
     // 2. Pure passive HUD FPS counter
@@ -92,22 +204,35 @@
     fpsDiv.style.zIndex = "9999999";
     fpsDiv.style.pointerEvents = "none";
     fpsDiv.style.boxShadow = "0 0 10px rgba(16, 185, 129, 0.3)";
-    fpsDiv.innerText = "FPS: ...";
+    fpsDiv.style.transform = "translateZ(0)";
+    fpsDiv.style.willChange = "transform";
+    fpsDiv.style.contain = "layout style paint";
+    fpsDiv.textContent = "FPS: ...";
     
-    function countFps(now) {
-        frameCount++;
-        const elapsed = now - lastHudTime;
-        if (elapsed >= 350) {
-            if (fpsDiv.style.display !== "none") {
-                const fps = Math.round((frameCount * 1000) / elapsed);
-                fpsDiv.innerText = fps + " FPS (" + MONITOR_HZ + "Hz VSync)";
-                const targetCol = fps >= 120 ? "#34d399" : (fps >= 60 ? "#38bdf8" : "#f87171");
-                if (fpsDiv.style.color !== targetCol) {
-                    fpsDiv.style.color = targetCol;
+    let fpsLoopStarted = false;
+    function startFpsLoop() {
+        if (fpsLoopStarted) return;
+        fpsLoopStarted = true;
+        function countFps(now) {
+            frameCount++;
+            const elapsed = now - lastHudTime;
+            if (elapsed >= 350) {
+                if (fpsDiv.style.display !== "none") {
+                    const fps = Math.round((frameCount * 1000) / elapsed);
+                    fpsDiv.textContent = fps + " FPS (" + MONITOR_HZ + "Hz VSync)";
+                    const targetCol = fps >= 120 ? "#34d399" : (fps >= 60 ? "#38bdf8" : "#f87171");
+                    if (fpsDiv.style.color !== targetCol) {
+                        fpsDiv.style.color = targetCol;
+                    }
                 }
+                frameCount = 0;
+                lastHudTime = now;
             }
-            frameCount = 0;
-            lastHudTime = now;
+            if (typeof requestAnimationFrame !== "undefined") {
+                requestAnimationFrame(countFps);
+            } else if (typeof window !== "undefined" && window.requestAnimationFrame) {
+                window.requestAnimationFrame(countFps);
+            }
         }
         if (typeof requestAnimationFrame !== "undefined") {
             requestAnimationFrame(countFps);
@@ -120,7 +245,9 @@
     let enemyOutlineMode = localStorage.getItem("chrono_enemy_outline_mode") || "default";
     let enemyOutlineColor = localStorage.getItem("chrono_enemy_outline_color") || "#34d399";
     let enemyOutlineWidth = parseFloat(localStorage.getItem("chrono_enemy_outline_width") || "2");
-    let enemyOutlineGlow = parseFloat(localStorage.getItem("chrono_enemy_outline_glow") || "8");
+    let enemyOutlineGlow = parseFloat(localStorage.getItem("chrono_enemy_outline_glow") || "0");
+
+    let _chrono_sync_stroke_hook = null;
 
     window._chrono_set_outline_mode = function(mode, col, w, g) {
         enemyOutlineMode = mode;
@@ -133,6 +260,7 @@
             window.Chrono.enemyOutlineWidth = enemyOutlineWidth;
             window.Chrono.enemyOutlineGlow = enemyOutlineGlow;
         }
+        if (typeof _chrono_sync_stroke_hook === "function") _chrono_sync_stroke_hook();
     };
 
     let chronoEnemyOverrides = {};
@@ -146,6 +274,7 @@
         chronoEnemyOverrides = overrides || {};
         hasChronoEnemyOverrides = Object.keys(chronoEnemyOverrides).length > 0;
         if (window.Chrono) window.Chrono.enemyOverrides = chronoEnemyOverrides;
+        if (typeof _chrono_sync_stroke_hook === "function") _chrono_sync_stroke_hook();
     };
 
     const CHRONO_ENEMY_CATALOG = {
@@ -399,16 +528,23 @@
     }
 
     const origStroke = CanvasRenderingContext2D.prototype.stroke;
-    CanvasRenderingContext2D.prototype.stroke = function(...args) {
-        if (enemyOutlineMode === "default" && !hasChronoEnemyOverrides) {
-            return origStroke.apply(this, args);
+    window._chrono_orig_stroke = origStroke;
+
+    let _chrono_active_enemy = null;
+    let _chrono_stroke_hook_active = false;
+
+    function chronoCustomStroke(path) {
+        // Fast-path: Zero-cost pass-through for anything not actively inside an enemy render
+        if (!_chrono_active_enemy || this._chrono_internal) {
+            return path !== undefined ? origStroke.call(this, path) : origStroke.call(this);
         }
 
-        if (typeof this.strokeStyle !== "string") {
-            return origStroke.apply(this, args);
+        const curStroke = this.strokeStyle;
+        if (typeof curStroke !== "string") {
+            return path !== undefined ? origStroke.call(this, path) : origStroke.call(this);
         }
 
-        const st = this.strokeStyle.toLowerCase().trim();
+        const st = curStroke.toLowerCase();
         const isOutlineStroke = (
             st === "#000000" || st === "#000" || st === "black" ||
             st === "#ffffff" || st === "#fff" || st === "white" ||
@@ -419,42 +555,43 @@
             st === "#222222" || st === "#333333" || st === "rgba(0, 0, 0, 0.8)"
         );
 
-        if (isOutlineStroke && typeof this.fillStyle === "string") {
-            const fsNorm = normalizeColor(this.fillStyle);
-            const enemyId = colorToEnemyMap[fsNorm] || colorToEnemyMap[this.fillStyle.toLowerCase()];
+        if (isOutlineStroke) {
+            const enemy = _chrono_active_enemy;
+            let enemyId = (enemy && (enemy.type || enemy.enemyType || enemy.name)) || null;
+            let fsNorm = "";
+            if (!enemyId && typeof this.fillStyle === "string") {
+                fsNorm = normalizeColor(this.fillStyle);
+                enemyId = colorToEnemyMap[fsNorm] || colorToEnemyMap[this.fillStyle.toLowerCase()];
+            } else if (typeof this.fillStyle === "string") {
+                fsNorm = normalizeColor(this.fillStyle);
+            }
 
             let customCol = null;
             let customWidth = enemyOutlineWidth || 2.0;
-            let customGlow = enemyOutlineGlow || 0;
 
             if (enemyId) {
                 const familyId = enemyToFamilyMap[enemyId];
                 // Priority 1: Individual Override
                 if (chronoEnemyOverrides[enemyId]) {
                     customCol = chronoEnemyOverrides[enemyId];
-                    customGlow = enemyOutlineGlow > 0 ? enemyOutlineGlow : 8;
                 } 
                 // Priority 2: Family Override
                 else if (familyId && chronoEnemyOverrides[familyId]) {
                     customCol = chronoEnemyOverrides[familyId];
-                    customGlow = enemyOutlineGlow > 0 ? enemyOutlineGlow : 8;
                 }
             }
 
-            // Priority 3: Preset / Outline Mode
-            if (!customCol && enemyOutlineMode !== "default" && (enemyId || this.canvas?.id === "canvas" || this.canvas?.id === "game")) {
+            // Priority 3: Preset / Outline Mode (Apply exclusively to verified enemies, NOT arbitrary canvas objects!)
+            if (!customCol && enemyOutlineMode !== "default" && enemyId) {
                 if (enemyOutlineMode === "chrono") {
                     customCol = "#34d399";
-                    customGlow = 8;
                     customWidth = 2.5;
                 } else if (enemyOutlineMode === "volcano") {
                     customCol = "#ef4444";
-                    customGlow = 10;
                     customWidth = 2.5;
                 } else if (enemyOutlineMode === "rainbow") {
                     const hue = Math.floor((performance.now() / 8) % 360);
                     customCol = "hsl(" + hue + ", 100%, 55%)";
-                    customGlow = 8;
                     customWidth = 2.5;
                 } else if (enemyOutlineMode === "smart") {
                     let r = 0, g = 0, b = 0;
@@ -465,42 +602,48 @@
                     }
                     const lum = 0.299 * r + 0.587 * g + 0.114 * b;
                     customCol = lum > 127 ? "#000000" : "#ffffff";
-                    customGlow = 4;
                     customWidth = 2.5;
                 } else if (enemyOutlineMode === "custom") {
                     customCol = enemyOutlineColor || "#34d399";
                     customWidth = enemyOutlineWidth || 2.0;
-                    customGlow = enemyOutlineGlow || 0;
                 }
             }
 
             if (customCol) {
                 const oldColor = this.strokeStyle;
                 const oldWidth = this.lineWidth;
-                const oldShadow = this.shadowColor;
-                const oldBlur = this.shadowBlur;
 
                 this.strokeStyle = customCol;
                 if (customWidth) {
                     this.lineWidth = customWidth;
                 }
-                if (customGlow > 0) {
-                    this.shadowColor = customCol;
-                    this.shadowBlur = customGlow;
-                }
 
-                origStroke.apply(this, args);
+                // Native hardware stroke - zero shadowBlur GPU/CPU lag!
+                if (path !== undefined) origStroke.call(this, path);
+                else origStroke.call(this);
 
                 this.strokeStyle = oldColor;
                 this.lineWidth = oldWidth;
-                this.shadowColor = oldShadow;
-                this.shadowBlur = oldBlur;
                 return;
             }
         }
 
-        return origStroke.apply(this, args);
+        return path !== undefined ? origStroke.call(this, path) : origStroke.call(this);
+    }
+
+    _chrono_sync_stroke_hook = function() {
+        const needHook = (enemyOutlineMode !== "default" || hasChronoEnemyOverrides);
+        if (needHook && !_chrono_stroke_hook_active) {
+            _chrono_stroke_hook_active = true;
+            CanvasRenderingContext2D.prototype.stroke = chronoCustomStroke;
+        } else if (!needHook && _chrono_stroke_hook_active) {
+            _chrono_stroke_hook_active = false;
+            CanvasRenderingContext2D.prototype.stroke = origStroke;
+        }
     };
+
+    // Initialize stroke hook state: if default, prototype.stroke remains 100% UNTOUCHED (native C++)!
+    _chrono_sync_stroke_hook();
 
     // ── Exact Evades Fading Effects & Pre-Attack Visual Engine ──
     try {
@@ -524,30 +667,23 @@
             if (typeof origRender !== "function") return;
 
             proto.render = function(ctx, camera) {
-                // 1. Draw base enemy first
+                // 1. Tag active enemy ONLY if custom stroke hook is active
+                // Zero native host object property mutation on ctx!
+                if (_chrono_stroke_hook_active) _chrono_active_enemy = this;
                 origRender.call(this, ctx, camera);
+                if (_chrono_stroke_hook_active) _chrono_active_enemy = null;
 
                 if (!window._chrono_enable_visual_tells || !ctx || !camera) return;
 
-                // 2. High-performance tell check directly on enemy properties
-                // In Evades.io:
-                // - Snipers charge their shot using `releaseTime` (500ms window before firing, where game draws rgba(1,1,1,t))
-                // - Slashers charge using `slashTime` (200-600ms window)
-                // - `this.fading` is only for spawn fade-in (which was falsely triggering on sizing enemies!)
-                if (this.radius > 35) return;
-
-                const pred = (typeof this.predictedTimeLeft === "function") ? (t => this.predictedTimeLeft(t)) : (t => t);
+                // 2. High-performance direct tell check with ZERO closures
                 let isSniperTell = false;
                 let isSlasherTell = false;
                 let progress = 0;
 
                 // ── A. Snipers: releaseTime countdown (charges 500ms before firing) ──
                 if (typeof this.releaseTime === "number") {
-                    const s = (typeof this.predictedTimeLeft === "function")
-                        ? this.predictedTimeLeft(this.releaseTime)
-                        : ((typeof this.getEffectiveTimeLeft === "function") ? this.getEffectiveTimeLeft() : this.releaseTime);
-
-                    if (s >= -100 && s <= 550) {
+                    const s = this.predictedTimeLeft ? this.predictedTimeLeft(this.releaseTime) : this.releaseTime;
+                    if (s >= -50 && s <= 500) {
                         isSniperTell = true;
                         progress = Math.min(1.0, Math.max(0.05, (500 - Math.max(0, s)) / 500));
                     }
@@ -555,7 +691,7 @@
 
                 // ── B. Slashers: slashTime pre-attack animation (200-600ms) ──
                 if (!isSniperTell && typeof this.slashTime === "number") {
-                    const f = pred(this.slashTime);
+                    const f = this.predictedTimeLeft ? this.predictedTimeLeft(this.slashTime) : this.slashTime;
                     if (f >= 200 && f <= 600) {
                         isSlasherTell = true;
                         progress = Math.min(1.0, Math.max(0.05, (f - 200) / 400));
@@ -573,7 +709,16 @@
                 const rad = camera.toScale(this.visualRadius ?? this.radius);
                 if (!Number.isFinite(cx) || !Number.isFinite(cy) || !Number.isFinite(rad) || rad <= 0) return;
 
-                ctx.save();
+                // Screen culling: don't render warning rings for offscreen entities
+                const cw = (camera.canvas && camera.canvas.width) || (ctx.canvas && ctx.canvas.width) || 1280;
+                const ch = (camera.canvas && camera.canvas.height) || (ctx.canvas && ctx.canvas.height) || 720;
+                if (cx < -60 || cx > cw + 60 || cy < -60 || cy > ch + 60) return;
+
+                // Lightweight property caching - zero native state stack push/pop overhead!
+                const prevLineWidth = ctx.lineWidth;
+                const prevStrokeStyle = ctx.strokeStyle;
+                const prevAlpha = ctx.globalAlpha;
+                const prevFillStyle = ctx.fillStyle;
 
                 // Outer warning ring
                 ctx.beginPath();
@@ -600,7 +745,7 @@
                     }
                 }
                 ctx.globalAlpha = 1;
-                ctx.stroke();
+                origStroke.call(ctx);
 
                 // Progress countdown arc
                 ctx.beginPath();
@@ -609,7 +754,7 @@
                 ctx.strokeStyle = isSlasherTell
                     ? (progress > 0.7 ? "#a855f7" : "#00f2fe")
                     : (progress > 0.82 ? "#ff0055" : (progress > 0.5 ? "#ff9f1a" : "#00f2fe"));
-                ctx.stroke();
+                origStroke.call(ctx);
 
                 // Core flash at critical threshold
                 if (progress >= 0.75) {
@@ -619,7 +764,11 @@
                     ctx.fill();
                 }
 
-                ctx.restore();
+                // Direct property restoration
+                ctx.lineWidth = prevLineWidth;
+                ctx.strokeStyle = prevStrokeStyle;
+                ctx.globalAlpha = prevAlpha;
+                ctx.fillStyle = prevFillStyle;
             };
         }
 
@@ -635,39 +784,17 @@
             return false;
         }
 
-        // Intercept Enemy class definition as soon as the first enemy is instantiated
+        // Intercept Enemy class definition cleanly without polluting Object.prototype
         try {
-            let _fadingStateVal = false;
-            Object.defineProperty(Object.prototype, "fadingState", {
-                configurable: true,
-                enumerable: false,
-                get() { return _fadingStateVal; },
-                set(val) {
-                    Object.defineProperty(this, "fadingState", {
-                        value: val,
-                        writable: true,
-                        configurable: true,
-                        enumerable: true
-                    });
-                    if (tryHookProto(this)) {
-                        try { delete Object.prototype.fadingState; } catch(e) {}
-                    }
-                }
-            });
             Object.defineProperty(Object.prototype, "isEnemy", {
                 configurable: true,
                 enumerable: false,
                 get() { return undefined; },
                 set(val) {
-                    Object.defineProperty(this, "isEnemy", {
-                        value: val,
-                        writable: true,
-                        configurable: true,
-                        enumerable: true
-                    });
-                    if (tryHookProto(this)) {
-                        try { delete Object.prototype.isEnemy; } catch(e) {}
-                    }
+                    delete Object.prototype.isEnemy;
+                    try { delete Object.prototype.fadingState; } catch(e) {}
+                    this.isEnemy = val;
+                    tryHookProto(this);
                 }
             });
         } catch(e) {}
@@ -697,12 +824,8 @@
 
         if (!document.getElementById("chrono-fps-hud")) {
             document.body.appendChild(fpsDiv);
-            if (typeof requestAnimationFrame !== "undefined") {
-                requestAnimationFrame(countFps);
-            } else if (typeof window !== "undefined" && window.requestAnimationFrame) {
-                window.requestAnimationFrame(countFps);
-            }
         }
+        startFpsLoop();
     }
 
     mountCoreUI();
@@ -718,22 +841,6 @@
         } catch(e) {}
 
         try {
-            const allElements = document.querySelectorAll(".account-header, .logged-in-as, div, span, p, b, strong");
-            for (let i = 0; i < allElements.length; i++) {
-                const t = allElements[i].innerText;
-                if (t && t.includes("Logged in as:")) {
-                    const split = t.split("Logged in as:");
-                    if (split[1]) {
-                        const name = split[1].trim();
-                        if (name && name.length > 0 && name.length < 30 && name.toLowerCase() !== "guest") {
-                            return name;
-                        }
-                    }
-                }
-            }
-        } catch(e) {}
-
-        try {
             const profLink = document.querySelector('a[href^="/profile/"], a.profile-link');
             if (profLink) {
                 const href = profLink.getAttribute("href") || "";
@@ -741,6 +848,23 @@
                     const slug = decodeURIComponent(href.replace("/profile/", "")).trim();
                     if (slug && !slug.includes("/") && slug.length < 30 && slug.toLowerCase() !== "guest") {
                         return slug;
+                    }
+                }
+            }
+        } catch(e) {}
+
+        try {
+            // Target specific account containers only, using textContent (zero layout reflow!)
+            const accountContainers = document.querySelectorAll(".account-header, .logged-in-as, #account-info, .user-name");
+            for (let i = 0; i < accountContainers.length; i++) {
+                const t = accountContainers[i].textContent;
+                if (t && t.includes("Logged in as:")) {
+                    const split = t.split("Logged in as:");
+                    if (split[1]) {
+                        const name = split[1].trim();
+                        if (name && name.length > 0 && name.length < 30 && name.toLowerCase() !== "guest") {
+                            return name;
+                        }
                     }
                 }
             }
@@ -758,9 +882,10 @@
                     if (window.game.self.spectating || window.game.self.isSpectating) return true;
                     if (window.game.self.dead && window.game.players && window.game.players.length > 0) return true;
                 }
+                return false;
             }
-            const spectateDom = document.querySelector(".spectating-banner, .spectator-controls, .spectate-info, .spectator-bar, .spectating-ui, .spectating, [class*='spectat']");
-            if (spectateDom && spectateDom.offsetParent !== null) return true;
+            const spectateDom = document.querySelector(".spectating-banner, .spectator-controls, .spectate-info, .spectator-bar, .spectating-ui, .spectating");
+            if (spectateDom && !spectateDom.hidden && spectateDom.style.display !== "none" && spectateDom.style.visibility !== "hidden") return true;
         } catch(e) {}
         return false;
     }
@@ -847,7 +972,7 @@
         try {
             const canvas = document.getElementById("canvas");
             if (!canvas) return false;
-            if (canvas.style.display === "none" || canvas.style.visibility === "hidden" || canvas.offsetParent === null) return false;
+            if (canvas.hidden || canvas.style.display === "none" || canvas.style.visibility === "hidden") return false;
             if (isAnyMenuOpen()) return false;
             if (typeof isPlayerSpectating === "function" && isPlayerSpectating()) return false;
             const path = window.location.pathname;
@@ -858,39 +983,47 @@
         }
     }
 
+    let lastAnticheatStateKey = "";
     function chronoTick() {
-        const path = window.location.pathname;
-        if (path.startsWith("/profile")) {
-            if (typeof window.enhanceProfilePage === "function") window.enhanceProfilePage();
-            else if (typeof enhanceProfilePage === "function") enhanceProfilePage();
-        } else if (path.startsWith("/account")) {
-            if (typeof window.enhanceAccountPage === "function") window.enhanceAccountPage();
-            else if (typeof enhanceAccountPage === "function") enhanceAccountPage();
-        }
-        if (typeof window.trackCurrentUser === "function") window.trackCurrentUser();
-        else if (typeof trackCurrentUser === "function") trackCurrentUser();
-        if (typeof syncKeybindsFromDom === "function") syncKeybindsFromDom();
-        if (!isEvadesInGame()) {
+        const inGame = isEvadesInGame();
+        if (!inGame) {
+            const path = window.location.pathname;
+            if (path.startsWith("/profile")) {
+                if (typeof window.enhanceProfilePage === "function") window.enhanceProfilePage();
+                else if (typeof enhanceProfilePage === "function") enhanceProfilePage();
+            } else if (path.startsWith("/account")) {
+                if (typeof window.enhanceAccountPage === "function") window.enhanceAccountPage();
+                else if (typeof enhanceAccountPage === "function") enhanceAccountPage();
+            }
+            if (typeof window.trackCurrentUser === "function") window.trackCurrentUser();
+            else if (typeof trackCurrentUser === "function") trackCurrentUser();
             if (typeof window.applyHudLayout === "function") window.applyHudLayout();
             else if (typeof applyHudLayout === "function") applyHudLayout();
         }
-        
-        const inGame = isEvadesInGame();
+
+        const isTourActive = (localStorage.getItem("chrono_tournament_mode") === "true");
         const isSpectating = isPlayerSpectating();
         const isFocused = Boolean(document.hasFocus && document.hasFocus());
-        if (window.ipc) {
-            window.ipc.postMessage(JSON.stringify({
-                action: "sync_anticheat_state",
-                active: (localStorage.getItem("chrono_tournament_mode") === "true"),
-                in_game: inGame,
-                spectating: isSpectating,
-                focused: isFocused
-            }));
+
+        // Zero-cost diff: only post IPC message across process boundary when state actually changes!
+        const stateKey = (isTourActive ? "1" : "0") + (inGame ? "1" : "0") + (isSpectating ? "1" : "0") + (isFocused ? "1" : "0");
+        if (stateKey !== lastAnticheatStateKey) {
+            lastAnticheatStateKey = stateKey;
+            if (window.ipc) {
+                window.ipc.postMessage(JSON.stringify({
+                    action: "sync_anticheat_state",
+                    active: isTourActive,
+                    in_game: inGame,
+                    spectating: isSpectating,
+                    focused: isFocused
+                }));
+            }
         }
     }
-    setInterval(chronoTick, 500);
+    setInterval(chronoTick, 1000);
 
-    // 10. Discord Rich Presence State Observer
+    // 10. Discord Rich Presence State Observer (diffed to eliminate IPC spam)
+    let lastDiscordStateKey = "";
     function updateDiscordRPC() {
         try {
             if (!window.ipc) return;
@@ -898,19 +1031,23 @@
             const inGame = Boolean(canvas && canvas.style.display !== "none");
             
             let status = inGame ? "Online" : "Idle";
-            if (document.querySelector(".runs-interface") || document.querySelector(".hall-of-fame-archive-page")) {
+            if (!inGame && (document.querySelector(".runs-interface") || document.querySelector(".hall-of-fame-archive-page"))) {
                 status = "Highscore";
             }
 
-            window.ipc.postMessage(JSON.stringify({
-                in_game: inGame,
-                status: status,
-                enabled: currentConfig.discord_rpc_enabled
-            }));
+            const stateKey = (inGame ? "1" : "0") + status + (currentConfig.discord_rpc_enabled ? "1" : "0");
+            if (stateKey !== lastDiscordStateKey) {
+                lastDiscordStateKey = stateKey;
+                window.ipc.postMessage(JSON.stringify({
+                    in_game: inGame,
+                    status: status,
+                    enabled: currentConfig.discord_rpc_enabled
+                }));
+            }
         } catch(e) {}
     }
 
-    setInterval(updateDiscordRPC, 2000);
+    setInterval(updateDiscordRPC, 3000);
 
     // ── Synthetic DOM Event Guard (isTrusted enforcement) ──
     const blockUntrustedEvents = function(e) {
@@ -930,12 +1067,14 @@
 
     // Global Key Listener: ESC to toggle menu, F5 to reload, F11 for fullscreen, and freeze game inputs when in menu
     window.addEventListener("keydown", (e) => {
-        // Block DevTools shortcuts (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C)
-        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c"))) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            return;
+        // Block DevTools shortcuts (F12, Ctrl+Shift+I, etc.) in Tournament Mode only
+        if (localStorage.getItem("chrono_tournament_mode") === "true") {
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c"))) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                return;
+            }
         }
 
         if (e.key === "Escape") {

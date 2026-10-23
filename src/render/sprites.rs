@@ -132,8 +132,8 @@ impl SpriteRenderer {
         }
 
         // 3. Render Local Player (on top)
-        if let Some(player) = &world.local_player {
-            if player.alive {
+        if let Some(player) = &world.local_player
+            && player.alive {
                 self.instances.push(InstanceRaw::circle(
                     [player.pos.x, player.pos.y],
                     player.radius,
@@ -142,7 +142,6 @@ impl SpriteRenderer {
                     3.5,
                 ));
             }
-        }
 
         if self.instances.is_empty() {
             return 0;
@@ -167,8 +166,8 @@ impl SpriteRenderer {
         pipeline: &'a super::pipeline::RenderPipeline2D,
         count: usize,
     ) {
-        if let Some(instance_buffer) = &self.instance_buffer {
-            if count > 0 {
+        if let Some(instance_buffer) = &self.instance_buffer
+            && count > 0 {
                 render_pass.set_pipeline(&pipeline.pipeline);
                 render_pass.set_bind_group(0, &pipeline.camera_bind_group, &[]);
                 render_pass.set_vertex_buffer(0, pipeline.vertex_buffer.slice(..));
@@ -179,6 +178,5 @@ impl SpriteRenderer {
                 );
                 render_pass.draw_indexed(0..6, 0, 0..count as u32);
             }
-        }
     }
 }

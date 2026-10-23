@@ -45,7 +45,7 @@ impl HeroType {
     pub fn from_i32(val: i32) -> Option<Self> {
         if (0..=31).contains(&val) {
             // Safe due to #[repr(i32)] and contiguous range 0..=31
-            Some(unsafe { std::mem::transmute(val) })
+            Some(unsafe { std::mem::transmute::<i32, HeroType>(val) })
         } else {
             None
         }
@@ -486,6 +486,7 @@ pub struct FramePayload {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum ServerMessage {
     Connection(ConnectionPayload),
     Frame(FramePayload),

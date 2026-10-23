@@ -45,11 +45,11 @@ pub fn spawn_discord_rpc(app_id: Option<String>, rx: Receiver<PresenceData>) {
             // Ensure connected to Discord IPC
             if client.is_none() && last_connect_attempt.elapsed() > std::time::Duration::from_secs(5) {
                 last_connect_attempt = std::time::Instant::now();
-                if let Ok(mut c) = DiscordIpcClient::new(&target_app_id) {
-                    if c.connect().is_ok() {
-                        tracing::info!("Discord Rich Presence connected with App ID: {}", target_app_id);
-                        client = Some(c);
-                    }
+                if let Ok(mut c) = DiscordIpcClient::new(&target_app_id)
+                    && c.connect().is_ok()
+                {
+                    tracing::info!("Discord Rich Presence connected with App ID: {}", target_app_id);
+                    client = Some(c);
                 }
             }
 
