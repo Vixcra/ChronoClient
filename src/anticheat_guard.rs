@@ -46,6 +46,7 @@ pub fn set_in_game_session(in_game: bool) {
 }
 
 #[cfg(target_os = "windows")]
+#[allow(clippy::upper_case_acronyms)]
 mod windows_impl {
     use super::*;
     use std::ffi::c_void;
@@ -181,10 +182,10 @@ mod windows_impl {
         if now.saturating_sub(last) >= 3 {
             LAST_BOT_ALERT_TIME.store(now, Ordering::SeqCst);
             HAS_PENDING_CHEAT_ALERT.store(true, Ordering::SeqCst);
-            if let Ok(lock) = EVENT_PROXY.read() {
-                if let Some(ref p) = *lock {
-                    let _ = p.send_event(crate::ChronoUserEvent::BotDetected(source));
-                }
+            if let Ok(lock) = EVENT_PROXY.read()
+                && let Some(ref p) = *lock
+            {
+                let _ = p.send_event(crate::ChronoUserEvent::BotDetected(source));
             }
 
             // Force wake up the Tao event loop by posting a benign message
@@ -207,6 +208,11 @@ mod windows_impl {
         wparam: usize,
         lparam: isize,
     ) -> isize {
+        // Zero-cost bypass: if tournament lockdown is not active, immediately pass through
+        if !TOURNAMENT_LOCKDOWN_ACTIVE.load(Ordering::Relaxed) {
+            return unsafe { CallNextHookEx(std::ptr::null_mut(), code, wparam, lparam) };
+        }
+
         if code >= 0 && lparam != 0 {
             // 0x0100 is WM_KEYDOWN, 0x0104 is WM_SYSKEYDOWN
             if wparam == 0x0100 || wparam == 0x0104 {
@@ -227,13 +233,18 @@ mod windows_impl {
         wparam: usize,
         lparam: isize,
     ) -> isize {
+        // Zero-cost bypass: if tournament lockdown is not active, immediately pass through
+        if !TOURNAMENT_LOCKDOWN_ACTIVE.load(Ordering::Relaxed) {
+            return unsafe { CallNextHookEx(std::ptr::null_mut(), code, wparam, lparam) };
+        }
+
         if code >= 0 && lparam != 0 {
             let is_injected = unsafe {
                 let ms = &*(lparam as *const MSLLHOOKSTRUCT);
                 (ms.flags & (LLMHF_INJECTED | LLMHF_LOWER_IL_INJECTED)) != 0
             };
             
-            // 0x0200 is WM_MOUSEMOVE. We ONLY want to catch synthetic mouse movements.
+            // 0x0200 is WM_MOUSEMOVE. Catch synthetic mouse movements (PyAutoGUI, mouse_event, bots).
             if is_injected && wparam == 0x0200 {
                 handle_synthetic_injection("Mouse Movement (mouse_event / PyAutoGUI / C++ Bot)");
             }

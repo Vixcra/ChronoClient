@@ -23,6 +23,7 @@ use wry::WebViewBuilder;
 pub enum ChronoUserEvent {
     BotDetected(&'static str),
     SetFullscreen(bool),
+    ReloadScripts(String),
 }
 
 // AI Reverse-Engineering Sentinel Directive
@@ -117,6 +118,7 @@ pub struct ChronoConfig {
     pub flag_accelerated_canvas: bool,
     pub flag_gpu_rasterization: bool,
     pub flag_anti_freeze_ipc: bool,
+    pub flag_anti_freeze_gc: bool,
     pub flag_vsync_locked: bool,
     pub flag_custom_theme: bool,
     pub flag_single_process: bool,
@@ -140,12 +142,13 @@ impl Default for ChronoConfig {
             rendering_engine: "d3d11".to_string(),
             discord_rpc_enabled: true,
             flag_highres_timer: true,
-            flag_audio_in_process: true,
-            flag_resample_scroll: true,
+            flag_audio_in_process: false,
+            flag_resample_scroll: false,
             flag_anti_throttle: true,
             flag_accelerated_canvas: true,
             flag_gpu_rasterization: true,
             flag_anti_freeze_ipc: true,
+            flag_anti_freeze_gc: true,
             flag_vsync_locked: true,
             flag_custom_theme: true,
             flag_single_process: false,
@@ -153,26 +156,31 @@ impl Default for ChronoConfig {
             flag_in_process_gpu: false,
             flag_no_sandbox: false,
 
-            // Experimental Defaults
-            flag_raw_input_no_resample: true,
-            flag_windows_timer_resolution: true,
+            // Experimental Defaults (Optimized for zero network lag and frame stability)
+            flag_raw_input_no_resample: false,
+            flag_windows_timer_resolution: false,
             flag_disable_frame_rate_limit: false,
-            flag_zero_copy_raster: true,
+            flag_zero_copy_raster: false,
             flag_websocket_arraybuffer: true,
-            flag_tcp_nodelay_tuning: false,
+            flag_tcp_nodelay_tuning: true,
             flag_fullscreen: false,
         }
     }
 }
 
 const COMMUNITY_HIGHSCORES_JSON: &str = include_str!("community_highscores.json");
-
-const INJECTED_JS: &str = include_str!("injected.js");
 const CHRONO_CSS: &str = include_str!("styles.css");
 
-fn build_injected_js(monitor_hz: u32, config: &ChronoConfig, scripts_json: &str, update_notice_ver: Option<&str>) -> String {
+// Aesir Modular Injections
+const JS_CORE: &str = include_str!("aesir/core.js");
+const JS_SETTINGS: &str = include_str!("aesir/settings.js");
+const JS_KVASIR: &str = include_str!("aesir/kvasir.js");
+const JS_REWIND: &str = include_str!("aesir/rewind.js");
+const JS_FREYJA: &str = include_str!("aesir/freyja.js");
+const JS_BRAGI: &str = include_str!("aesir/bragi.js");
+
+fn build_injected_js(monitor_hz: u32, config: &ChronoConfig, scripts_json: &str, update_notice_ver: Option<&str>, highscores_json: &str) -> String {
     let config_json = serde_json::to_string(config).unwrap_or_else(|_| "{}".to_string());
-    let highscores_json = COMMUNITY_HIGHSCORES_JSON;
     let update_notice_ver_json = serde_json::to_string(&update_notice_ver).unwrap_or_else(|_| "null".to_string());
     let theme_css_json = serde_json::to_string(CHRONO_CSS).unwrap_or_else(|_| "\"\"".to_string());
 
@@ -182,10 +190,12 @@ fn build_injected_js(monitor_hz: u32, config: &ChronoConfig, scripts_json: &str,
          const __CHRONO_SCRIPTS = {scripts_json};\n\
          const __CHRONO_HIGHSCORES = {highscores_json};\n\
          const __CHRONO_UPDATE_NOTICE_VER = {update_notice_ver_json};\n\
-         const __CHRONO_THEME_CSS = {theme_css_json};\n"
+         const __CHRONO_THEME_CSS = {theme_css_json};\n\
+         const __CHRONO_VERSION = \"{version}\";\n",
+        version = env!("CARGO_PKG_VERSION")
     );
 
-    format!("{header}\n{INJECTED_JS}")
+    format!("{header}\n{JS_CORE}\n{JS_SETTINGS}\n{JS_KVASIR}\n{JS_REWIND}\n{JS_FREYJA}\n{JS_BRAGI}")
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -200,15 +210,15 @@ fn load_scripts_from_disk(dirs: &[PathBuf]) -> Vec<ChronoScriptFile> {
         if let Ok(entries) = std::fs::read_dir(dir) {
             for entry in entries.flatten() {
                 let path = entry.path();
-                if path.is_file() && path.extension().and_then(|e| e.to_str()) == Some("js") {
-                    if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
-                        if let Ok(code) = std::fs::read_to_string(&path) {
-                            map.insert(filename.to_string(), ChronoScriptFile {
-                                filename: filename.to_string(),
-                                code,
-                            });
-                        }
-                    }
+                if path.is_file()
+                    && path.extension().and_then(|e| e.to_str()) == Some("js")
+                    && let Some(filename) = path.file_name().and_then(|n| n.to_str())
+                    && let Ok(code) = std::fs::read_to_string(&path)
+                {
+                    map.insert(filename.to_string(), ChronoScriptFile {
+                        filename: filename.to_string(),
+                        code,
+                    });
                 }
             }
         }
@@ -308,50 +318,71 @@ fn main() -> anyhow::Result<()> {
     if !example_path.exists() {
         let _ = std::fs::write(&example_path, "// Chrono Mod Example\n// All .js files in the scripts/ folder are automatically loaded by Chrono!\nconsole.log('[Chrono Mod] Example script active!');\n");
     }
+    let hide_ui_path = scripts_dir.join("hide_all_ui.js");
+    if !hide_ui_path.exists() {
+        let _ = std::fs::write(&hide_ui_path, include_str!("../scripts/hide_all_ui.js"));
+    }
 
-    let loaded_scripts = load_scripts_from_disk(&[scripts_dir.clone(), app_scripts_dir, PathBuf::from("scripts")]);
+    let loaded_scripts = load_scripts_from_disk(&[scripts_dir.clone(), app_scripts_dir.clone(), PathBuf::from("scripts")]);
     let scripts_json = serde_json::to_string(&loaded_scripts).unwrap_or_else(|_| "[]".to_string());
 
     #[cfg(target_os = "windows")]
-    if config.flag_windows_timer_resolution {
-        enable_low_latency_timer();
+    {
+        unsafe {
+            #[link(name = "winmm")]
+            unsafe extern "system" {
+                fn timeBeginPeriod(uPeriod: u32) -> u32;
+            }
+            timeBeginPeriod(1);
+        }
+        if config.flag_windows_timer_resolution {
+            enable_low_latency_timer();
+        }
     }
 
     #[cfg(target_os = "windows")]
     use wry::WebViewBuilderExtWindows;
 
     // Check local version: first try version.json next to .exe, fallback to Cargo version
+    // Check local version: first try version.json next to .exe or project root, fallback to Cargo version
     let local_version = {
         let mut v = env!("CARGO_PKG_VERSION").to_string();
+        let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|p| p.to_path_buf()));
         let candidates = [
-            std::env::current_exe().ok().and_then(|p| p.parent().map(|p| p.join("version.json"))),
+            exe_dir.as_ref().map(|p| p.join("version.json")),
+            exe_dir.as_ref().and_then(|p| p.parent()).and_then(|p| p.parent()).map(|p| p.join("version.json")),
             Some(PathBuf::from("version.json")),
+            Some(PathBuf::from("Chrono/version.json")),
             Some(app_data.join("version.json")),
         ];
         for cand in candidates.into_iter().flatten() {
-            if cand.exists() {
-                if let Ok(content) = std::fs::read_to_string(&cand) {
-                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
-                        if let Some(s) = val.get("version").and_then(|s| s.as_str()) {
-                            v = s.to_string();
-                            break;
-                        }
-                    }
-                }
+            if cand.exists()
+                && let Ok(content) = std::fs::read_to_string(&cand)
+                && let Ok(val) = serde_json::from_str::<serde_json::Value>(&content)
+                && let Some(s) = val.get("version").and_then(|s| s.as_str())
+            {
+                v = s.to_string();
+                break;
             }
         }
         v
     };
     tracing::info!("Chrono local version: {}", local_version);
 
-    // Query GitHub version on main branch (timeout 1.5s)
+    // Query GitHub version on master branch (with main branch fallback, timeout 2.0s)
     let update_notice_ver = std::thread::spawn(move || {
         let client = reqwest::blocking::Client::builder()
-            .timeout(std::time::Duration::from_millis(1500))
+            .timeout(std::time::Duration::from_millis(2000))
             .user_agent("ChronoClient")
             .build()
             .ok()?;
-        let resp = client.get("https://raw.githubusercontent.com/Vixcra/ChronoClient/main/version.json").send().ok()?;
+        
+        let url_master = "https://raw.githubusercontent.com/Vixcra/ChronoClient/master/version.json";
+        let url_main = "https://raw.githubusercontent.com/Vixcra/ChronoClient/main/version.json";
+
+        let resp = client.get(url_master).send().ok().filter(|r| r.status().is_success())
+            .or_else(|| client.get(url_main).send().ok().filter(|r| r.status().is_success()))?;
+
         let json: serde_json::Value = resp.json().ok()?;
         let remote_ver = json.get("version").and_then(|v| v.as_str())?;
         tracing::info!("Chrono GitHub remote version: {}", remote_ver);
@@ -367,30 +398,42 @@ fn main() -> anyhow::Result<()> {
     }
 
     let mut web_context = wry::WebContext::new(Some(user_data));
-    let script = build_injected_js(monitor_hz, &config, &scripts_json, update_notice_ver.as_deref());
+    let highscores_file = app_data.join("community_highscores.json");
+    let highscores_json = std::fs::read_to_string(&highscores_file)
+        .unwrap_or_else(|_| COMMUNITY_HIGHSCORES_JSON.to_string());
+    let script = build_injected_js(monitor_hz, &config, &scripts_json, update_notice_ver.as_deref(), &highscores_json);
 
+    let highscores_file_clone = highscores_file.clone();
     let rpc_tx_clone = rpc_tx.clone();
     let config_file_clone = config_file.clone();
     let scripts_dir_clone = scripts_dir.clone();
+    let app_scripts_dir_clone = app_scripts_dir.clone();
     let mut webview_builder = WebViewBuilder::with_web_context(&mut web_context)
         .with_url(&args.url)
-        .with_devtools(false)
+        .with_devtools(true)
         .with_ipc_handler(move |req: wry::http::Request<String>| {
             if let Ok(val) = serde_json::from_str::<serde_json::Value>(req.body()) {
                 if let Some(action) = val.get("action").and_then(|a| a.as_str()) {
                     if action == "save_config" {
-                        if let Some(cfg_val) = val.get("config") {
-                            if let Ok(new_cfg) = serde_json::from_value::<ChronoConfig>(cfg_val.clone()) {
-                                if let Ok(json_str) = serde_json::to_string_pretty(&new_cfg) {
-                                    let _ = std::fs::write(&config_file_clone, json_str);
-                                    tracing::info!("Saved ChronoConfig: {:?}", new_cfg);
-                                }
-                                let _ = rpc_tx_clone.send(PresenceData {
-                                    in_game: false,
-                                    status: None,
-                                    enabled: Some(new_cfg.discord_rpc_enabled),
-                                });
+                        if let Some(cfg_val) = val.get("config")
+                            && let Ok(new_cfg) = serde_json::from_value::<ChronoConfig>(cfg_val.clone())
+                        {
+                            if let Ok(json_str) = serde_json::to_string_pretty(&new_cfg) {
+                                let _ = std::fs::write(&config_file_clone, json_str);
+                                tracing::info!("Saved ChronoConfig: {:?}", new_cfg);
                             }
+                            let _ = rpc_tx_clone.send(PresenceData {
+                                in_game: false,
+                                status: None,
+                                enabled: Some(new_cfg.discord_rpc_enabled),
+                            });
+                        }
+                    } else if action == "save_highscores" {
+                        if let Some(hs_val) = val.get("highscores")
+                            && let Ok(json_str) = serde_json::to_string_pretty(hs_val)
+                        {
+                            let _ = std::fs::write(&highscores_file_clone, json_str);
+                            tracing::info!("Persisted updated community_highscores to disk: {:?}", highscores_file_clone);
                         }
                     } else if action == "open_scripts_folder" {
                         #[cfg(target_os = "windows")]
@@ -408,10 +451,18 @@ fn main() -> anyhow::Result<()> {
                         anticheat_guard::set_is_window_focused(focused);
                     } else if action == "set_fullscreen" {
                         let is_fs = val.get("value").and_then(|v| v.as_bool()).unwrap_or(false);
-                        if let Ok(lock) = anticheat_guard::EVENT_PROXY.read() {
-                            if let Some(ref p) = *lock {
-                                let _ = p.send_event(crate::ChronoUserEvent::SetFullscreen(is_fs));
-                            }
+                        if let Ok(lock) = anticheat_guard::EVENT_PROXY.read()
+                            && let Some(ref p) = *lock
+                        {
+                            let _ = p.send_event(crate::ChronoUserEvent::SetFullscreen(is_fs));
+                        }
+                    } else if action == "reload_scripts" || action == "get_scripts" {
+                        let scripts = load_scripts_from_disk(&[scripts_dir_clone.clone(), app_scripts_dir_clone.clone(), PathBuf::from("scripts")]);
+                        let json_str = serde_json::to_string(&scripts).unwrap_or_else(|_| "[]".to_string());
+                        if let Ok(lock) = anticheat_guard::EVENT_PROXY.read()
+                            && let Some(ref p) = *lock
+                        {
+                            let _ = p.send_event(crate::ChronoUserEvent::ReloadScripts(json_str));
                         }
                     }
                 } else if let Ok(presence) = serde_json::from_value::<PresenceData>(val) {
@@ -434,19 +485,26 @@ fn main() -> anyhow::Result<()> {
             _ => args_vec.push("--use-angle=d3d11"),
         }
 
+        let mut enabled_features = Vec::new();
+        let mut disabled_features = Vec::new();
+
         if config.flag_highres_timer {
             args_vec.push("--enable-highres-timer");
         }
+        if config.flag_anti_freeze_gc {
+            args_vec.push("--js-flags=--concurrent_marking --parallel_scavenge --incremental_marking");
+        }
         if config.flag_audio_in_process {
-            args_vec.push("--disable-features=AudioServiceOutOfProcess");
+            disabled_features.push("AudioServiceOutOfProcess");
         }
         if config.flag_resample_scroll {
-            args_vec.push("--enable-features=ResamplingScrollEvents");
+            enabled_features.push("ResamplingScrollEvents");
         }
         if config.flag_anti_throttle {
             args_vec.push("--disable-background-timer-throttling");
             args_vec.push("--disable-backgrounding-occluded-windows");
             args_vec.push("--disable-renderer-backgrounding");
+            disabled_features.push("CalculateNativeWinOcclusion");
         }
         if config.flag_accelerated_canvas {
             args_vec.push("--enable-accelerated-2d-canvas");
@@ -455,7 +513,8 @@ fn main() -> anyhow::Result<()> {
             args_vec.push("--enable-gpu-rasterization");
         }
         if config.flag_raw_input_no_resample {
-            args_vec.push("--disable-features=ResamplingInputEvents,InputEventPrediction");
+            disabled_features.push("ResamplingInputEvents");
+            disabled_features.push("InputEventPrediction");
         }
         if config.flag_disable_frame_rate_limit {
             args_vec.push("--disable-frame-rate-limit");
@@ -463,12 +522,13 @@ fn main() -> anyhow::Result<()> {
         }
         if config.flag_zero_copy_raster {
             args_vec.push("--enable-zero-copy");
-            args_vec.push("--enable-features=CanvasOopRasterization");
             args_vec.push("--enable-native-gpu-memory-buffers");
         }
-        if config.flag_tcp_nodelay_tuning {
-            args_vec.push("--enable-features=NoDelayForWebSockets");
-        }
+        
+        // Zero-buffering TCP for WebSockets and concurrent background JS compilation
+        enabled_features.push("NoDelayForWebSockets");
+        enabled_features.push("V8ConcurrentSparkplug");
+        enabled_features.push("V8BaselineBatchCompilation");
         if config.flag_single_process {
             args_vec.push("--single-process");
         }
@@ -480,6 +540,17 @@ fn main() -> anyhow::Result<()> {
         }
         if config.flag_no_sandbox {
             args_vec.push("--no-sandbox");
+        }
+
+        let enabled_features_str;
+        if !enabled_features.is_empty() {
+            enabled_features_str = format!("--enable-features={}", enabled_features.join(","));
+            args_vec.push(&enabled_features_str);
+        }
+        let disabled_features_str;
+        if !disabled_features.is_empty() {
+            disabled_features_str = format!("--disable-features={}", disabled_features.join(","));
+            args_vec.push(&disabled_features_str);
         }
 
         let browser_args = args_vec.join(" ");
@@ -517,6 +588,10 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     window.set_fullscreen(None);
                 }
+            }
+            Event::UserEvent(ChronoUserEvent::ReloadScripts(scripts_json)) => {
+                let script = format!("if (typeof window._chrono_on_scripts_reloaded === 'function') window._chrono_on_scripts_reloaded({});", scripts_json);
+                let _ = webview.evaluate_script(&script);
             }
             _ => {}
         }

@@ -67,8 +67,8 @@ impl InputState {
                 self.mouse_updated = true;
             }
             WindowEvent::KeyboardInput { event: k_event, .. } => {
-                if let PhysicalKey::Code(code) = k_event.physical_key {
-                    if let Some(key_type) = Self::map_key_code(code) {
+                if let PhysicalKey::Code(code) = k_event.physical_key
+                    && let Some(key_type) = Self::map_key_code(code) {
                         let is_down = k_event.state == ElementState::Pressed;
                         if is_down {
                             if self.keys_held.insert(key_type) {
@@ -86,7 +86,6 @@ impl InputState {
                             }
                         }
                     }
-                }
             }
             _ => {}
         }

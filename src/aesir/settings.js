@@ -1,0 +1,3547 @@
+// ============================================================================
+// CHRONO CLIENT - AESIR MODULE: SETTINGS (Hub, Keymapper, Outlines & Enhancers ⚙️)
+// ============================================================================
+(function() {
+    try {
+        window.Chrono = window.Chrono || {};
+        const MONITOR_HZ = typeof __CHRONO_MONITOR_HZ !== 'undefined' ? __CHRONO_MONITOR_HZ : (window.Chrono.monitorHz || 60);
+        const INITIAL_CONFIG = typeof __CHRONO_INITIAL_CONFIG !== 'undefined' ? __CHRONO_INITIAL_CONFIG : (window.Chrono.initialConfig || {});
+        const INITIAL_CHRONO_SCRIPTS = typeof __CHRONO_SCRIPTS !== 'undefined' ? __CHRONO_SCRIPTS : (window.Chrono.scripts || []);
+        let currentConfig = window.Chrono.config || Object.assign({}, INITIAL_CONFIG);
+
+        let applyHudLayout = function() {};
+        let closeHudLayoutEditor = function() {};
+
+    // 4. Pop-up Modal Container with Nordic Emerald Style (Hub / Settings)
+    const menuContainer = document.createElement("div");
+    menuContainer.id = "chrono-menu-modal";
+    menuContainer.style.display = "none";
+    menuContainer.style.position = "fixed";
+    menuContainer.style.top = "0";
+    menuContainer.style.left = "0";
+    menuContainer.style.width = "100vw";
+    menuContainer.style.height = "100vh";
+    menuContainer.style.backgroundColor = "rgba(2, 10, 8, 0.75)";
+    menuContainer.style.backdropFilter = "blur(12px)";
+    menuContainer.style.webkitBackdropFilter = "blur(12px)";
+    menuContainer.style.zIndex = "10000000";
+    menuContainer.style.justifyContent = "center";
+    menuContainer.style.alignItems = "center";
+    menuContainer.style.fontFamily = "system-ui, -apple-system, sans-serif";
+
+    menuContainer.innerHTML = 
+        '<div id="chrono-modal-card" style="' +
+            'width: 660px; max-width: 95vw; max-height: 90vh;' +
+            'background: linear-gradient(145deg, #071311 0%, #0d2824 45%, #051815 100%);' +
+            'border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 16px;' +
+            'box-shadow: 0 25px 60px rgba(2, 8, 7, 0.95), 0 0 35px rgba(16, 185, 129, 0.25);' +
+            'display: flex; flex-direction: column; overflow: hidden; color: #f8fafc;' +
+        '">' +
+            '<!-- Modal Header -->' +
+            '<div style="' +
+                'padding: 14px 22px; background: linear-gradient(90deg, rgba(5, 150, 105, 0.5) 0%, rgba(6, 78, 59, 0.3) 100%);' +
+                'border-bottom: 1px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: space-between;' +
+            '">' +
+                '<div style="display: flex; align-items: center; gap: 10px;">' +
+                    '<span style="font-size: 22px;">⏳</span>' +
+                    '<div>' +
+                        '<div style="font-weight: 800; font-size: 16px; letter-spacing: 0.5px; background: linear-gradient(90deg, #6ee7b7, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CHRONO CLIENT HUB</div>' +
+                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "1.2.0") + '</span></div>' +
+                    '</div>' +
+                '</div>' +
+                '<button id="chrono-close-btn" style="' +
+                    'background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);' +
+                    'color: #cbd5e1; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;' +
+                    'display: flex; align-items: center; justify-content: center; font-size: 14px;' +
+                '">✕</button>' +
+            '</div>' +
+
+            '<!-- Restart Alert Banner -->' +
+            '<div id="chrono-restart-banner" style="display: none; background: rgba(234, 179, 8, 0.2); border-bottom: 1px solid rgba(234, 179, 8, 0.5); color: #fde047; padding: 6px 16px; font-size: 11px; font-weight: 600; text-align: center;">' +
+                '⚠️ Settings saved! Please restart Chrono client to apply startup flags & rendering backend.' +
+            '</div>' +
+            '<div id="chrono-f11-banner" style="display: none; background: rgba(52, 211, 153, 0.2); border-bottom: 1px solid rgba(52, 211, 153, 0.5); color: #6ee7b7; padding: 6px 16px; font-size: 11px; font-weight: 600; text-align: center;">' +
+                '✅ You can also press <b>F11</b> in-game to toggle Fullscreen at any time!' +
+            '</div>' +
+
+            '<!-- Tabs Navigation -->' +
+            '<div style="display: flex; background: rgba(5, 20, 18, 0.7); padding: 6px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); gap: 6px; flex-wrap: wrap;">' +
+                '<button id="chrono-tab-client" style="' +
+                    'background: linear-gradient(135deg, #059669, #10b981); border: 1px solid rgba(110, 231, 183, 0.4);' +
+                    'color: #ffffff; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;' +
+                '">🛡️ Client Info</button>' +
+                '<button id="chrono-tab-flags" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #94a3b8;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">🚩 Flags Engine</button>' +
+                '<button id="chrono-tab-experimental" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #c084fc;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">🧪 Experimental</button>' +
+                '<button id="chrono-tab-alts" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #94a3b8;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">👥 Alt Switcher</button>' +
+                '<button id="chrono-tab-modes" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #94a3b8;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">⏳ Chrono Hub</button>' +
+                '<button id="chrono-tab-discord" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #94a3b8;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">🟣 Discord RPC</button>' +
+                '<button id="chrono-tab-ui" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #94a3b8;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">🎨 UI Theme</button>' +
+                '<button id="chrono-tab-bragi" style="' +
+                    'background: transparent; border: 1px solid transparent; color: #38bdf8;' +
+                    'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
+                '">🌐 Bragi</button>' +
+            '</div>' +
+
+            '<!-- Content Area -->' +
+            '<div style="padding: 16px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px;">' +
+                '<!-- TAB 1: CLIENT OVERVIEW -->' +
+                '<div id="chrono-view-client" style="display: flex; flex-direction: column; gap: 12px;">' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #34d399; margin-bottom: 8px;">🛡️ ACTIVE ENGINE OPTIMIZATIONS (Hover for details)</div>' +
+                        '<div id="chrono-active-flags-grid" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>' +
+                    '</div>' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #34d399; margin-bottom: 8px;">📊 SYSTEM SPECS & RENDERING BACKEND</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
+                            '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                                '<span>Rendering Engine (Backend) :</span>' +
+                                '<select id="chrono-select-engine" style="background: rgba(3, 15, 13, 0.9); border: 1px solid rgba(52, 211, 153, 0.5); color: #34d399; font-weight: bold; border-radius: 6px; padding: 4px 8px; font-size: 11px; outline: none; cursor: pointer;">' +
+                                    '<option value="d3d11">DirectX 11 (D3D11 - Recommended)</option>' +
+                                    '<option value="d3d11on12">DirectX 12 (D3D11on12 - Windows 10/11)</option>' +
+                                    '<option value="d3d9">DirectX 9 (D3D9 - Legacy GPU)</option>' +
+                                    '<option value="gl">OpenGL (Desktop GL)</option>' +
+                                    '<option value="vulkan">Vulkan (Next-Gen Pipeline)</option>' +
+                                    '<option value="warp">Software WARP (CPU Fallback)</option>' +
+                                '</select>' +
+                            '</div>' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Physical Display Clock :</span><span style="font-weight: bold; color: #34d399;">' + MONITOR_HZ + ' Hz</span></div>' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Client Architecture :</span><span style="font-weight: bold; color: #38bdf8;">Native Rust x86_64 + Wry / WebView2</span></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #34d399; margin-bottom: 8px;">⌨️ CLIENT SHORTCUTS</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #cbd5e1;">' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Toggle Chrono Hub :</span><kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #f8fafc;">Escape (ESC) / ⏳ Hourglass</kbd></div>' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Developer Console :</span><kbd style="background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #7dd3fc;">F12 / Ctrl+Shift+I / Right-Click Inspect</kbd></div>' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Runs & Replays :</span><kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #f8fafc;">⏪ Rewind Launcher</kbd></div>' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Community Leaderboard :</span><kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #f8fafc;">⚔️ Vengeance Launcher</kbd></div>' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Quick Reload :</span><kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #f8fafc;">F5</kbd></div>' +
+                            '<div style="display: flex; justify-content: space-between;"><span>Toggle Fullscreen :</span><kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #f8fafc;">F11</kbd></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+
+                '<!-- TAB 2: FLAGS ENGINE -->' +
+                '<div id="chrono-view-flags" style="display: none; flex-direction: column; gap: 12px;">' +
+                    '<!-- RESTART REQUIRED SECTION -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #4ade80; margin-bottom: 8px;">⭐ RESTART REQUIRED (Recommended Chromium Flags)</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #86efac;">--enable-highres-timer</code> : Windows sub-millisecond multimedia clock</div>' +
+                                '<input type="checkbox" id="cfg-flag-highres-timer" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #86efac;">--disable-background-timer-throttling</code> : Prevents timer throttling when backgrounded</div>' +
+                                '<input type="checkbox" id="cfg-flag-anti-throttle" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #86efac;">--disable-features=AudioServiceOutOfProcess</code> : In-process low-latency audio</div>' +
+                                '<input type="checkbox" id="cfg-flag-audio-in-process" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #86efac;">--enable-features=ResamplingScrollEvents</code> : Smooth hardware event pacing</div>' +
+                                '<input type="checkbox" id="cfg-flag-resample-scroll" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #86efac;">--enable-accelerated-2d-canvas</code> : Hardware 2D drawing pipeline</div>' +
+                                '<input type="checkbox" id="cfg-flag-accelerated-canvas" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #86efac;">--enable-gpu-rasterization</code> : Direct GPU tile rasterization</div>' +
+                                '<input type="checkbox" id="cfg-flag-gpu-rasterization" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                        '</div>' +
+                    '</div>' +
+
+                    '<!-- IMMEDIATE REALTIME SECTION -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #38bdf8; margin-bottom: 8px;">⭐ IMMEDIATE / REALTIME (Live Runtime Hooks)</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #7dd3fc;">Anti-Freeze IPC Filter :</b> Live console log suppression in combat</div>' +
+                                '<input type="checkbox" id="cfg-flag-anti-freeze-ipc" style="accent-color: #38bdf8; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #7dd3fc;">Hardware VSync Frame Lock :</b> Real-time display refresh sync (' + MONITOR_HZ + ' FPS)</div>' +
+                                '<input type="checkbox" id="cfg-flag-vsync-locked" style="accent-color: #38bdf8; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #7dd3fc;">Nordic Emerald Custom Theme :</b> Live CSS stylesheet injection</div>' +
+                                '<input type="checkbox" id="cfg-flag-custom-theme" style="accent-color: #38bdf8; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                        '</div>' +
+                    '</div>' +
+
+                    '<!-- HAZARDOUS FLAGS SECTION -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #f87171; margin-bottom: 8px;">⭐ QUIT CLIENT / HAZARDOUS (Black Screen & Destructive Flags)</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #fca5a5;">--single-process</code> : Single-process mode (prone to memory leaks)</div>' +
+                                '<input type="checkbox" id="cfg-flag-single-process" style="accent-color: #f87171; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #fca5a5;">--disable-gpu</code> : Software fallback (extreme lag)</div>' +
+                                '<input type="checkbox" id="cfg-flag-disable-gpu" style="accent-color: #f87171; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #fca5a5;">--in-process-gpu</code> : In-process GPU driver (causes black screen)</div>' +
+                                '<input type="checkbox" id="cfg-flag-in-process-gpu" style="accent-color: #f87171; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #fca5a5;">--no-sandbox</code> : Disable sandbox protection (hazardous)</div>' +
+                                '<input type="checkbox" id="cfg-flag-no-sandbox" style="accent-color: #f87171; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+
+                '<!-- TAB 2.5: EXPERIMENTAL & NETWORK OPTIMIZATIONS -->' +
+                '<div id="chrono-view-experimental" style="display: none; flex-direction: column; gap: 12px;">' +
+                    '<!-- SECTION 1: ULTRA-LOW INPUT LATENCY & SCHEDULER -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #c084fc; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">' +
+                            '<span>⚡ ULTRA-LOW INPUT LATENCY & SCHEDULER (Experimental)</span>' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #e9d5ff;">--disable-features=ResamplingInputEvents</code> : Instant raw mouse events (bypasses browser input resampling)</div>' +
+                                '<input type="checkbox" id="cfg-flag-raw-input-no-resample" style="accent-color: #a855f7; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #e9d5ff;">NtSetTimerResolution (0.5ms Clock) :</b> Forces Windows OS scheduler to 0.5ms (2000Hz) for zero-stutter VSync</div>' +
+                                '<input type="checkbox" id="cfg-flag-windows-timer-resolution" style="accent-color: #a855f7; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #e9d5ff;">--disable-frame-rate-limit</code> & <code style="color: #e9d5ff;">--disable-gpu-vsync</code> : Uncapped compositor rendering (ultra low presentation lag)</div>' +
+                                '<input type="checkbox" id="cfg-flag-disable-frame-rate-limit" style="accent-color: #a855f7; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><code style="color: #e9d5ff;">--enable-zero-copy</code> & <code style="color: #e9d5ff;">CanvasOopRasterization</code> : Zero-copy VRAM direct pipeline for 2D canvas</div>' +
+                                '<input type="checkbox" id="cfg-flag-zero-copy-raster" style="accent-color: #a855f7; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                        '</div>' +
+                    '</div>' +
+
+                    '<!-- SECTION 2: WEBSOCKET & NETWORK LATENCY OPTIMIZATIONS (WITH WARNING BADGE ⚠️) -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">' +
+                            '<div style="font-weight: 700; font-size: 12px; color: #facc15; display: flex; align-items: center; gap: 6px;">' +
+                                '<span>🌐 WEBSOCKET & NETWORK OPTIMIZATIONS</span>' +
+                            '</div>' +
+                            '<span style="background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.4); color: #fef08a; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">⚠️ NETWORK CAUTION</span>' +
+                        '</div>' +
+
+                        '<!-- Warning Notice -->' +
+                        '<div style="background: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; border-radius: 4px; padding: 8px 10px; margin-bottom: 10px; font-size: 11px; color: #fef08a; line-height: 1.4;">' +
+                            '<b>⚠️ Network Caution Notice:</b> These options reduce jitter and TCP/WebSocket transit latency by enforcing immediate packet acknowledgement. Recommended for stable Ethernet or Wi-Fi 6 connections to prevent packet drops.' +
+                        '</div>' +
+
+                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #fef08a;">WebSocket ArrayBuffer Sync Mode :</b> Forces direct synchronous memory decoding without Blob async delay (0ms packet parse)</div>' +
+                                '<input type="checkbox" id="cfg-flag-websocket-arraybuffer" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #fef08a;">TCP_NODELAY & Delayed ACK Bypass :</b> Disables Nagle buffering and suppresses Windows 40-200ms Delayed ACK mechanism</div>' +
+                                '<input type="checkbox" id="cfg-flag-tcp-nodelay-tuning" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                                '<div><b style="color: #fef08a;">V8 Incremental GC & Nursery Buffer (64MB) :</b> Eliminates 100ms Stop-The-World GC micro-freezes by running continuous background sweeps</div>' +
+                                '<input type="checkbox" id="cfg-flag-anti-freeze-gc" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+
+                '<!-- TAB 3: ALT SWITCHER -->' +
+                '<div id="chrono-view-alts" style="display: none; flex-direction: column; gap: 12px;">' +
+                    '<div id="chrono-status-msg" style="display: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; text-align: center; font-weight: 600;"></div>' +
+                    '<div style="' +
+                        'background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px;' +
+                        'padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;' +
+                    '">' +
+                        '<div style="font-size: 11px; font-weight: 700; color: #6ee7b7; display: flex; justify-content: space-between; align-items: center;">' +
+                            '<span>➕ ADD NEW ACCOUNT</span>' +
+                            '<span style="font-size: 10px; color: #64748b;">100% Local encrypted storage</span>' +
+                        '</div>' +
+                        '<div style="display: flex; gap: 8px; flex-wrap: wrap;">' +
+                            '<input id="chrono-input-user" type="text" placeholder="Username" style="flex: 1; min-width: 120px; background: rgba(3, 15, 13, 0.7); border: 1px solid rgba(52, 211, 153, 0.2); border-radius: 6px; color: #f8fafc; padding: 6px 10px; font-size: 12px; outline: none;"/>' +
+                            '<input id="chrono-input-pass" type="password" placeholder="Password" style="flex: 1; min-width: 120px; background: rgba(3, 15, 13, 0.7); border: 1px solid rgba(52, 211, 153, 0.2); border-radius: 6px; color: #f8fafc; padding: 6px 10px; font-size: 12px; outline: none;"/>' +
+                            '<input id="chrono-input-tag" type="text" placeholder="Tag (Main, Smurf)" style="width: 110px; background: rgba(3, 15, 13, 0.7); border: 1px solid rgba(52, 211, 153, 0.2); border-radius: 6px; color: #f8fafc; padding: 6px 10px; font-size: 12px; outline: none;"/>' +
+                        '</div>' +
+                        '<button id="chrono-btn-save-alt" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 1px solid rgba(110, 231, 183, 0.3); color: #ffffff; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">💾 Save Account</button>' +
+                    '</div>' +
+                    '<div>' +
+                        '<div style="font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; display: flex; justify-content: space-between;">' +
+                            '<span>SAVED ACCOUNTS (<span id="chrono-alts-count">0</span>)</span>' +
+                            '<button id="chrono-btn-guest" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 10px; padding: 2px 8px; border-radius: 4px; cursor: pointer;">🎭 Guest Mode (Log Out)</button>' +
+                        '</div>' +
+                        '<div id="chrono-alts-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; padding-right: 4px;"></div>' +
+                    '</div>' +
+                '</div>' +
+
+                '<!-- TAB 4: CHRONO HUB -->' +
+                '<div id="chrono-view-modes" style="display: none; flex-direction: column; gap: 12px;">' +
+                    '<!-- CATEGORY 1: CUSTOM CURSOR -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                            '<span style="font-weight: 800; font-size: 13px; color: #34d399; display: flex; align-items: center; gap: 6px;">✨ LUMINOUS CURSORS & GLOW POINTS</span>' +
+                        '</div>' +
+                        '<div style="font-size: 11px; color: #94a3b8;">Vibrant glowing points, radiant stellar sparks and custom orbs for clean dodging:</div>' +
+                        '<div id="chrono-cursor-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px;"></div>' +
+                        
+                        '<!-- Custom Cursor Builder -->' +
+                        '<div style="background: rgba(3, 15, 13, 0.75); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">' +
+                            '<div style="font-weight: 700; font-size: 11px; color: #6ee7b7; display: flex; justify-content: space-between; align-items: center;">' +
+                                '<span>🛠️ CURSOR BUILDER (Custom Shape & RGB)</span>' +
+                                '<span id="chrono-cb-preview-host" style="width: 28px; height: 28px; background: rgba(0,0,0,0.5); border: 1px solid rgba(52,211,153,0.4); border-radius: 6px; display: flex; align-items: center; justify-content: center;"></span>' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">' +
+                                '<select id="chrono-cb-shape" style="background: rgba(7, 26, 23, 0.9); border: 1px solid rgba(52, 211, 153, 0.4); color: #34d399; font-weight: bold; border-radius: 6px; padding: 4px 8px; font-size: 11px; outline: none;">' +
+                                    '<option value="glow_dot">✨ Luminous Glow Dot</option>' +
+                                    '<option value="star_spark">❇️ Starlight Spark</option>' +
+                                    '<option value="dual_ring">💫 Orbital Halo</option>' +
+                                    '<option value="crystal">💎 Shimmer Diamond</option>' +
+                                    '<option value="pure_dot">⚪ 3D Pearl Sphere</option>' +
+                                    '<option value="laser">⚡ Concentrated Laser</option>' +
+                                    '<option value="crosshair">➕ Micro Crosshair</option>' +
+                                '</select>' +
+                                '<div style="display: flex; align-items: center; gap: 4px;">' +
+                                    '<span style="font-size: 10px; color: #94a3b8;">RGB Color:</span>' +
+                                    '<input id="chrono-cb-color" type="color" value="#10b981" style="background: transparent; border: none; width: 28px; height: 24px; cursor: pointer;" />' +
+                                '</div>' +
+                                '<div style="display: flex; align-items: center; gap: 4px;">' +
+                                    '<span style="font-size: 10px; color: #94a3b8;">Size:</span>' +
+                                    '<input id="chrono-cb-size" type="range" min="16" max="44" value="28" style="width: 70px; accent-color: #10b981; cursor: pointer;" />' +
+                                '</div>' +
+                                '<button id="chrono-btn-apply-builder" style="background: linear-gradient(135deg, #059669, #10b981); border: 1px solid rgba(110, 231, 183, 0.4); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; margin-left: auto;">✨ Apply Built</button>' +
+                            '</div>' +
+                        '</div>' +
+
+                        '<div style="display: flex; gap: 8px; margin-top: 2px;">' +
+                            '<input id="chrono-cursor-url-input" type="text" placeholder="Paste custom cursor URL (.png / .cur / .svg)..." style="flex: 1; background: rgba(3, 15, 13, 0.8); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 6px; color: #f8fafc; padding: 6px 10px; font-size: 11px; outline: none;" />' +
+                            '<button id="chrono-btn-apply-cursor" style="background: linear-gradient(135deg, #059669, #10b981); border: 1px solid rgba(110, 231, 183, 0.3); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;">Apply URL</button>' +
+                            '<button id="chrono-btn-reset-cursor" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Default</button>' +
+                        '</div>' +
+                    '</div>' +
+
+                    '<!-- CATEGORY 2: ENEMY OUTLINES & CHROMA -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                            '<span style="font-weight: 800; font-size: 13px; color: #f87171; display: flex; align-items: center; gap: 6px;">👾 ENEMY OUTLINES & CHROMA</span>' +
+                            '<span style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 4px;">CANVAS 2D HOOK</span>' +
+                        '</div>' +
+                        '<div style="font-size: 11px; color: #94a3b8;">Customize enemy outline borders, colors, and neon glows in-game:</div>' +
+                        '<div id="chrono-enemy-outline-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px;"></div>' +
+                        
+                        '<!-- Enemy Outline Builder -->' +
+                        '<div style="background: rgba(3, 15, 13, 0.75); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">' +
+                            '<div style="font-weight: 700; font-size: 11px; color: #fca5a5; display: flex; justify-content: space-between; align-items: center;">' +
+                                '<span>🛠️ OUTLINE BUILDER (Custom Color, Width & Glow)</span>' +
+                                '<span id="chrono-outline-preview-host" style="width: 32px; height: 32px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center;"></span>' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">' +
+                                '<div style="display: flex; align-items: center; gap: 4px;">' +
+                                    '<span style="font-size: 10px; color: #94a3b8;">Color:</span>' +
+                                    '<input id="chrono-outline-color" type="color" value="#34d399" style="background: transparent; border: none; width: 28px; height: 24px; cursor: pointer;" />' +
+                                '</div>' +
+                                '<div style="display: flex; align-items: center; gap: 4px;">' +
+                                    '<span style="font-size: 10px; color: #94a3b8;">Stroke Width:</span>' +
+                                    '<input id="chrono-outline-width" type="range" min="1" max="6" step="0.5" value="2" style="width: 60px; accent-color: #ef4444; cursor: pointer;" />' +
+                                '</div>' +
+                                '<div style="display: flex; align-items: center; gap: 4px;">' +
+                                    '<span style="font-size: 10px; color: #94a3b8;">Glow:</span>' +
+                                    '<input id="chrono-outline-glow" type="range" min="0" max="20" step="1" value="8" style="width: 60px; accent-color: #ef4444; cursor: pointer;" />' +
+                                '</div>' +
+                                '<button id="chrono-btn-apply-outline" style="background: linear-gradient(135deg, #dc2626, #ef4444); border: 1px solid rgba(248, 113, 113, 0.4); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; margin-left: auto;">✨ Apply Built</button>' +
+                            '</div>' +
+                        '</div>' +
+
+                        '<!-- 2. Family Outline -->' +
+                        '<div style="background: rgba(3, 15, 13, 0.75); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">' +
+                            '<div style="font-weight: 700; font-size: 11px; color: #93c5fd; display: flex; justify-content: space-between; align-items: center;">' +
+                                '<span>👥 2. OUTLINE BY ENEMY FAMILY (Priority 2)</span>' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 8px; align-items: center;">' +
+                                '<select id="chrono-fam-sel" style="flex: 1; padding: 5px 8px; background: #061815; color: #fff; border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 6px; font-size: 11px; outline: none;">' +
+                                    '<option value="generic">Generic (Normal, Immune, Growing...)</option>' +
+                                    '<option value="sniper">Sniper (Corrosive, Speed, Void...)</option>' +
+                                    '<option value="pseudo_sniper">Pseudo Sniper (Radiating, Tree...)</option>' +
+                                    '<option value="aura">Aura (Barrier, Draining, Gravity...)</option>' +
+                                    '<option value="ghost">Ghost (Crystal, Disabling, Wind...)</option>' +
+                                    '<option value="altered_movement">Altered Movement (Dasher, Homing...)</option>' +
+                                    '<option value="blinking_movement">Blinking Movement (Star, Teleporting...)</option>' +
+                                    '<option value="accelerative">Accelerative (Sand, Sandrock)</option>' +
+                                    '<option value="invisible">Invisible (Firefly, Glowy, Mist...)</option>' +
+                                    '<option value="wall_and_hitters">Wall & Hitters (Wall, Snowman, Giant...)</option>' +
+                                    '<option value="pumpkins">Pumpkins (Pumpkin, Fake Pumpkin)</option>' +
+                                    '<option value="elemental_and_flora">Elemental & Flora (Cactus, Flower, Lava...)</option>' +
+                                    '<option value="bots">Bots (Aibot, Cybot, Fibot, Icbot...)</option>' +
+                                    '<option value="void_and_summoners">Void & Summoners (Void Crawler, Summoner...)</option>' +
+                                '</select>' +
+                                '<input type="color" id="chrono-fam-col" value="#3b82f6" style="width: 32px; height: 28px; padding: 0; border: 1px solid #444; border-radius: 4px; cursor: pointer;" title="Set Family Override Color" />' +
+                                '<button id="chrono-fam-reset" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer;">Reset</button>' +
+                            '</div>' +
+                            '<div id="chrono-fam-preview" style="background: rgba(0,0,0,0.35); border-radius: 6px; padding: 6px 8px; font-size: 11px; min-height: 24px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">' +
+                            '</div>' +
+                        '</div>' +
+
+                        '<!-- 3. Individual Enemy Outline with Search -->' +
+                        '<div style="background: rgba(3, 15, 13, 0.75); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">' +
+                            '<div style="font-weight: 700; font-size: 11px; color: #c4b5fd; display: flex; justify-content: space-between; align-items: center;">' +
+                                '<span>🎯 3. OUTLINE BY INDIVIDUAL ENEMY (Priority 1)</span>' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 8px; align-items: center;">' +
+                                '<input id="chrono-ind-search" type="text" placeholder="🔍 Type enemy name (e.g. wall, flower, icicle)..." style="flex: 1; padding: 5px 8px; background: #061815; color: #fff; border: 1px solid rgba(167, 139, 250, 0.4); border-radius: 6px; font-size: 11px; outline: none;" />' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 8px; align-items: center;">' +
+                                '<select id="chrono-ind-sel" style="flex: 1; padding: 5px 8px; background: #061815; color: #fff; border: 1px solid rgba(167, 139, 250, 0.4); border-radius: 6px; font-size: 11px; outline: none;">' +
+                                '</select>' +
+                                '<input type="color" id="chrono-ind-col" value="#a78bfa" style="width: 32px; height: 28px; padding: 0; border: 1px solid #444; border-radius: 4px; cursor: pointer;" title="Set Individual Override Color" />' +
+                                '<button id="chrono-ind-reset" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer;">Reset</button>' +
+                            '</div>' +
+                            '<div id="chrono-ind-preview" style="background: rgba(0,0,0,0.35); border-radius: 6px; padding: 6px 8px; font-size: 11px; min-height: 24px; display: flex; align-items: center;">' +
+                                '<span style="color: #888; font-style: italic;">Select or search an enemy above</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+
+                    '<!-- CATEGORY 3: SCRIPT LAUNCHER -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                            '<span style="font-weight: 800; font-size: 13px; color: #38bdf8; display: flex; align-items: center; gap: 6px;">⚡ SCRIPT LAUNCHER & HUD ENGINE</span>' +
+                            '<span style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 4px;">JAVASCRIPT / SCRIPTS FOLDER</span>' +
+                        '</div>' +
+                        '<div style="font-size: 11px; color: #cbd5e1; font-weight: 700;">📦 Built-in Community Mods :</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #cbd5e1;">' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                                '<div><b style="color: #6ee7b7;">⌨️ Live Keystrokes HUD :</b> Dynamic keys synced with game keybinds & loadouts</div>' +
+                                '<input type="checkbox" id="chrono-mod-keystrokes" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<button id="chrono-btn-open-hud-editor" style="background: linear-gradient(135deg, #059669, #10b981); border: 1px solid rgba(110, 231, 183, 0.4); color: #fff; padding: 9px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 2px 0;">🎛️ OPEN HUD LAYOUT EDITOR (Opaque Grid & Resizing)</button>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                                '<div><b style="color: #6ee7b7;">💬 Quick Chat Macro :</b> Press G for "gg", Keys 1-4 for instant chat calls</div>' +
+                                '<input type="checkbox" id="chrono-mod-chatmacro" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                                '<div><b style="color: #6ee7b7;">🎯 Canvas Pixel-Sharp Mode :</b> Disables image blur for crisp pixels</div>' +
+                                '<input type="checkbox" id="chrono-mod-pixelsharp" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                                '<div><b style="color: #6ee7b7;">🎯 Sniper &amp; Slasher Pre-fire Tells :</b> Dynamic countdown rings, charge pulses &amp; strobe warning</div>' +
+                                '<input type="checkbox" id="chrono-mod-visualtells" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                                '<div><b style="color: #6ee7b7;">🙈 Hide All UI :</b> Hide all Chrono UI (theme, special buttons &amp; HUDs) • ESC stays active</div>' +
+                                '<input type="checkbox" id="chrono-mod-hideui" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />' +
+                            '</label>' +
+                        '</div>' +
+                        '<div style="margin-top: 4px; display: flex; flex-direction: column; gap: 8px;">' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                            '<div style="font-weight: 700; font-size: 11.5px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">' +
+                            '<span>📁 SCRIPTS FOLDER :</span>' +
+                                '<span id="chrono-scripts-count-badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; font-size: 9.5px; padding: 1px 6px; border-radius: 4px;">...</span>' +
+                            '</div>' +
+                            '<button id="chrono-btn-open-scripts-dir" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">📂 Open scripts/ Folder</button>' +
+                        '</div>' +
+                        '<div style="font-size: 10px; color: #64748b;">Drop your <code>.js</code> mods into the <code>scripts/</code> folder. Toggle ON/OFF at any time without reloading!</div>' +
+                    '</div>' +
+                    '<div id="chrono-user-scripts-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;"></div>' +
+                '</div>' +
+            '</div>' +
+
+            '<!-- TAB 5: DISCORD RPC -->' +
+            '<div id="chrono-view-ui" style="display: none; flex-direction: column; gap: 12px;">' +
+                '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 12px 14px;">' +
+                    '<div style="font-weight: 700; font-size: 12px; color: #34d399; margin-bottom: 12px;">🎨 UI COLORS &amp; LOGO CUSTOMIZATION</div>' +
+                    '<div style="display: flex; flex-direction: column; gap: 10px; font-size: 11px; color: #cbd5e1;">' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between;"><span>Main Background (Dark):</span> <input type="color" id="chrono-ui-bg1" style="width:60px;height:24px;border:none;border-radius:4px;cursor:pointer;"></div>' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between;"><span>Secondary Background:</span> <input type="color" id="chrono-ui-bg2" style="width:60px;height:24px;border:none;border-radius:4px;cursor:pointer;"></div>' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between;"><span>Primary Accent:</span> <input type="color" id="chrono-ui-acc1" style="width:60px;height:24px;border:none;border-radius:4px;cursor:pointer;"></div>' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between;"><span>Secondary Accent:</span> <input type="color" id="chrono-ui-acc2" style="width:60px;height:24px;border:none;border-radius:4px;cursor:pointer;"></div>' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between;"><span>Highlight/Hover:</span> <input type="color" id="chrono-ui-acc3" style="width:60px;height:24px;border:none;border-radius:4px;cursor:pointer;"></div>' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between; margin-top:8px;"><span style="flex:1;">Custom Logo Image URL:</span> <input type="text" id="chrono-ui-logo" placeholder="https://.../logo.png" style="flex:2;background:rgba(0,0,0,0.5);border:1px solid #34d399;color:#fff;border-radius:4px;padding:4px 8px;outline:none;"></div>' +
+                        '<button id="chrono-ui-btn-save" style="margin-top:10px;background: linear-gradient(135deg, #059669, #10b981);border:none;color:#fff;font-weight:bold;border-radius:8px;padding:8px;cursor:pointer;">💾 Save &amp; Apply Theme</button>' +
+                        '<button id="chrono-ui-btn-reset" style="margin-top:4px;background: transparent;border:1px solid #ef4444;color:#ef4444;font-weight:bold;border-radius:8px;padding:6px;cursor:pointer;">🔄 Reset to Defaults</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div id="chrono-view-discord" style="display: none; flex-direction: column; gap: 10px;">' +
+                '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 12px; padding: 14px;">' +
+                    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">' +
+                        '<span style="font-weight: 700; font-size: 13px; color: #a5b4fc;">🟣 DISCORD RICH PRESENCE</span>' +
+                        '<span id="chrono-discord-status-badge" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #86efac; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px;">CONNECTED</span>' +
+                    '</div>' +
+                    '<div style="display: flex; flex-direction: column; gap: 10px; font-size: 11px; color: #cbd5e1;">' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(129, 140, 248, 0.2);">' +
+                            '<div><b style="color: #e0e7ff;">Enable Discord Rich Presence Activity :</b><br><span style="font-size: 10px; color: #94a3b8;">Show clean Online / Idle status on Discord profile</span></div>' +
+                            '<input type="checkbox" id="cfg-discord-rpc-enabled" style="accent-color: #818cf8; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                        '<div style="display: flex; justify-content: space-between;"><span>Supported States :</span><span style="color: #93c5fd; font-weight: 600;">Online, Idle, Highscore, Tournament</span></div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<!-- TAB 8: BRAGI TRANSLATOR -->' +
+            '<div id="chrono-view-bragi" style="display: none; flex-direction: column; gap: 12px;">' +
+                '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 14px;">' +
+                    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">' +
+                        '<span style="font-weight: 800; font-size: 13px; color: #38bdf8; display: flex; align-items: center; gap: 8px;">🌐 BRAGI • MULTILINGUAL CHAT TRANSLATOR</span>' +
+                        '<span id="chrono-bragi-status-badge" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #86efac; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px;">ACTIVE</span>' +
+                    '</div>' +
+                    '<div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-bottom: 12px;">' +
+                        'Real-time language translation for Evades.io powered by Google Translate GTX. Replaces other players\' foreign chat messages directly in-place. Your own messages are never altered.' +
+                    '</div>' +
+                    '<div style="display: flex; flex-direction: column; gap: 10px; font-size: 11px; color: #cbd5e1;">' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); cursor: pointer;">' +
+                            '<div><b style="color: #7dd3fc;">Enable Bragi Translation Engine :</b><br><span style="font-size: 10px; color: #94a3b8;">Master switch for chat &amp; UI translation</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-master-toggle" style="accent-color: #38bdf8; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06);">' +
+                            '<div><b style="color: #6ee7b7;">Target Language (Receive &amp; UI) :</b><br><span style="font-size: 10px; color: #94a3b8;">Language to translate other players\' messages into</span></div>' +
+                            '<select id="chrono-bragi-target-lang-sel" style="background: rgba(3, 15, 13, 0.9); border: 1px solid #38bdf8; color: #38bdf8; font-weight: bold; border-radius: 6px; padding: 5px 10px; font-size: 11px; outline: none; cursor: pointer;"></select>' +
+                        '</div>' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                            '<div><b style="color: #6ee7b7;">Translate Incoming Chat :</b><br><span style="font-size: 10px; color: #94a3b8;">Replaces other players\' messages in-place with your language. Your own messages are never translated.</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-chat-toggle" style="accent-color: #10b981; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                            '<div><b style="color: #f59e0b;">Xtransceiver (/tr command only) :</b><br><span style="font-size: 10px; color: #94a3b8;">Only translates when you explicitly type /tr &lt;message&gt;. Regular messages are sent 100% as typed without any translation.</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-outgoing-toggle" style="accent-color: #f59e0b; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06);">' +
+                            '<div><b style="color: #f59e0b;">Outgoing Language (/tr target) :</b><br><span style="font-size: 10px; color: #94a3b8;">Language your /tr messages will be converted to</span></div>' +
+                            '<select id="chrono-bragi-outgoing-lang-sel" style="background: rgba(3, 15, 13, 0.9); border: 1px solid #f59e0b; color: #fbbf24; font-weight: bold; border-radius: 6px; padding: 5px 10px; font-size: 11px; outline: none; cursor: pointer;"></select>' +
+                        '</div>' +
+                        '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;">' +
+                            '<div><b style="color: #a78bfa;">Game Interface Localization :</b><br><span style="font-size: 10px; color: #94a3b8;">Translate game menus and buttons into target language</span></div>' +
+                            '<input type="checkbox" id="chrono-bragi-ui-toggle" style="accent-color: #a78bfa; width: 18px; height: 18px; cursor: pointer;" />' +
+                        '</label>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">' +
+                    '<span style="font-size: 11px; color: #94a3b8;">Translation Cache : <b id="chrono-bragi-cache-label" style="color: #34d399;">0 cached phrases</b></span>' +
+                    '<button id="chrono-bragi-clear-cache-btn" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer;">🧹 Clear Cache</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+
+            '<!-- Footer -->' +
+            '<div style="' +
+                'padding: 8px 20px; background: rgba(3, 15, 13, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.05);' +
+                'display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #64748b;' +
+            '">' +
+                '<span>Press <b style="color: #94a3b8;">ESC</b> or click ⏳ to close</span>' +
+                '<span style="color: #34d399; font-weight: 600;">Chrono Client • Nordic Engine</span>' +
+            '</div>' +
+        '</div>';
+
+
+    // 5. Config Management and Synchronization
+    function syncUiFromConfig() {
+        const engineSelect = document.getElementById("chrono-select-engine");
+        if (engineSelect) engineSelect.value = currentConfig.rendering_engine || "d3d11";
+
+        const checkboxes = [
+            { id: "cfg-flag-highres-timer", key: "flag_highres_timer" },
+            { id: "cfg-flag-anti-throttle", key: "flag_anti_throttle" },
+            { id: "cfg-flag-audio-in-process", key: "flag_audio_in_process" },
+            { id: "cfg-flag-resample-scroll", key: "flag_resample_scroll" },
+            { id: "cfg-flag-accelerated-canvas", key: "flag_accelerated_canvas" },
+            { id: "cfg-flag-gpu-rasterization", key: "flag_gpu_rasterization" },
+            { id: "cfg-flag-anti-freeze-ipc", key: "flag_anti_freeze_ipc" },
+            { id: "cfg-flag-vsync-locked", key: "flag_vsync_locked" },
+            { id: "cfg-flag-custom-theme", key: "flag_custom_theme" },
+            { id: "cfg-flag-single-process", key: "flag_single_process" },
+            { id: "cfg-flag-disable-gpu", key: "flag_disable_gpu" },
+            { id: "cfg-flag-in-process-gpu", key: "flag_in_process_gpu" },
+            { id: "cfg-flag-no-sandbox", key: "flag_no_sandbox" },
+            { id: "cfg-discord-rpc-enabled", key: "discord_rpc_enabled" },
+            { id: "cfg-flag-raw-input-no-resample", key: "flag_raw_input_no_resample" },
+            { id: "cfg-flag-windows-timer-resolution", key: "flag_windows_timer_resolution" },
+            { id: "cfg-flag-disable-frame-rate-limit", key: "flag_disable_frame_rate_limit" },
+            { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster" },
+            { id: "cfg-flag-websocket-arraybuffer", key: "flag_websocket_arraybuffer" },
+            { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning" },
+            { id: "cfg-flag-anti-freeze-gc", key: "flag_anti_freeze_gc" }
+        ];
+
+        checkboxes.forEach(c => {
+            const el = document.getElementById(c.id);
+            if (el) el.checked = Boolean(currentConfig[c.key]);
+        });
+
+        updateDiscordBadge();
+    }
+
+    function updateDiscordBadge() {
+        const badge = document.getElementById("chrono-discord-status-badge");
+        if (!badge) return;
+        if (currentConfig.discord_rpc_enabled) {
+            badge.innerText = "CONNECTED";
+            badge.style.background = "rgba(34, 197, 94, 0.2)";
+            badge.style.borderColor = "rgba(34, 197, 94, 0.5)";
+            badge.style.color = "#86efac";
+        } else {
+            badge.innerText = "DISABLED";
+            badge.style.background = "rgba(148, 163, 184, 0.2)";
+            badge.style.borderColor = "rgba(148, 163, 184, 0.4)";
+            badge.style.color = "#94a3b8";
+        }
+    }
+
+    function saveConfig(triggerRestartBanner) {
+        localStorage.setItem("chrono_config", JSON.stringify(currentConfig));
+        if (window.ipc) {
+            window.ipc.postMessage(JSON.stringify({
+                action: "save_config",
+                config: currentConfig
+            }));
+        }
+        if (triggerRestartBanner) {
+            const banner = document.getElementById("chrono-restart-banner");
+            if (banner) banner.style.display = "block";
+        }
+        updateDiscordBadge();
+    }
+
+    // 6. Alt Storage & Fast Switch Functions
+    function getStoredAlts() {
+        try {
+            return JSON.parse(localStorage.getItem("chrono_alts") || "[]");
+        } catch(e) {
+            return [];
+        }
+    }
+
+    function saveStoredAlts(alts) {
+        localStorage.setItem("chrono_alts", JSON.stringify(alts));
+        renderAltsList();
+    }
+
+    function showStatus(msg, isError) {
+        const el = document.getElementById("chrono-status-msg");
+        if (!el) return;
+        el.style.display = "block";
+        el.innerText = msg;
+        if (isError) {
+            el.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+            el.style.border = "1px solid rgba(239, 68, 68, 0.5)";
+            el.style.color = "#fca5a5";
+        } else {
+            el.style.backgroundColor = "rgba(34, 197, 94, 0.2)";
+            el.style.border = "1px solid rgba(34, 197, 94, 0.5)";
+            el.style.color = "#86efac";
+        }
+    }
+
+    function getCookie(name) {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return null;
+    }
+
+    async function loginWithAlt(username, password) {
+        showStatus("Connecting to " + username + "...");
+        try {
+            const csrf = getCookie("csrf_token");
+            const headers = {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            };
+            if (csrf) headers["X-CSRF-Token"] = csrf;
+
+            // 1. Logout current session
+            await fetch("/api/auth/logout", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify({}),
+                credentials: "same-origin"
+            });
+
+            // 2. Login to target alt
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify({ username: username, password: password }),
+                credentials: "same-origin"
+            });
+
+            const data = await res.json();
+            if (data && (data.success || data.username || data.user || res.ok)) {
+                showStatus("✅ Connected as " + username + "! Reloading...");
+                setTimeout(() => location.reload(), 350);
+            } else {
+                showStatus("❌ Error: " + (data.error || data.message || "Invalid credentials"), true);
+            }
+        } catch(err) {
+            showStatus("❌ Network error: " + err.message, true);
+        }
+    }
+
+    async function logoutGuest() {
+        showStatus("Switching to guest mode...");
+        try {
+            const csrf = getCookie("csrf_token");
+            const headers = {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            };
+            if (csrf) headers["X-CSRF-Token"] = csrf;
+
+            await fetch("/api/auth/logout", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify({}),
+                credentials: "same-origin"
+            });
+            showStatus("✅ Guest mode enabled! Reloading...");
+            setTimeout(() => location.reload(), 300);
+        } catch(e) {
+            location.reload();
+        }
+    }
+
+    // Scripts Folder Management & Renderer (Global Closure Scope)
+    function getEnabledScriptMap() {
+        try {
+            return JSON.parse(localStorage.getItem("chrono_enabled_scripts") || "{}");
+        } catch(e) { return {}; }
+    }
+    function saveEnabledScriptMap(map) {
+        localStorage.setItem("chrono_enabled_scripts", JSON.stringify(map));
+    }
+
+    const executedScriptFilenames = new Set();
+
+    function executeScript(scriptObj) {
+        if (localStorage.getItem("chrono_tournament_mode") === "true") return;
+        if (!scriptObj || !scriptObj.code) return;
+        try {
+            (new Function(scriptObj.code))();
+        } catch {}
+    }
+
+    function runAutoBootScripts() {
+        if (localStorage.getItem("chrono_tournament_mode") === "true") return;
+        const scripts = window._chrono_loaded_scripts || INITIAL_CHRONO_SCRIPTS || [];
+        if (scripts.length === 0 || executedScriptFilenames.size >= scripts.length) {
+            return;
+        }
+        const enabledMap = getEnabledScriptMap();
+        scripts.forEach(s => {
+            if (enabledMap[s.filename] && s.code && !executedScriptFilenames.has(s.filename)) {
+                executedScriptFilenames.add(s.filename);
+                executeScript(s);
+            }
+        });
+    }
+
+    // Auto-run at injection time with bounded startup checks (no infinite 1000ms loop)
+    runAutoBootScripts();
+    window.addEventListener("DOMContentLoaded", runAutoBootScripts);
+    window.addEventListener("load", runAutoBootScripts);
+    let autoBootAttempts = 0;
+    const autoBootInterval = setInterval(() => {
+        runAutoBootScripts();
+        autoBootAttempts++;
+        if (autoBootAttempts >= 5) {
+            clearInterval(autoBootInterval);
+        }
+    }, 1000);
+
+    window._chrono_on_scripts_reloaded = function(newScripts) {
+        if (Array.isArray(newScripts)) {
+            window._chrono_loaded_scripts = newScripts;
+            const enabledMap = getEnabledScriptMap();
+            const isTourActive = (localStorage.getItem("chrono_tournament_mode") === "true");
+            if (!isTourActive) {
+                newScripts.forEach(s => {
+                    if (enabledMap[s.filename] && s.code && !executedScriptFilenames.has(s.filename)) {
+                        executedScriptFilenames.add(s.filename);
+                        executeScript(s);
+                    }
+                });
+            }
+            renderCustomScriptsList();
+        }
+    };
+
+    function renderCustomScriptsList() {
+        const listEl = document.getElementById("chrono-user-scripts-list");
+        const countBadge = document.getElementById("chrono-scripts-count-badge");
+        if (!listEl) return;
+        const isTourActive = (localStorage.getItem("chrono_tournament_mode") === "true");
+        const enabledMap = getEnabledScriptMap();
+        const scripts = window._chrono_loaded_scripts || INITIAL_CHRONO_SCRIPTS || [];
+
+        if (countBadge) {
+            countBadge.textContent = scripts.length + " script" + (scripts.length > 1 ? "s" : "");
+        }
+
+        listEl.innerHTML = "";
+
+        if (isTourActive) {
+            const tourNotice = document.createElement("div");
+            tourNotice.style.background = "linear-gradient(135deg, rgba(88, 28, 135, 0.4) 0%, rgba(59, 7, 100, 0.6) 100%)";
+            tourNotice.style.border = "1px solid rgba(168, 85, 247, 0.4)";
+            tourNotice.style.borderRadius = "8px";
+            tourNotice.style.padding = "10px 14px";
+            tourNotice.style.color = "#f5d0fe";
+            tourNotice.style.fontSize = "11.5px";
+            tourNotice.style.display = "flex";
+            tourNotice.style.alignItems = "center";
+            tourNotice.style.gap = "8px";
+            tourNotice.style.marginBottom = "8px";
+            tourNotice.innerHTML = '<span style="font-size: 16px;">🏆</span><span><b>Tournament Mode Active:</b> All custom scripts and dynamic execution are strictly locked and forbidden.</span>';
+            listEl.appendChild(tourNotice);
+        }
+
+        if (scripts.length === 0) {
+            const emptyEl = document.createElement("div");
+            emptyEl.style.color = "#64748b";
+            emptyEl.style.fontSize = "11px";
+            emptyEl.style.textAlign = "center";
+            emptyEl.style.padding = "12px";
+            emptyEl.style.background = "rgba(3,15,13,0.5)";
+            emptyEl.style.borderRadius = "8px";
+            emptyEl.innerHTML = "No scripts found in <code>scripts/</code> folder. Click <b>📂 Open scripts/ Folder</b> to add scripts!";
+            listEl.appendChild(emptyEl);
+            return;
+        }
+
+        scripts.forEach((s) => {
+            const isEnabled = Boolean(enabledMap[s.filename]) && !isTourActive;
+            const row = document.createElement("div");
+            row.style.background = "rgba(3, 15, 13, 0.75)";
+            row.style.border = isEnabled ? "1px solid rgba(52, 211, 153, 0.4)" : "1px solid rgba(255, 255, 255, 0.08)";
+            row.style.borderRadius = "8px";
+            row.style.padding = "8px 12px";
+            row.style.display = "flex";
+            row.style.justifyContent = "space-between";
+            row.style.alignItems = "center";
+            row.style.fontSize = "11.5px";
+            row.style.transition = "all 0.2s ease";
+            if (isTourActive) row.style.opacity = "0.6";
+
+            row.innerHTML = 
+                '<div style="display: flex; align-items: center; gap: 8px;">' +
+                    '<span style="font-size: 14px;">📜</span>' +
+                    '<div>' +
+                        '<b style="color: ' + (isEnabled ? '#34d399' : '#e2e8f0') + ';">' + s.filename + '</b>' +
+                        '<div style="color: #64748b; font-size: 10px;">' + (s.code ? s.code.length : 0) + ' bytes • ' + (isTourActive ? '🔒 Locked (Tourny)' : (isEnabled ? '🟢 Active' : '⚪ Inactive')) + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="display: flex; gap: 10px; align-items: center;">' +
+                    '<button class="chrono-btn-run-once" ' + (isTourActive ? 'disabled style="opacity: 0.4; cursor: not-allowed; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); color: #94a3b8; padding: 4px 10px; border-radius: 6px; font-size: 10.5px;"' : 'style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer;"') + '>▶️ Run</button>' +
+                    '<label style="display: flex; align-items: center; gap: 6px; ' + (isTourActive ? 'cursor: not-allowed; opacity: 0.5;' : 'cursor: pointer;') + ' font-weight: 700; color: ' + (isEnabled ? '#34d399' : '#94a3b8') + ';">' +
+                        '<span>' + (isEnabled ? 'ON' : 'OFF') + '</span>' +
+                        '<input type="checkbox" ' + (isTourActive ? 'disabled' : '') + ' ' + (isEnabled ? 'checked' : '') + ' style="accent-color: #10b981; width: 16px; height: 16px;' + (isTourActive ? 'cursor: not-allowed;' : 'cursor: pointer;') + '" />' +
+                    '</label>' +
+                '</div>';
+
+            const chk = row.querySelector("input[type='checkbox']");
+            const runBtn = row.querySelector(".chrono-btn-run-once");
+
+            if (chk && !isTourActive) {
+                chk.onchange = () => {
+                    enabledMap[s.filename] = chk.checked;
+                    saveEnabledScriptMap(enabledMap);
+                    if (s.filename === "hide_all_ui.js") {
+                        toggleHideAllUi(chk.checked);
+                    } else if (chk.checked) {
+                        executeScript(s);
+                    }
+                    renderCustomScriptsList();
+                };
+            }
+            if (runBtn && !isTourActive) {
+                runBtn.onclick = () => {
+                    executeScript(s);
+                };
+            }
+
+            listEl.appendChild(row);
+        });
+    }
+
+    function renderAltsList() {
+        const alts = getStoredAlts();
+        const listEl = document.getElementById("chrono-alts-list");
+        const countEl = document.getElementById("chrono-alts-count");
+        if (countEl) countEl.innerText = alts.length;
+        if (!listEl) return;
+
+        if (alts.length === 0) {
+            listEl.innerHTML = 
+                '<div style="padding: 20px; text-align: center; color: #64748b; font-size: 12px; background: rgba(7, 26, 23, 0.4); border-radius: 8px; border: 1px dashed rgba(52,211,153,0.15);">' +
+                    'No accounts saved yet.<br>Add your accounts above to switch in 1 click!' +
+                '</div>';
+            return;
+        }
+
+        listEl.innerHTML = "";
+        alts.forEach((alt, index) => {
+            const card = document.createElement("div");
+            card.style.background = "linear-gradient(90deg, rgba(5, 150, 105, 0.2) 0%, rgba(7, 26, 23, 0.6) 100%)";
+            card.style.border = "1px solid rgba(52, 211, 153, 0.25)";
+            card.style.borderRadius = "8px";
+            card.style.padding = "8px 12px";
+            card.style.display = "flex";
+            card.style.alignItems = "center";
+            card.style.justifyContent = "space-between";
+            card.style.gap = "8px";
+
+            const initial = (alt.username || "?").charAt(0).toUpperCase();
+            const tagBadge = alt.tag ? ('<span style="background: rgba(5, 150, 105, 0.3); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 9px; padding: 1px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">' + alt.tag + '</span>') : "";
+
+            card.innerHTML = 
+                '<div style="display: flex; align-items: center; gap: 10px;">' +
+                    '<div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #059669, #10b981); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: #ffffff; box-shadow: 0 0 8px rgba(16, 185, 129, 0.35);">' + initial + '</div>' +
+                    '<div>' +
+                        '<div style="font-weight: 700; font-size: 12px; color: #f8fafc; display: flex; align-items: center; gap: 6px;">' +
+                            alt.username + ' ' + tagBadge +
+                        '</div>' +
+                        '<div style="font-size: 10px; color: #64748b;">••••••••</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="display: flex; gap: 6px;">' +
+                    '<button class="chrono-btn-switch" style="' +
+                        'background: linear-gradient(135deg, #059669, #047857);' +
+                        'border: 1px solid rgba(110, 231, 183, 0.4);' +
+                        'color: #ffffff; padding: 5px 12px; border-radius: 6px;' +
+                        'font-size: 11px; font-weight: 700; cursor: pointer;' +
+                    '">⚡ Switch</button>' +
+                    '<button class="chrono-btn-del" style="' +
+                        'background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3);' +
+                        'color: #fca5a5; padding: 5px 8px; border-radius: 6px;' +
+                        'font-size: 11px; cursor: pointer;' +
+                    '">🗑️</button>' +
+                '</div>';
+
+            card.querySelector(".chrono-btn-switch").onclick = () => loginWithAlt(alt.username, alt.password);
+            card.querySelector(".chrono-btn-del").onclick = () => {
+                if (confirm("Delete account \"" + alt.username + "\" from list?")) {
+                    const current = getStoredAlts();
+                    current.splice(index, 1);
+                    saveStoredAlts(current);
+                }
+            };
+
+            listEl.appendChild(card);
+        });
+    }
+
+    function isAnyMenuOpen() {
+        if (window._chrono_hud_editing) return true;
+        const modal = document.getElementById("chrono-menu-modal");
+        if (modal && modal.style.display !== "none" && modal.style.display !== "") return true;
+        const runsWin = document.getElementById("chrono-runs-window");
+        if (runsWin && runsWin.style.display !== "none" && runsWin.style.display !== "") return true;
+        const lbWin = document.getElementById("chrono-leaderboard-window");
+        if (lbWin && lbWin.style.display !== "none" && lbWin.style.display !== "") return true;
+        const tourWin = document.getElementById("chrono-tournament-window");
+        if (tourWin && tourWin.style.display !== "none" && tourWin.style.display !== "") return true;
+        const inGameModal = document.getElementById("modal");
+        if (inGameModal && inGameModal.style.display !== "none" && inGameModal.children.length > 0) return true;
+        const questsWin = document.getElementById("quests-window");
+        if (questsWin && questsWin.style.display !== "none" && questsWin.style.display !== "") return true;
+        return false;
+    }
+
+    function freezePlayerMovement() {
+        window._chrono_is_internal_freeze = true;
+        const movementKeys = ["w", "a", "s", "d", "W", "A", "S", "D", "z", "x", "c", "Z", "X", "C", "1", "2", "3", "4", "5", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "];
+        movementKeys.forEach(k => {
+            try {
+                window.dispatchEvent(new KeyboardEvent("keyup", { key: k, code: k.toUpperCase(), bubbles: true }));
+            } catch(e) {}
+        });
+        const canvas = document.getElementById("canvas");
+        if (canvas) {
+            try {
+                canvas.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+            } catch(e) {}
+        }
+        setTimeout(() => {
+            window._chrono_is_internal_freeze = false;
+        }, 100);
+    }
+    window._chrono_freeze_player = freezePlayerMovement;
+
+    function toggleChronoMenu() {
+        const modal = document.getElementById("chrono-menu-modal");
+        if (!modal) return;
+        if (modal.style.display === "none" || modal.style.display === "") {
+            freezePlayerMovement();
+            modal.style.display = "flex";
+            syncUiFromConfig();
+            renderAltsList();
+            renderCustomScriptsList();
+        } else {
+            modal.style.display = "none";
+        }
+    }
+
+
+        function toggleChronoMenu() {
+            let modal = document.getElementById("chrono-menu-modal");
+            if (!modal) {
+                mountSettingsUI();
+                modal = document.getElementById("chrono-menu-modal");
+            }
+            if (!modal) return;
+            if (modal.style.display === "none" || modal.style.display === "") {
+                freezePlayerMovement();
+                modal.style.display = "flex";
+                syncUiFromConfig();
+                renderAltsList();
+                renderCustomScriptsList();
+            } else {
+                modal.style.display = "none";
+            }
+        }
+
+        // Settings Hourglass Launcher & UI Mount
+        function mountSettingsUI() {
+            if (!document.body) return;
+
+            // Hourglass Launcher (Settings & Client Hub)
+            if (!document.getElementById("chrono-hourglass-launcher")) {
+                const hourglassBtn = document.createElement("div");
+                hourglassBtn.id = "chrono-hourglass-launcher";
+                hourglassBtn.title = "Chrono Client Hub & Settings (ESC)";
+                hourglassBtn.style.position = "fixed";
+                hourglassBtn.style.transform = "translateZ(0)";
+                hourglassBtn.style.contain = "layout style paint";
+                hourglassBtn.style.bottom = "10px";
+                hourglassBtn.style.right = "136px";
+                hourglassBtn.style.width = "32px";
+                hourglassBtn.style.height = "32px";
+                hourglassBtn.style.cursor = "pointer";
+                hourglassBtn.style.zIndex = "1000";
+                hourglassBtn.style.display = "flex";
+                hourglassBtn.style.alignItems = "center";
+                hourglassBtn.style.justifyContent = "center";
+                hourglassBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition: all 0.2s ease;"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>';
+                hourglassBtn.onmouseover = () => {
+                    const svg = hourglassBtn.querySelector("svg");
+                    if (svg) {
+                        svg.style.stroke = "#34d399";
+                        svg.style.filter = "drop-shadow(0 0 8px #10b981)";
+                    }
+                };
+                hourglassBtn.onmouseout = () => {
+                    const svg = hourglassBtn.querySelector("svg");
+                    if (svg) {
+                        svg.style.stroke = "#94a3b8";
+                        svg.style.filter = "none";
+                    }
+                };
+                hourglassBtn.onclick = () => toggleChronoMenu();
+                document.body.appendChild(hourglassBtn);
+            }
+
+            if (!document.getElementById("chrono-menu-modal")) {
+                document.body.appendChild(menuContainer);
+            }
+
+            const closeBtn = document.getElementById("chrono-close-btn");
+            if (closeBtn) closeBtn.onclick = () => toggleChronoMenu();
+            menuContainer.onclick = (e) => {
+                if (e.target === menuContainer) toggleChronoMenu();
+            };
+
+            // Setup Hub Navigation Tabs
+            const hubTabs = [
+                { tab: "chrono-tab-client", view: "chrono-view-client" },
+                { tab: "chrono-tab-flags", view: "chrono-view-flags" },
+                { tab: "chrono-tab-experimental", view: "chrono-view-experimental" },
+                { tab: "chrono-tab-alts", view: "chrono-view-alts" },
+                { tab: "chrono-tab-modes", view: "chrono-view-modes" },
+                { tab: "chrono-tab-discord", view: "chrono-view-discord" },
+                { tab: "chrono-tab-ui", view: "chrono-view-ui" },
+                { tab: "chrono-tab-bragi", view: "chrono-view-bragi" }
+            ];
+
+            hubTabs.forEach(t => {
+                const tabEl = document.getElementById(t.tab);
+                if (tabEl) {
+                    tabEl.onclick = () => {
+                        hubTabs.forEach(other => {
+                            const otherEl = document.getElementById(other.tab);
+                            const otherView = document.getElementById(other.view);
+                            if (other.tab === t.tab) {
+                                if (otherEl) {
+                                    otherEl.style.background = (t.tab === "chrono-tab-experimental") 
+                                        ? "linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(147, 51, 234, 0.25) 100%)" 
+                                        : (t.tab === "chrono-tab-bragi")
+                                        ? "linear-gradient(135deg, rgba(14, 165, 233, 0.35) 0%, rgba(2, 132, 199, 0.25) 100%)"
+                                        : "linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.2) 100%)";
+                                    otherEl.style.color = "#ffffff";
+                                    otherEl.style.borderColor = (t.tab === "chrono-tab-experimental") 
+                                        ? "#c084fc" 
+                                        : (t.tab === "chrono-tab-bragi" ? "#38bdf8" : "#34d399");
+                                }
+                                if (otherView) otherView.style.display = "block";
+                            } else {
+                                if (otherEl) {
+                                    otherEl.style.background = "transparent";
+                                    otherEl.style.color = (other.tab === "chrono-tab-experimental") 
+                                        ? "#c084fc" 
+                                        : (other.tab === "chrono-tab-bragi" ? "#38bdf8" : "#94a3b8");
+                                    otherEl.style.borderColor = "transparent";
+                                }
+                                if (otherView) otherView.style.display = "none";
+                            }
+                        });
+                    };
+                }
+            });
+
+            // 1. Rendering Engine selector change
+            const engineSel = document.getElementById("chrono-select-engine");
+            if (engineSel) {
+                engineSel.onchange = () => {
+                    currentConfig.rendering_engine = engineSel.value;
+                    saveConfig(true);
+                };
+            }
+
+            // 2. Setup Flag Checkbox Listeners
+            const flagMap = [
+                { id: "cfg-flag-highres-timer", key: "flag_highres_timer", restart: true },
+                { id: "cfg-flag-anti-throttle", key: "flag_anti_throttle", restart: true },
+                { id: "cfg-flag-audio-in-process", key: "flag_audio_in_process", restart: true },
+                { id: "cfg-flag-resample-scroll", key: "flag_resample_scroll", restart: true },
+                { id: "cfg-flag-accelerated-canvas", key: "flag_accelerated_canvas", restart: true },
+                { id: "cfg-flag-gpu-rasterization", key: "flag_gpu_rasterization", restart: true },
+                { id: "cfg-flag-anti-freeze-ipc", key: "flag_anti_freeze_ipc", restart: false },
+                { id: "cfg-flag-vsync-locked", key: "flag_vsync_locked", restart: false },
+                { id: "cfg-flag-custom-theme", key: "flag_custom_theme", restart: false },
+                { id: "cfg-flag-single-process", key: "flag_single_process", restart: true, hazard: true },
+                { id: "cfg-flag-disable-gpu", key: "flag_disable_gpu", restart: true, hazard: true },
+                { id: "cfg-flag-in-process-gpu", key: "flag_in_process_gpu", restart: true, hazard: true },
+                { id: "cfg-flag-no-sandbox", key: "flag_no_sandbox", restart: true, hazard: true },
+                { id: "cfg-discord-rpc-enabled", key: "discord_rpc_enabled", restart: false },
+
+                // Experimental & Low-Latency Network
+                { id: "cfg-flag-raw-input-no-resample", key: "flag_raw_input_no_resample", restart: true },
+                { id: "cfg-flag-windows-timer-resolution", key: "flag_windows_timer_resolution", restart: true },
+                { id: "cfg-flag-disable-frame-rate-limit", key: "flag_disable_frame_rate_limit", restart: true },
+                { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster", restart: true },
+                { id: "cfg-flag-websocket-arraybuffer", key: "flag_websocket_arraybuffer", restart: false },
+                { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning", restart: true },
+                { id: "cfg-flag-anti-freeze-gc", key: "flag_anti_freeze_gc", restart: true }
+            ];
+
+            flagMap.forEach(item => {
+                const el = document.getElementById(item.id);
+                if (!el) return;
+                el.onchange = () => {
+                    if (item.hazard && el.checked) {
+                        const ok = confirm("WARNING: Enabling this flag is hazardous and may cause sudden crashes or black screens. Continue?");
+                        if (!ok) {
+                            el.checked = false;
+                            return;
+                        }
+                    }
+                    currentConfig[item.key] = el.checked;
+                    saveConfig(item.restart);
+
+                    // Realtime theme toggle handler
+                    if (item.key === "flag_custom_theme") {
+                        const themeTag = document.getElementById("chrono-artem-theme");
+                        if (themeTag) themeTag.disabled = !el.checked;
+                    }
+                };
+            });
+
+            // Add Alt Form
+            const saveAltBtn = document.getElementById("chrono-btn-save-alt");
+            const inUser = document.getElementById("chrono-input-user");
+            const inPass = document.getElementById("chrono-input-pass");
+            const inTag = document.getElementById("chrono-input-tag");
+
+            if (saveAltBtn && inUser && inPass) {
+                saveAltBtn.onclick = () => {
+                    const u = (inUser.value || "").trim();
+                    const p = (inPass.value || "").trim();
+                    const t = (inTag.value || "").trim();
+
+                    if (!u || !p) {
+                        showStatus("Please provide a username and password.", true);
+                        return;
+                    }
+
+                    const current = getStoredAlts();
+                    const existingIdx = current.findIndex(a => a.username.toLowerCase() === u.toLowerCase());
+                    if (existingIdx >= 0) {
+                        current[existingIdx] = { username: u, password: p, tag: t };
+                    } else {
+                        current.push({ username: u, password: p, tag: t });
+                    }
+                    saveStoredAlts(current);
+                    inUser.value = "";
+                    inPass.value = "";
+                    inTag.value = "";
+                    showStatus("Account \"" + u + "\" saved successfully!");
+                };
+            }
+
+            const guestBtn = document.getElementById("chrono-btn-guest");
+            if (guestBtn) guestBtn.onclick = () => logoutGuest();
+
+            // === 1. ACTIVE OPTIMIZATIONS BADGES (TAB 1) ===
+            function renderActiveFlagsBadges() {
+                const grid = document.getElementById("chrono-active-flags-grid");
+                if (!grid) return;
+                const flagMeta = [
+                    { key: "flag_vsync_locked", label: "🟢 Hardware VSync (" + MONITOR_HZ + " FPS)", tip: "Direct3D 11 hardware swapchain frame synchronization (" + MONITOR_HZ + "Hz) with zero tearing." },
+                    { key: "flag_anti_freeze_ipc", label: "🟢 Combat Anti-Freeze IPC", tip: "Suppresses high-frequency combat log spam to completely eliminate combat stutter." },
+                    { key: "flag_raw_input_no_resample", label: "⚡ Raw Mouse Input", tip: "Bypasses browser input resampling for instant 1:1 cursor response." },
+                    { key: "flag_windows_timer_resolution", label: "⚡ 0.5ms Windows Timer (2000Hz)", tip: "Sub-millisecond OS scheduler for zero-stutter VSync and instant packet handling." },
+                    { key: "flag_websocket_arraybuffer", label: "🌐 WS ArrayBuffer Sync", tip: "Direct binary memory WebSocket decoding with 0ms async lag." },
+                    { key: "flag_zero_copy_raster", label: "🟢 Zero-Copy VRAM Canvas", tip: "Direct GPU tile rasterization bypassing intermediate RAM copies." },
+                    { key: "flag_accelerated_canvas", label: "🟢 Direct3D 11 GPU Canvas", tip: "Hardware GPU-accelerated 2D canvas, particle, and map rasterization." },
+                    { key: "flag_highres_timer", label: "🟢 High-Precision Timer", tip: "Sub-millisecond Windows kernel clock for ultra-low latency inputs." },
+                    { key: "flag_anti_throttle", label: "🟢 Anti-Throttling Core", tip: "Prevents Chromium frame rate drop or throttling when the window is in background." },
+                    { key: "discord_rpc_enabled", label: "🟢 Discord Rich Presence", tip: "Real-time Discord status with full account and map privacy." },
+                    { key: "flag_resample_scroll", label: "🟢 Resampling Scroll", tip: "Hardware event pacing for smooth input." },
+                    { key: "flag_gpu_rasterization", label: "🟢 GPU Rasterization", tip: "Direct GPU tile rasterization for crisp gameplay textures." },
+                    { key: "flag_audio_in_process", label: "🟢 In-Process Audio", tip: "Low-latency audio pipeline." },
+                    { key: "flag_custom_theme", label: "🟢 Nordic Emerald Theme", tip: "Live dark emerald glass-morphism styling for all UI." }
+                ];
+
+                let html = "";
+                flagMeta.forEach(f => {
+                    if (currentConfig[f.key] !== false) {
+                        html += '<div class="chrono-active-badge" title="' + f.tip + '" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(52, 211, 153, 0.4); color: #6ee7b7; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px; cursor: help; display: flex; align-items: center; gap: 4px; transition: all 0.15s ease;">' + f.label + '</div>';
+                    }
+                });
+                grid.innerHTML = html || '<div style="color: #64748b; font-size: 11px;">No active optimizations.</div>';
+            }
+            // === 4. CUSTOM CURSOR & LUMINOUS GLOW POINTS ===
+            const PRESET_CURSORS = [
+                { id: "default", name: "Default", icon: "🖱️", url: "default", x: 0, y: 0 },
+                {
+                    id: "emerald_supernova",
+                    name: "Emerald Glow",
+                    icon: "✨",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="es_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#6ee7b7" stop-opacity="0.95"/><stop offset="55%" stop-color="#10b981" stop-opacity="0.6"/><stop offset="85%" stop-color="#047857" stop-opacity="0.2"/><stop offset="100%" stop-color="#047857" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#es_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#34d399"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "astral_violet",
+                    name: "Astral Violet",
+                    icon: "🔮",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="av_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#f5d0fe" stop-opacity="0.95"/><stop offset="55%" stop-color="#c084fc" stop-opacity="0.65"/><stop offset="85%" stop-color="#7e22ce" stop-opacity="0.2"/><stop offset="100%" stop-color="#7e22ce" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#av_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#c084fc"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "cyan_pulsar",
+                    name: "Cyan Pulsar",
+                    icon: "💎",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="cp_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#bae6fd" stop-opacity="0.95"/><stop offset="55%" stop-color="#38bdf8" stop-opacity="0.65"/><stop offset="85%" stop-color="#0284c7" stop-opacity="0.2"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#cp_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#0ea5e9"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "solar_flare",
+                    name: "Solar Flare",
+                    icon: "🔥",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="sf_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#fef08a" stop-opacity="0.95"/><stop offset="55%" stop-color="#f59e0b" stop-opacity="0.7"/><stop offset="85%" stop-color="#d97706" stop-opacity="0.25"/><stop offset="100%" stop-color="#b45309" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#sf_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#eab308"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "ruby_laser",
+                    name: "Ruby Laser",
+                    icon: "🔴",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="rl_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="25%" stop-color="#fecaca" stop-opacity="0.95"/><stop offset="55%" stop-color="#ef4444" stop-opacity="0.7"/><stop offset="85%" stop-color="#b91c1c" stop-opacity="0.25"/><stop offset="100%" stop-color="#7f1d1d" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="14" fill="url(#rl_g)"/><circle cx="16" cy="16" r="4.2" fill="rgba(0,0,0,0.55)"/><circle cx="16" cy="16" r="3.2" fill="#ffffff"/><circle cx="16" cy="16" r="1.5" fill="#ef4444"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "starlight_spark",
+                    name: "Starlight Spark",
+                    icon: "❇️",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="ss_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="35%" stop-color="#4ade80" stop-opacity="0.85"/><stop offset="70%" stop-color="#16a34a" stop-opacity="0.4"/><stop offset="100%" stop-color="#15803d" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="12" fill="url(#ss_g)"/><path d="M16 3 Q16 16 29 16 Q16 16 16 29 Q16 16 3 16 Q16 16 16 3 Z" fill="#86efac" opacity="0.9"/><circle cx="16" cy="16" r="4" fill="rgba(0,0,0,0.5)"/><circle cx="16" cy="16" r="3" fill="#ffffff"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "electric_halo",
+                    name: "Electric Halo",
+                    icon: "💫",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="eh_g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="40%" stop-color="#a3e635" stop-opacity="0.9"/><stop offset="100%" stop-color="#65a30d" stop-opacity="0"/></radialGradient></defs><circle cx="16" cy="16" r="9" fill="url(#eh_g)"/><circle cx="16" cy="16" r="12.5" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-opacity="0.9"/><circle cx="16" cy="16" r="12.5" fill="none" stroke="#000000" stroke-width="0.8" stroke-opacity="0.5"/><circle cx="16" cy="16" r="3.8" fill="rgba(0,0,0,0.6)"/><circle cx="16" cy="16" r="2.8" fill="#ffffff"/></svg>'),
+                    x: 16, y: 16
+                },
+                {
+                    id: "pearl_shimmer",
+                    name: "Pearl Shimmer",
+                    icon: "⚪",
+                    url: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><radialGradient id="ps_g" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="45%" stop-color="#f1f5f9" stop-opacity="1"/><stop offset="80%" stop-color="#94a3b8" stop-opacity="0.9"/><stop offset="100%" stop-color="#0f172a" stop-opacity="0.95"/></radialGradient></defs><circle cx="16" cy="16" r="7.5" fill="rgba(0,0,0,0.7)"/><circle cx="16" cy="16" r="6" fill="url(#ps_g)" stroke="#ffffff" stroke-width="0.8"/><circle cx="14" cy="14" r="1.8" fill="#ffffff" opacity="0.95"/></svg>'),
+                    x: 16, y: 16
+                }
+            ];
+
+            function applyCustomCursor(cursorUrl, hx = 16, hy = 16) {
+                let tag = document.getElementById("chrono-custom-cursor-style");
+                if (!tag) {
+                    tag = document.createElement("style");
+                    tag.id = "chrono-custom-cursor-style";
+                    document.head.appendChild(tag);
+                }
+                if (!cursorUrl || cursorUrl === "default") {
+                    tag.innerHTML = "";
+                    localStorage.removeItem("chrono_custom_cursor");
+                } else {
+                    let finalUrl = cursorUrl;
+                    if (cursorUrl.startsWith("<svg")) {
+                        finalUrl = "data:image/svg+xml;base64," + btoa(cursorUrl);
+                    } else if (cursorUrl.startsWith("data:image/svg+xml;utf8,")) {
+                        const raw = cursorUrl.replace("data:image/svg+xml;utf8,", "");
+                        finalUrl = "data:image/svg+xml;base64," + btoa(raw);
+                    }
+                    tag.innerHTML = "html, body, canvas, div, span, a, input, button, table, label, select, * { cursor: url('" + finalUrl + "') " + hx + " " + hy + ", auto !important; }";
+                    localStorage.setItem("chrono_custom_cursor", JSON.stringify({ url: finalUrl, x: hx, y: hy }));
+                }
+                renderCursorGrid();
+            }
+
+            function renderCursorGrid() {
+                const grid = document.getElementById("chrono-cursor-grid");
+                if (!grid) return;
+                let activeUrl = "default";
+                try {
+                    const saved = JSON.parse(localStorage.getItem("chrono_custom_cursor") || "null");
+                    if (saved && saved.url) activeUrl = saved.url;
+                } catch(e) {}
+
+                grid.innerHTML = "";
+                PRESET_CURSORS.forEach(c => {
+                    const isSel = (c.url === activeUrl || (c.id === "default" && activeUrl === "default"));
+                    const card = document.createElement("div");
+                    card.style.background = isSel ? "rgba(16, 185, 129, 0.25)" : "rgba(3, 15, 13, 0.7)";
+                    card.style.border = isSel ? "1.5px solid #34d399" : "1px solid rgba(255, 255, 255, 0.08)";
+                    card.style.borderRadius = "8px";
+                    card.style.padding = "8px 6px";
+                    card.style.display = "flex";
+                    card.style.flexDirection = "column";
+                    card.style.alignItems = "center";
+                    card.style.gap = "4px";
+                    card.style.cursor = "pointer";
+                    card.style.transition = "all 0.15s ease";
+
+                    let previewEl = '<div style="font-size: 20px;">' + c.icon + '</div>';
+                    if (c.url !== "default") {
+                        previewEl = '<img src="' + c.url + '" style="width: 24px; height: 24px; object-fit: contain;" />';
+                    }
+
+                    card.innerHTML = previewEl + '<span style="font-size: 10px; font-weight: 700; color: ' + (isSel ? '#6ee7b7' : '#cbd5e1') + '; text-align: center;">' + c.name + '</span>';
+                    card.onclick = () => applyCustomCursor(c.url, c.x, c.y);
+                    grid.appendChild(card);
+                });
+            }
+            // Cursor Builder Logic (High-Visibility Radiant Glow Points & Orbs)
+            function generateBuilderSvg() {
+                const shape = (document.getElementById("chrono-cb-shape") || {}).value || "glow_dot";
+                const color = (document.getElementById("chrono-cb-color") || {}).value || "#10b981";
+                const size = parseInt((document.getElementById("chrono-cb-size") || {}).value || "28", 10);
+                const mid = Math.round(size / 2);
+                const rCore = Math.max(2.4, mid * 0.22);
+                const rOuter = mid * 0.88;
+                let svg = "";
+
+                if (shape === "glow_dot") {
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_gd" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="28%" stop-color="' + color + '" stop-opacity="0.95"/>' +
+                                '<stop offset="65%" stop-color="' + color + '" stop-opacity="0.55"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rOuter + '" fill="url(#cb_gd)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore + 1.2) + '" fill="rgba(0,0,0,0.6)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rCore + '" fill="#ffffff"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore * 0.5) + '" fill="' + color + '"/>' +
+                        '</svg>';
+                } else if (shape === "star_spark") {
+                    const ray = mid * 0.85;
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_ss" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="35%" stop-color="' + color + '" stop-opacity="0.9"/>' +
+                                '<stop offset="70%" stop-color="' + color + '" stop-opacity="0.4"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.75) + '" fill="url(#cb_ss)"/>' +
+                        '<path d="M' + mid + ' ' + (mid - ray) + ' Q' + mid + ' ' + mid + ' ' + (mid + ray) + ' ' + mid + ' Q' + mid + ' ' + mid + ' ' + mid + ' ' + (mid + ray) + ' Q' + mid + ' ' + mid + ' ' + (mid - ray) + ' ' + mid + ' Q' + mid + ' ' + mid + ' ' + mid + ' ' + (mid - ray) + ' Z" fill="' + color + '" opacity="0.9"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore + 1) + '" fill="rgba(0,0,0,0.55)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rCore + '" fill="#ffffff"/>' +
+                        '</svg>';
+                } else if (shape === "dual_ring") {
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_dr" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="40%" stop-color="' + color + '" stop-opacity="0.85"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.55) + '" fill="url(#cb_dr)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.78) + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-opacity="0.9"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.78) + '" fill="none" stroke="#000000" stroke-width="0.8" stroke-opacity="0.6"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore + 1) + '" fill="rgba(0,0,0,0.6)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + rCore + '" fill="#ffffff"/>' +
+                        '</svg>';
+                } else if (shape === "crystal") {
+                    const ds = mid * 0.75;
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_cr" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="40%" stop-color="' + color + '" stop-opacity="0.75"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.85) + '" fill="url(#cb_cr)"/>' +
+                        '<polygon points="' + mid + ',' + (mid - ds) + ' ' + (mid + ds) + ',' + mid + ' ' + mid + ',' + (mid + ds) + ' ' + (mid - ds) + ',' + mid + '" fill="' + color + '" stroke="#ffffff" stroke-width="1.2" opacity="0.95"/>' +
+                        '<polygon points="' + mid + ',' + (mid - ds*0.45) + ' ' + (mid + ds*0.45) + ',' + mid + ' ' + mid + ',' + (mid + ds*0.45) + ' ' + (mid - ds*0.45) + ',' + mid + '" fill="#ffffff"/>' +
+                        '</svg>';
+                } else if (shape === "pure_dot") {
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_pd" cx="35%" cy="35%" r="65%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="45%" stop-color="' + color + '" stop-opacity="1"/>' +
+                                '<stop offset="85%" stop-color="' + color + '" stop-opacity="0.85"/>' +
+                                '<stop offset="100%" stop-color="#000000" stop-opacity="0.9"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.45 + 1.2) + '" fill="rgba(0,0,0,0.65)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.45) + '" fill="url(#cb_pd)" stroke="#ffffff" stroke-width="1"/>' +
+                        '<circle cx="' + (mid - mid*0.14) + '" cy="' + (mid - mid*0.14) + '" r="' + (mid * 0.13) + '" fill="#ffffff" opacity="0.95"/>' +
+                        '</svg>';
+                } else if (shape === "laser") {
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_lz" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="25%" stop-color="#ffffff" stop-opacity="0.95"/>' +
+                                '<stop offset="50%" stop-color="' + color + '" stop-opacity="0.9"/>' +
+                                '<stop offset="80%" stop-color="' + color + '" stop-opacity="0.35"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.88) + '" fill="url(#cb_lz)"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (rCore * 0.9) + '" fill="#ffffff"/>' +
+                        '</svg>';
+                } else if (shape === "crosshair") {
+                    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                        '<defs>' +
+                            '<radialGradient id="cb_ch" cx="50%" cy="50%" r="50%">' +
+                                '<stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>' +
+                                '<stop offset="45%" stop-color="' + color + '" stop-opacity="0.8"/>' +
+                                '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+                            '</radialGradient>' +
+                        '</defs>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="' + (mid * 0.6) + '" fill="url(#cb_ch)"/>' +
+                        '<path d="M' + mid + ' 2v' + (mid - 3) + 'M' + mid + ' ' + (mid + 3) + 'v' + (mid - 5) + 'M2 ' + mid + 'h' + (mid - 3) + 'M' + (mid + 3) + ' ' + mid + 'h' + (mid - 5) + '" stroke="' + color + '" stroke-width="2" stroke-linecap="round"/>' +
+                        '<circle cx="' + mid + '" cy="' + mid + '" r="2" fill="#ffffff"/>' +
+                        '</svg>';
+                }
+
+                const host = document.getElementById("chrono-cb-preview-host");
+                if (host) host.innerHTML = svg;
+                return { svg: svg, mid: mid };
+            }
+
+            const cbShape = document.getElementById("chrono-cb-shape");
+            const cbColor = document.getElementById("chrono-cb-color");
+            const cbSize = document.getElementById("chrono-cb-size");
+            const cbApply = document.getElementById("chrono-btn-apply-builder");
+
+            if (cbShape) cbShape.onchange = () => generateBuilderSvg();
+            if (cbColor) cbColor.oninput = () => generateBuilderSvg();
+            if (cbSize) cbSize.oninput = () => generateBuilderSvg();
+            if (cbApply) {
+                cbApply.onclick = () => {
+                    const res = generateBuilderSvg();
+                    if (res && res.svg) {
+                        const b64 = "data:image/svg+xml;base64," + btoa(res.svg);
+                        applyCustomCursor(b64, res.mid, res.mid);
+                    }
+                };
+            }
+            generateBuilderSvg();
+
+            const applyCurBtn = document.getElementById("chrono-btn-apply-cursor");
+            const resetCurBtn = document.getElementById("chrono-btn-reset-cursor");
+            const curInput = document.getElementById("chrono-cursor-url-input");
+
+            if (applyCurBtn && curInput) {
+                applyCurBtn.onclick = () => {
+                    const url = (curInput.value || "").trim();
+                    if (url) applyCustomCursor(url, 16, 16);
+                };
+            }
+            if (resetCurBtn) {
+                resetCurBtn.onclick = () => {
+                    if (curInput) curInput.value = "";
+                    applyCustomCursor("default");
+                };
+            }
+
+            // Initial load of saved cursor
+            try {
+                const saved = JSON.parse(localStorage.getItem("chrono_custom_cursor") || "null");
+                if (saved && saved.url) applyCustomCursor(saved.url, saved.x || 16, saved.y || 16);
+            } catch(e) {}
+
+            // === 4b. ENEMY OUTLINES ENGINE & BUILDER ===
+            let enemyOutlineMode = localStorage.getItem("chrono_enemy_outline_mode") || (window.Chrono && window.Chrono.enemyOutlineMode) || "default";
+            let enemyOutlineColor = localStorage.getItem("chrono_enemy_outline_color") || (window.Chrono && window.Chrono.enemyOutlineColor) || "#34d399";
+            let enemyOutlineWidth = parseFloat(localStorage.getItem("chrono_enemy_outline_width") || (window.Chrono && window.Chrono.enemyOutlineWidth) || "2");
+            let enemyOutlineGlow = parseFloat(localStorage.getItem("chrono_enemy_outline_glow") || (window.Chrono && window.Chrono.enemyOutlineGlow) || "0");
+
+            let chronoEnemyOverrides = {};
+            try {
+                chronoEnemyOverrides = JSON.parse(localStorage.getItem("chrono_enemy_overrides") || "{}");
+            } catch(e) {}
+
+            function getChronoCatalog() {
+                return (window.Chrono && window.Chrono.enemyCatalog) || window.CHRONO_ENEMY_CATALOG || {};
+            }
+
+            const ENEMY_OUTLINE_PRESETS = [
+                { id: "default", name: "🎮 Default", desc: "Game standard outline", color: "#64748b", border: "rgba(255,255,255,0.2)" },
+                { id: "chrono", name: "🟢 Chrono Emerald", desc: "Emerald neon", color: "#34d399", border: "#10b981" },
+                { id: "volcano", name: "🌋 Volcano Red", desc: "Molten magma red", color: "#ef4444", border: "#f97316" },
+                { id: "rainbow", name: "🌈 Rainbow RGB", desc: "Dynamic rainbow chroma", color: "linear-gradient(90deg, #f43f5e, #eab308, #10b981, #06b6d4, #8b5cf6)", border: "#a855f7" },
+                { id: "smart", name: "🧠 Smart Dynamic", desc: "Black on light, White on dark", color: "#888888", border: "#ffffff" }
+            ];
+
+            function setEnemyOutlineMode(mode, customColor, customWidth, customGlow) {
+                enemyOutlineMode = mode;
+                localStorage.setItem("chrono_enemy_outline_mode", mode);
+                if (customColor) {
+                    enemyOutlineColor = customColor;
+                    localStorage.setItem("chrono_enemy_outline_color", customColor);
+                }
+                if (customWidth) {
+                    enemyOutlineWidth = customWidth;
+                    localStorage.setItem("chrono_enemy_outline_width", customWidth);
+                }
+                if (customGlow !== undefined) {
+                    enemyOutlineGlow = customGlow;
+                    localStorage.setItem("chrono_enemy_outline_glow", customGlow);
+                }
+                if (window.Chrono) {
+                    window.Chrono.enemyOutlineMode = enemyOutlineMode;
+                    window.Chrono.enemyOutlineColor = enemyOutlineColor;
+                    window.Chrono.enemyOutlineWidth = enemyOutlineWidth;
+                    window.Chrono.enemyOutlineGlow = enemyOutlineGlow;
+                }
+                if (window._chrono_set_outline_mode) {
+                    window._chrono_set_outline_mode(enemyOutlineMode, enemyOutlineColor, enemyOutlineWidth, enemyOutlineGlow);
+                }
+                renderEnemyOutlineGrid();
+                updateEnemyOutlinePreview();
+            }
+
+            function renderEnemyOutlineGrid() {
+                const grid = document.getElementById("chrono-enemy-outline-grid");
+                if (!grid) return;
+                grid.innerHTML = "";
+                ENEMY_OUTLINE_PRESETS.forEach(p => {
+                    const isSel = (enemyOutlineMode === p.id);
+                    const btn = document.createElement("button");
+                    btn.style.background = isSel ? "rgba(239, 68, 68, 0.25)" : "rgba(3, 15, 13, 0.7)";
+                    btn.style.border = isSel ? "1.5px solid #f87171" : "1px solid rgba(255, 255, 255, 0.08)";
+                    btn.style.borderRadius = "8px";
+                    btn.style.padding = "8px 10px";
+                    btn.style.display = "flex";
+                    btn.style.flexDirection = "column";
+                    btn.style.alignItems = "center";
+                    btn.style.gap = "4px";
+                    btn.style.cursor = "pointer";
+                    btn.style.color = isSel ? "#fca5a5" : "#cbd5e1";
+                    btn.style.transition = "all 0.15s ease";
+
+                    btn.innerHTML = 
+                        '<div style="width: 22px; height: 22px; border-radius: 50%; background: ' + (p.color.startsWith("linear") ? p.color : p.color) + '; box-shadow: ' + (p.glow ? '0 0 10px ' + p.glow : 'none') + ';"></div>' +
+                        '<span style="font-weight: 700; font-size: 11px;">' + p.name + '</span>' +
+                        '<span style="font-size: 9.5px; color: #64748b;">' + p.desc + '</span>';
+
+                    btn.onclick = () => setEnemyOutlineMode(p.id);
+                    grid.appendChild(btn);
+                });
+            }
+
+            function updateEnemyOutlinePreview() {
+                const host = document.getElementById("chrono-outline-preview-host");
+                if (!host) return;
+                const col = (document.getElementById("chrono-outline-color") || {}).value || enemyOutlineColor || "#34d399";
+                const w = (document.getElementById("chrono-outline-width") || {}).value || enemyOutlineWidth || 2;
+                const g = (document.getElementById("chrono-outline-glow") || {}).value || enemyOutlineGlow || 8;
+                host.innerHTML = '<div style="width: 18px; height: 18px; border-radius: 50%; background: #991b1b; border: ' + w + 'px solid ' + col + '; box-shadow: 0 0 ' + g + 'px ' + col + ';"></div>';
+            }
+
+            const outlineColorInput = document.getElementById("chrono-outline-color");
+            const outlineWidthInput = document.getElementById("chrono-outline-width");
+            const outlineGlowInput = document.getElementById("chrono-outline-glow");
+            const applyOutlineBtn = document.getElementById("chrono-btn-apply-outline");
+
+            if (outlineColorInput) outlineColorInput.oninput = () => updateEnemyOutlinePreview();
+            if (outlineWidthInput) outlineWidthInput.oninput = () => updateEnemyOutlinePreview();
+            if (outlineGlowInput) outlineGlowInput.oninput = () => updateEnemyOutlinePreview();
+            if (applyOutlineBtn) {
+                applyOutlineBtn.onclick = () => {
+                    const col = outlineColorInput ? outlineColorInput.value : "#34d399";
+                    const w = outlineWidthInput ? parseFloat(outlineWidthInput.value) : 2;
+                    const g = outlineGlowInput ? parseFloat(outlineGlowInput.value) : 8;
+                    setEnemyOutlineMode("custom", col, w, g);
+                };
+            }
+            try { renderEnemyOutlineGrid(); } catch(e) { console.error("[Outlines Grid Error]", e); }
+            try { updateEnemyOutlinePreview(); } catch(e) { console.error("[Outlines Preview Error]", e); }
+
+            // ── Section 2: Family Outline UI & Preview ──
+            function renderFamilyPreview() {
+                const famSel = document.getElementById('chrono-fam-sel');
+                const prev = document.getElementById('chrono-fam-preview');
+                const colPicker = document.getElementById('chrono-fam-col');
+                if (!famSel || !prev) return;
+                const fam = famSel.value;
+                if (colPicker) colPicker.value = chronoEnemyOverrides[fam] || '#3b82f6';
+                prev.innerHTML = '';
+                const catalog = getChronoCatalog();
+                if (catalog[fam]) {
+                    catalog[fam].forEach(en => {
+                        const badge = document.createElement('span');
+                        badge.style.display = 'inline-flex';
+                        badge.style.alignItems = 'center';
+                        badge.style.padding = '2px 6px';
+                        badge.style.borderRadius = '4px';
+                        badge.style.background = 'rgba(255,255,255,0.08)';
+                        badge.style.border = '1px solid rgba(255,255,255,0.1)';
+                        badge.innerHTML = `<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:${en.color}; margin-right:5px; box-shadow:0 0 4px ${en.color};"></span><span style="color:${en.color}; font-weight:bold;">${en.name}</span>`;
+                        prev.appendChild(badge);
+                    });
+                }
+            }
+
+            // ── Section 3: Individual Enemy UI & Search ──
+            function populateIndividualDropdown(filterText = "") {
+                const sel = document.getElementById('chrono-ind-sel');
+                if (!sel) return;
+                const prevVal = sel.value;
+                sel.innerHTML = '<option value="">-- Select Enemy --</option>';
+                const filter = filterText.toLowerCase().trim();
+                const catalog = getChronoCatalog();
+
+                Object.keys(catalog).forEach(fam => {
+                    const matchedEnemies = (catalog[fam] || []).filter(en => 
+                        !filter || en.name.toLowerCase().includes(filter) || en.id.toLowerCase().includes(filter)
+                    );
+                    if (matchedEnemies.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = fam.replace(/_/g, ' ').toUpperCase();
+                        matchedEnemies.forEach(en => {
+                            const opt = document.createElement('option');
+                            opt.value = en.id;
+                            opt.textContent = en.name;
+                            if (chronoEnemyOverrides[en.id]) {
+                                opt.textContent += ' [Custom]';
+                            }
+                            optgroup.appendChild(opt);
+                        });
+                        sel.appendChild(optgroup);
+                    }
+                });
+
+                if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) {
+                    sel.value = prevVal;
+                } else if (filter && sel.options.length > 1) {
+                    sel.selectedIndex = 1;
+                }
+                renderIndividualPreview();
+            }
+
+            function renderIndividualPreview() {
+                const sel = document.getElementById('chrono-ind-sel');
+                const prev = document.getElementById('chrono-ind-preview');
+                const colPicker = document.getElementById('chrono-ind-col');
+                if (!sel || !prev) return;
+                const val = sel.value;
+                if (!val) {
+                    prev.innerHTML = '<span style="color: #888; font-style: italic;">Select or search an enemy above</span>';
+                    return;
+                }
+                let found = null;
+                const catalog = getChronoCatalog();
+                for (const fam of Object.values(catalog)) {
+                    const match = (fam || []).find(e => e.id === val);
+                    if (match) { found = match; break; }
+                }
+                if (found) {
+                    if (colPicker) colPicker.value = chronoEnemyOverrides[found.id] || found.color || '#a78bfa';
+                    const customBadge = chronoEnemyOverrides[found.id] 
+                        ? `<span style="margin-left:8px; background:rgba(167, 139, 250, 0.2); border:1px solid #a78bfa; color:#c4b5fd; padding:1px 6px; border-radius:4px; font-size:10px;">Custom: ${chronoEnemyOverrides[found.id]}</span>`
+                        : '';
+                    prev.innerHTML = `<span style="display:inline-block; width:12px; height:12px; border-radius:50%; background-color:${found.color}; margin-right:8px; box-shadow: 0 0 6px ${found.color};"></span><span style="color:${found.color}; font-weight:bold; font-size:12px;">${found.name}</span>${customBadge}`;
+                }
+            }
+
+            const famSel = document.getElementById('chrono-fam-sel');
+            const famCol = document.getElementById('chrono-fam-col');
+            const famReset = document.getElementById('chrono-fam-reset');
+            if (famSel) famSel.onchange = () => renderFamilyPreview();
+            if (famCol && famSel) {
+                famCol.onchange = (e) => {
+                    const fam = famSel.value;
+                    chronoEnemyOverrides[fam] = e.target.value;
+                    localStorage.setItem("chrono_enemy_overrides", JSON.stringify(chronoEnemyOverrides));
+                    if (window._chrono_update_enemy_overrides) window._chrono_update_enemy_overrides(chronoEnemyOverrides);
+                    renderFamilyPreview();
+                };
+            }
+            if (famReset && famSel) {
+                famReset.onclick = () => {
+                    const fam = famSel.value;
+                    delete chronoEnemyOverrides[fam];
+                    localStorage.setItem("chrono_enemy_overrides", JSON.stringify(chronoEnemyOverrides));
+                    if (window._chrono_update_enemy_overrides) window._chrono_update_enemy_overrides(chronoEnemyOverrides);
+                    renderFamilyPreview();
+                };
+            }
+
+            const indSearch = document.getElementById('chrono-ind-search');
+            const indSel = document.getElementById('chrono-ind-sel');
+            const indCol = document.getElementById('chrono-ind-col');
+            const indReset = document.getElementById('chrono-ind-reset');
+
+            if (indSearch) {
+                indSearch.oninput = () => populateIndividualDropdown(indSearch.value);
+            }
+            if (indSel) {
+                indSel.onchange = () => renderIndividualPreview();
+            }
+            if (indCol && indSel) {
+                indCol.onchange = (e) => {
+                    const id = indSel.value;
+                    if (!id) return;
+                    chronoEnemyOverrides[id] = e.target.value;
+                    localStorage.setItem("chrono_enemy_overrides", JSON.stringify(chronoEnemyOverrides));
+                    if (window._chrono_update_enemy_overrides) window._chrono_update_enemy_overrides(chronoEnemyOverrides);
+                    renderIndividualPreview();
+                };
+            }
+            if (indReset && indSel) {
+                indReset.onclick = () => {
+                    const id = indSel.value;
+                    if (!id) return;
+                    delete chronoEnemyOverrides[id];
+                    localStorage.setItem("chrono_enemy_overrides", JSON.stringify(chronoEnemyOverrides));
+                    if (window._chrono_update_enemy_overrides) window._chrono_update_enemy_overrides(chronoEnemyOverrides);
+                    renderIndividualPreview();
+                };
+            }
+
+            // Isolate all inputs, selects, and textareas from bubbling to the game
+            document.querySelectorAll("#chrono-menu-modal input, #chrono-menu-modal select, #chrono-menu-modal textarea").forEach(el => {
+                ["keydown", "keyup", "keypress"].forEach(evtName => {
+                    el.addEventListener(evtName, (e) => {
+                        e.stopPropagation();
+                    });
+                });
+            });
+
+            try { renderFamilyPreview(); } catch(e) { console.error("[Family Preview Error]", e); }
+            try { populateIndividualDropdown(); } catch(e) { console.error("[Individual Dropdown Error]", e); }
+
+            // === 5. CUSTOM IN-HUD KEYMAPPER ENGINE & LIVE KEYSTROKES HUD ===
+            let customKeyMap = {
+                "chrono-k-w": { type: "key", key: "W", code: "KeyW", name: "W" },
+                "chrono-k-a": { type: "key", key: "A", code: "KeyA", name: "A" },
+                "chrono-k-s": { type: "key", key: "S", code: "KeyS", name: "S" },
+                "chrono-k-d": { type: "key", key: "D", code: "KeyD", name: "D" },
+                "chrono-k-z": { type: "key", key: "Z", code: "KeyZ", name: "Z" },
+                "chrono-k-x": { type: "key", key: "X", code: "KeyX", name: "X" },
+                "chrono-k-c": { type: "key", key: "C", code: "KeyC", name: "C" },
+                "chrono-k-1": { type: "key", key: "1", code: "Digit1", name: "1" },
+                "chrono-k-2": { type: "key", key: "2", code: "Digit2", name: "2" },
+                "chrono-k-3": { type: "key", key: "3", code: "Digit3", name: "3" },
+                "chrono-k-4": { type: "key", key: "4", code: "Digit4", name: "4" },
+                "chrono-k-5": { type: "key", key: "5", code: "Digit5", name: "5" }
+            };
+
+            function loadCustomKeyMap() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem("chrono_custom_keystrokes_mapping") || "null");
+                    if (saved && typeof saved === "object") {
+                        if (saved["chrono-k-x"] && saved["chrono-k-x"].type === "mouse" && saved["chrono-k-x"].button === 1 && saved["chrono-k-w"] && saved["chrono-k-w"].key === "Z") {
+                            localStorage.removeItem("chrono_custom_keystrokes_mapping");
+                        } else {
+                            Object.assign(customKeyMap, saved);
+                        }
+                    }
+                } catch(e) {}
+            }
+            loadCustomKeyMap();
+
+            function saveCustomKeyMap() {
+                try {
+                    localStorage.setItem("chrono_custom_keystrokes_mapping", JSON.stringify(customKeyMap));
+                } catch(e) {}
+            }
+
+            let activeListeningBox = null;
+            let bindingListenerActive = false;
+
+            function updateKeyBoxLabels() {
+                for (const [boxId, binding] of Object.entries(customKeyMap)) {
+                    const box = document.getElementById(boxId);
+                    if (box && binding && binding.name) {
+                        box.textContent = binding.name;
+                        box.dataset.origText = binding.name;
+                        box.title = "Bound to: " + binding.name + " (Click in HUD Editor or Shift+Click to remap)";
+                    }
+                }
+            }
+
+            function getMatchingBoxForKey(e) {
+                const k = (e.key || "").toUpperCase();
+                const c = e.code || "";
+                for (const [boxId, binding] of Object.entries(customKeyMap)) {
+                    if (binding && binding.type === "key" && binding.code && binding.code === c) {
+                        return boxId;
+                    }
+                }
+                for (const [boxId, binding] of Object.entries(customKeyMap)) {
+                    if (binding && binding.type === "key" && binding.key && binding.key.toUpperCase() === k) {
+                        return boxId;
+                    }
+                }
+                return null;
+            }
+
+            function getMatchingBoxForMouse(button) {
+                for (const [boxId, binding] of Object.entries(customKeyMap)) {
+                    if (binding && binding.type === "mouse" && binding.button === button) {
+                        return boxId;
+                    }
+                }
+                return null;
+            }
+
+            let keystrokesHudActive = false;
+            let keystrokesDiv = null;
+
+            function setKeyVisual(id, active) {
+                if (!id) return;
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (active) {
+                    el.style.background = "linear-gradient(135deg, #059669, #10b981)";
+                    el.style.color = "#ffffff";
+                    el.style.boxShadow = "0 0 12px rgba(16, 185, 129, 0.7)";
+                } else {
+                    el.style.background = "rgba(3,15,13,0.85)";
+                    el.style.color = (id.startsWith("chrono-k-z") || id.startsWith("chrono-k-x") || id.startsWith("chrono-k-c")) ? "#93c5fd" : (id.startsWith("chrono-k-1") || id.startsWith("chrono-k-2") || id.startsWith("chrono-k-3") || id.startsWith("chrono-k-4") || id.startsWith("chrono-k-5")) ? "#94a3b8" : "#cbd5e1";
+                    el.style.boxShadow = "none";
+                }
+            }
+
+            function startRemappingBox(boxId) {
+                if (bindingListenerActive && activeListeningBox) cancelRemapping();
+                activeListeningBox = boxId;
+                bindingListenerActive = true;
+                window._chrono_is_binding_key = true;
+                const box = document.getElementById(boxId);
+                if (box) {
+                    box.dataset.origText = box.textContent;
+                    box.textContent = "...";
+                    box.style.border = "2px solid #38bdf8";
+                    box.style.boxShadow = "0 0 15px #38bdf8";
+                }
+                const topBarSub = document.getElementById("chrono-hud-editor-subtext");
+                if (topBarSub) {
+                    topBarSub.innerHTML = '<span style="color:#38bdf8; font-weight:800;">Press any Key or Mouse button to bind (ESC to cancel)</span>';
+                }
+            }
+
+            function finishRemapping(boundName) {
+                if (!activeListeningBox) return;
+                const box = document.getElementById(activeListeningBox);
+                if (box) {
+                    box.textContent = boundName;
+                    box.dataset.origText = boundName;
+                    box.style.border = "2px solid #10b981";
+                    box.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.7)";
+                    box.title = "Bound to: " + boundName + " (Click in HUD Editor or Shift+Click to remap)";
+                    setTimeout(() => {
+                        if (box && activeListeningBox !== box.id) {
+                            box.style.border = "";
+                            box.style.boxShadow = "";
+                        }
+                    }, 500);
+                }
+                activeListeningBox = null;
+                bindingListenerActive = false;
+                window._chrono_is_binding_key = false;
+                const topBarSub = document.getElementById("chrono-hud-editor-subtext");
+                if (topBarSub) {
+                    topBarSub.innerHTML = '<span style="color:#34d399; font-weight:700;">Bound to ' + boundName + '!</span>';
+                    setTimeout(() => {
+                        if (topBarSub && !bindingListenerActive) topBarSub.textContent = "Drag any element to reposition • Click keys to remap • Use [-] / [+] to scale";
+                    }, 2000);
+                }
+            }
+
+            function cancelRemapping() {
+                if (!activeListeningBox) return;
+                const box = document.getElementById(activeListeningBox);
+                if (box) {
+                    const binding = customKeyMap[activeListeningBox];
+                    box.textContent = (binding && binding.name) ? binding.name : (box.dataset.origText || box.textContent);
+                    box.style.border = "";
+                    box.style.boxShadow = "";
+                }
+                activeListeningBox = null;
+                bindingListenerActive = false;
+                window._chrono_is_binding_key = false;
+                const topBarSub = document.getElementById("chrono-hud-editor-subtext");
+                if (topBarSub) topBarSub.textContent = "Drag any element to reposition • Click keys to remap • Use [-] / [+] to scale";
+            }
+
+            function toggleKeystrokesHud(enable) {
+                keystrokesHudActive = enable;
+                localStorage.setItem("chrono_mod_keystrokes", enable ? "1" : "0");
+                if (enable) {
+                    if (!keystrokesDiv) {
+                        keystrokesDiv = document.createElement("div");
+                        keystrokesDiv.id = "chrono-keystrokes-hud";
+                        keystrokesDiv.style.position = "fixed";
+                        keystrokesDiv.style.transform = "translateZ(0)";
+                        keystrokesDiv.style.willChange = "transform";
+                        keystrokesDiv.style.contain = "layout style paint";
+                        keystrokesDiv.style.bottom = "20px";
+                        keystrokesDiv.style.right = "20px";
+                        keystrokesDiv.style.zIndex = "999999";
+                        keystrokesDiv.style.display = "flex";
+                        keystrokesDiv.style.flexDirection = "column";
+                        keystrokesDiv.style.alignItems = "center";
+                        keystrokesDiv.style.gap = "4px";
+                        keystrokesDiv.style.fontFamily = "monospace";
+                        keystrokesDiv.style.fontWeight = "800";
+                        keystrokesDiv.style.userSelect = "none";
+                        keystrokesDiv.innerHTML = 
+                            '<div style="display:flex; gap:3px; justify-content:center;">' +
+                                '<div class="chrono-key-box" id="chrono-k-1" style="width:24px; height:24px; background:rgba(3,15,13,0.85); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer;" title="1">1</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-2" style="width:24px; height:24px; background:rgba(3,15,13,0.85); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer;" title="2">2</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-3" style="width:24px; height:24px; background:rgba(3,15,13,0.85); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer;" title="3">3</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-4" style="width:24px; height:24px; background:rgba(3,15,13,0.85); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer;" title="4">4</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-5" style="width:24px; height:24px; background:rgba(3,15,13,0.85); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#94a3b8; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer;" title="5">5</div>' +
+                            '</div>' +
+                            '<div style="display:flex; justify-content:center;">' +
+                                '<div class="chrono-key-box" id="chrono-k-w" style="width:34px; height:34px; background:rgba(3,15,13,0.85); border:1.5px solid rgba(52,211,153,0.3); border-radius:6px; color:#cbd5e1; display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer;" title="Move Up">W</div>' +
+                            '</div>' +
+                            '<div style="display:flex; gap:4px;">' +
+                                '<div class="chrono-key-box" id="chrono-k-a" style="width:34px; height:34px; background:rgba(3,15,13,0.85); border:1.5px solid rgba(52,211,153,0.3); border-radius:6px; color:#cbd5e1; display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer;" title="Move Left">A</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-s" style="width:34px; height:34px; background:rgba(3,15,13,0.85); border:1.5px solid rgba(52,211,153,0.3); border-radius:6px; color:#cbd5e1; display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer;" title="Move Down">S</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-d" style="width:34px; height:34px; background:rgba(3,15,13,0.85); border:1.5px solid rgba(52,211,153,0.3); border-radius:6px; color:#cbd5e1; display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer;" title="Move Right">D</div>' +
+                            '</div>' +
+                            '<div style="display:flex; gap:4px; justify-content:center; margin-top:1px;">' +
+                                '<div class="chrono-key-box" id="chrono-k-z" style="width:30px; height:28px; background:rgba(3,15,13,0.85); border:1px solid rgba(56,189,248,0.3); border-radius:5px; color:#93c5fd; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer;" title="Ability 1">Z</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-x" style="width:30px; height:28px; background:rgba(3,15,13,0.85); border:1px solid rgba(56,189,248,0.3); border-radius:5px; color:#93c5fd; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer;" title="Ability 2">X</div>' +
+                                '<div class="chrono-key-box" id="chrono-k-c" style="width:30px; height:28px; background:rgba(3,15,13,0.85); border:1px solid rgba(56,189,248,0.3); border-radius:5px; color:#93c5fd; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer;" title="Ability 3">C</div>' +
+                            '</div>';
+                        document.body.appendChild(keystrokesDiv);
+                        updateKeyBoxLabels();
+
+                        keystrokesDiv.querySelectorAll(".chrono-key-box").forEach(box => {
+                            box.onclick = (e) => {
+                                if (window._chrono_hud_editing || e.shiftKey || e.altKey) {
+                                    e.stopPropagation();
+                                    startRemappingBox(box.id);
+                                }
+                            };
+                        });
+
+                        window.addEventListener("keydown", e => {
+                            if (bindingListenerActive) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+                                if (e.key === "Escape") {
+                                    cancelRemapping();
+                                    return;
+                                }
+                                let keyName = e.key;
+                                if (e.code === "Space" || keyName === " ") keyName = "SPC";
+                                else if (e.code === "ArrowUp") keyName = "↑";
+                                else if (e.code === "ArrowDown") keyName = "↓";
+                                else if (e.code === "ArrowLeft") keyName = "←";
+                                else if (e.code === "ArrowRight") keyName = "→";
+                                else if (e.code === "ShiftLeft" || e.code === "ShiftRight") keyName = "SHF";
+                                else if (e.code === "ControlLeft" || e.code === "ControlRight") keyName = "CTRL";
+                                else if (e.code === "AltLeft" || e.code === "AltRight") keyName = "ALT";
+                                else if (e.code === "Tab") keyName = "TAB";
+                                else if (keyName.length === 1) keyName = keyName.toUpperCase();
+
+                                customKeyMap[activeListeningBox] = {
+                                    type: "key",
+                                    key: e.key.length === 1 ? e.key.toUpperCase() : e.key,
+                                    code: e.code,
+                                    name: keyName
+                                };
+                                saveCustomKeyMap();
+                                finishRemapping(keyName);
+                                return;
+                            }
+
+                            if (!keystrokesHudActive) return;
+                            const activeEl = document.activeElement;
+                            if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable)) return;
+
+                            const id = getMatchingBoxForKey(e);
+                            if (id) setKeyVisual(id, true);
+                        }, true);
+
+                        window.addEventListener("keyup", e => {
+                            if (bindingListenerActive) return;
+                            if (!keystrokesHudActive) return;
+                            const id = getMatchingBoxForKey(e);
+                            if (id) setKeyVisual(id, false);
+                        }, true);
+
+                        window.addEventListener("mousedown", e => {
+                            if (bindingListenerActive) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+                                const btn = e.button;
+                                const btnName = btn === 0 ? "M1" : btn === 1 ? "M3" : btn === 2 ? "M2" : "M" + (btn + 1);
+                                customKeyMap[activeListeningBox] = {
+                                    type: "mouse",
+                                    button: btn,
+                                    name: btnName
+                                };
+                                saveCustomKeyMap();
+                                finishRemapping(btnName);
+                                return;
+                            }
+
+                            if (!keystrokesHudActive) return;
+                            const id = getMatchingBoxForMouse(e.button);
+                            if (id) setKeyVisual(id, true);
+                        }, true);
+
+                        window.addEventListener("mouseup", e => {
+                            if (bindingListenerActive) return;
+                            if (!keystrokesHudActive) return;
+                            const id = getMatchingBoxForMouse(e.button);
+                            if (id) setKeyVisual(id, false);
+                        }, true);
+
+                        window.addEventListener("contextmenu", e => {
+                            if (bindingListenerActive) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }
+                        }, true);
+                    } else {
+                        keystrokesDiv.style.display = "flex";
+                        updateKeyBoxLabels();
+                    }
+                } else {
+                    if (keystrokesDiv) keystrokesDiv.style.display = "none";
+                }
+            }
+
+            // === 6. HUD LAYOUT ENGINE & OPAQUE GRID EDITOR ===
+            function getStoredHudLayout() {
+                try {
+                    return JSON.parse(localStorage.getItem("chrono_hud_layout") || "{}");
+                } catch(e) { return {}; }
+            }
+            function saveStoredHudLayout(layout) {
+                localStorage.setItem("chrono_hud_layout", JSON.stringify(layout));
+                applyHudLayout();
+            }
+
+            const HUD_TARGETS = [
+                { key: "fps", name: "⚡ FPS Counter", sel: "#chrono-fps-hud" },
+                { key: "keystrokes", name: "⌨️ Keystrokes HUD", sel: "#chrono-keystrokes-hud" },
+                { key: "leaderboard", name: "🏆 In-Game Leaderboard", sel: "#leaderboard" },
+                { key: "chat", name: "💬 In-Game Chat Box", sel: "#chat" }
+            ];
+
+            let lastHudLayoutJson = "";
+            let hudLayoutAppliedOnce = false;
+            function applyHudLayout(force) {
+                if (window._chrono_hud_editing) return;
+                const raw = localStorage.getItem("chrono_hud_layout") || "{}";
+                if (!force && hudLayoutAppliedOnce && raw === lastHudLayoutJson) return;
+                lastHudLayoutJson = raw;
+                hudLayoutAppliedOnce = true;
+                const layout = getStoredHudLayout();
+                HUD_TARGETS.forEach(t => {
+                    const el = document.querySelector(t.sel);
+                    if (!el) return;
+                    const cfg = layout[t.key];
+                    if (cfg && cfg.left && cfg.top) {
+                        el.style.setProperty("position", "fixed", "important");
+                        el.style.setProperty("left", cfg.left, "important");
+                        el.style.setProperty("top", cfg.top, "important");
+                        el.style.setProperty("right", "auto", "important");
+                        el.style.setProperty("bottom", "auto", "important");
+                        el.style.setProperty("z-index", "25", "important");
+                    }
+                    if (cfg && cfg.scale) {
+                        el.style.setProperty("transform", "scale(" + cfg.scale + ")", "important");
+                        el.style.setProperty("transform-origin", "top left", "important");
+                    }
+                });
+            }
+            applyHudLayout();
+
+            // Right-click context menu guard (Ensure player menus are always on top of leaderboard and chat)
+            if (!window._chrono_context_menu_hooked) {
+                window._chrono_context_menu_hooked = true;
+                const bringMenuToFront = () => {
+                    setTimeout(() => {
+                        document.querySelectorAll("body > div, #overlay > div").forEach(div => {
+                            if (div.id && div.id.startsWith("chrono-")) return;
+                            if (div.id === "canvas" || div.id === "game") return;
+                            const text = div.innerText || "";
+                            if (text.includes("Profile") || text.includes("Spectate") || text.includes("Send Message") || text.includes("Copy Name")) {
+                                div.style.setProperty("z-index", "999999", "important");
+                                div.style.setProperty("pointer-events", "auto", "important");
+                            }
+                        });
+                    }, 10);
+                };
+                window.addEventListener("contextmenu", bringMenuToFront, true);
+                window.addEventListener("mousedown", (e) => {
+                    if (e.button === 2) bringMenuToFront();
+                }, true);
+            }
+
+            function cleanupStrayElements() {
+                document.querySelectorAll("body > .leaderboard, body > .chat, body > #leaderboard, body > #chat").forEach(el => {
+                    if (el.innerText && (el.innerText.includes("🏆 Leaderboard") || el.innerText.includes("💬 Chat Box") || el.innerText.includes("💬 In-Game"))) {
+                        el.remove();
+                    }
+                });
+            }
+            cleanupStrayElements();
+
+            function openHudLayoutEditor() {
+                cleanupStrayElements();
+                window._chrono_hud_editing = true;
+                const menuModal = document.getElementById("chrono-menu-modal");
+                if (menuModal) menuModal.style.display = "none";
+
+                let overlay = document.getElementById("chrono-hud-grid-overlay");
+                if (!overlay) {
+                    overlay = document.createElement("div");
+                    overlay.id = "chrono-hud-grid-overlay";
+                    overlay.style.position = "fixed";
+                    overlay.style.top = "0";
+                    overlay.style.left = "0";
+                    overlay.style.width = "100vw";
+                    overlay.style.height = "100vh";
+                    overlay.style.background = "rgba(4, 15, 13, 0.88)";
+                    overlay.style.backgroundImage = "linear-gradient(rgba(52, 211, 153, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.12) 1px, transparent 1px)";
+                    overlay.style.backgroundSize = "32px 32px";
+                    overlay.style.zIndex = "999990";
+                    overlay.style.pointerEvents = "none";
+                    document.body.appendChild(overlay);
+                }
+                overlay.style.display = "block";
+
+                let topBar = document.getElementById("chrono-hud-editor-bar");
+                if (!topBar) {
+                    topBar = document.createElement("div");
+                    topBar.id = "chrono-hud-editor-bar";
+                    topBar.style.position = "fixed";
+                    topBar.style.top = "18px";
+                    topBar.style.left = "50%";
+                    topBar.style.transform = "translateX(-50%)";
+                    topBar.style.background = "linear-gradient(135deg, rgba(7, 26, 23, 0.98), rgba(13, 40, 36, 0.98))";
+                    topBar.style.border = "1.5px solid rgba(52, 211, 153, 0.5)";
+                    topBar.style.borderRadius = "12px";
+                    topBar.style.boxShadow = "0 15px 40px rgba(0,0,0,0.8), 0 0 25px rgba(16, 185, 129, 0.4)";
+                    topBar.style.padding = "10px 20px";
+                    topBar.style.display = "flex";
+                    topBar.style.alignItems = "center";
+                    topBar.style.gap = "16px";
+                    topBar.style.zIndex = "999999";
+                    topBar.style.fontFamily = "sans-serif";
+                    topBar.innerHTML = 
+                        '<div style="display:flex; align-items:center; gap:8px;">' +
+                            '<span style="font-size:16px;">🎛️</span>' +
+                            '<div>' +
+                                '<b style="color:#34d399; font-size:13px; letter-spacing:0.5px;">CHRONO HUD LAYOUT EDITOR</b>' +
+                                '<div id="chrono-hud-editor-subtext" style="color:#94a3b8; font-size:10.5px;">Drag any element directly to move it • Click keys on HUD to remap • Use [-] / [+] to scale</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div style="display:flex; gap:8px; margin-left:auto;">' +
+                            '<button id="chrono-btn-save-hud-layout" style="background:linear-gradient(135deg, #059669, #10b981); border:1px solid rgba(110,231,183,0.4); color:#fff; padding:6px 16px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer;">💾 Save & Exit</button>' +
+                            '<button id="chrono-btn-reset-hud-layout" style="background:rgba(239, 68, 68, 0.2); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer;">🔄 Reset Defaults</button>' +
+                            '<button id="chrono-btn-exit-hud-layout" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#cbd5e1; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:600; cursor:pointer;">❌ Cancel</button>' +
+                        '</div>';
+                    document.body.appendChild(topBar);
+
+                    document.getElementById("chrono-btn-save-hud-layout").onclick = () => closeHudLayoutEditor(true);
+                    document.getElementById("chrono-btn-reset-hud-layout").onclick = () => {
+                        localStorage.removeItem("chrono_hud_layout");
+                        HUD_TARGETS.forEach(t => {
+                            const el = document.querySelector(t.sel);
+                            if (el) {
+                                el.style.removeProperty("position");
+                                el.style.removeProperty("left");
+                                el.style.removeProperty("top");
+                                el.style.removeProperty("right");
+                                el.style.removeProperty("bottom");
+                                el.style.removeProperty("transform");
+                                el.style.removeProperty("transform-origin");
+                            }
+                        });
+                        closeHudLayoutEditor(false);
+                    };
+                    document.getElementById("chrono-btn-exit-hud-layout").onclick = () => closeHudLayoutEditor(false);
+                }
+                topBar.style.display = "flex";
+
+                const currentLayout = getStoredHudLayout();
+                HUD_TARGETS.forEach(t => {
+                    let el = document.querySelector(t.sel);
+                    if (!el) return;
+
+                    el.style.setProperty("z-index", "999995", "important");
+                    el.style.setProperty("outline", "2px dashed #34d399", "important");
+                    el.style.setProperty("outline-offset", "4px", "important");
+                    el.style.setProperty("cursor", "grab", "important");
+                    el.style.setProperty("user-select", "none", "important");
+                    el.style.setProperty("pointer-events", "auto", "important");
+
+                    let scale = (currentLayout[t.key] && currentLayout[t.key].scale) ? currentLayout[t.key].scale : 1.0;
+                    let posLeft = (currentLayout[t.key] && currentLayout[t.key].left) ? currentLayout[t.key].left : "";
+                    let posTop = (currentLayout[t.key] && currentLayout[t.key].top) ? currentLayout[t.key].top : "";
+
+                    const r = el.getBoundingClientRect();
+                    if (!posLeft || !posTop) {
+                        posLeft = r.left + "px";
+                        posTop = r.top + "px";
+                    }
+
+                    el.style.setProperty("position", "fixed", "important");
+                    el.style.setProperty("left", posLeft, "important");
+                    el.style.setProperty("top", posTop, "important");
+                    el.style.setProperty("right", "auto", "important");
+                    el.style.setProperty("bottom", "auto", "important");
+                    el.style.setProperty("transform", "scale(" + scale + ")", "important");
+                    el.style.setProperty("transform-origin", "top left", "important");
+
+                    const updateHandlePosition = () => {
+                        const elRect = el.getBoundingClientRect();
+                        const isNearTop = (elRect.top < 45);
+                        handleBar.style.left = elRect.left + "px";
+                        if (isNearTop) {
+                            handleBar.style.top = (elRect.bottom + 6) + "px";
+                        } else {
+                            handleBar.style.top = (elRect.top - 30) + "px";
+                        }
+                    };
+
+                    let handleBar = document.getElementById("chrono-handle-" + t.key);
+                    if (!handleBar) {
+                        handleBar = document.createElement("div");
+                        handleBar.id = "chrono-handle-" + t.key;
+                        handleBar.className = "chrono-editor-handle";
+                        handleBar.style.position = "fixed";
+                        handleBar.style.background = "rgba(16, 185, 129, 0.95)";
+                        handleBar.style.color = "#031511";
+                        handleBar.style.padding = "3px 8px";
+                        handleBar.style.borderRadius = "4px";
+                        handleBar.style.fontSize = "10.5px";
+                        handleBar.style.fontWeight = "800";
+                        handleBar.style.cursor = "grab";
+                        handleBar.style.display = "flex";
+                        handleBar.style.alignItems = "center";
+                        handleBar.style.gap = "6px";
+                        handleBar.style.userSelect = "none";
+                        handleBar.style.pointerEvents = "auto";
+                        handleBar.style.zIndex = "999996";
+                        handleBar.innerHTML = 
+                            '<span>⠿ ' + t.name + '</span>' +
+                            '<div style="display:flex; gap:4px; align-items:center; margin-left:8px;">' +
+                                '<button class="chrono-btn-scale-down" style="background:#031511; color:#fff; border:none; border-radius:3px; width:16px; height:16px; cursor:pointer; font-weight:bold; font-size:10px;">-</button>' +
+                                '<span class="chrono-scale-val" style="font-size:9.5px;">' + Math.round(scale * 100) + '%</span>' +
+                                '<button class="chrono-btn-scale-up" style="background:#031511; color:#fff; border:none; border-radius:3px; width:16px; height:16px; cursor:pointer; font-weight:bold; font-size:10px;">+</button>' +
+                            '</div>';
+                        
+                        const overlay = document.getElementById("chrono-hud-grid-overlay");
+                        if (overlay) overlay.appendChild(handleBar);
+                        else document.body.appendChild(handleBar);
+
+                        const scaleDown = handleBar.querySelector(".chrono-btn-scale-down");
+                        const scaleUp = handleBar.querySelector(".chrono-btn-scale-up");
+                        const scaleVal = handleBar.querySelector(".chrono-scale-val");
+
+                        scaleDown.onclick = (e) => {
+                            e.stopPropagation();
+                            scale = Math.max(0.4, Math.round((scale - 0.1) * 10) / 10);
+                            el.style.setProperty("transform", "scale(" + scale + ")", "important");
+                            scaleVal.textContent = Math.round(scale * 100) + "%";
+                            currentLayout[t.key] = currentLayout[t.key] || {};
+                            currentLayout[t.key].scale = scale;
+                            updateHandlePosition();
+                        };
+                        scaleUp.onclick = (e) => {
+                            e.stopPropagation();
+                            scale = Math.min(2.5, Math.round((scale + 0.1) * 10) / 10);
+                            el.style.setProperty("transform", "scale(" + scale + ")", "important");
+                            scaleVal.textContent = Math.round(scale * 100) + "%";
+                            currentLayout[t.key] = currentLayout[t.key] || {};
+                            currentLayout[t.key].scale = scale;
+                            updateHandlePosition();
+                        };
+
+                        let isDragging = false;
+                        let startX = 0, startY = 0;
+                        let origLeft = 0, origTop = 0;
+
+                        const startDrag = (e) => {
+                            if (e.target.tagName === "BUTTON" || e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+                            if (e.target.closest && e.target.closest(".chrono-key-box")) return;
+                            isDragging = true;
+                            startX = e.clientX;
+                            startY = e.clientY;
+                            const r = el.getBoundingClientRect();
+                            origLeft = r.left;
+                            origTop = r.top;
+                            el.style.setProperty("position", "fixed", "important");
+                            el.style.setProperty("left", origLeft + "px", "important");
+                            el.style.setProperty("top", origTop + "px", "important");
+                            el.style.setProperty("right", "auto", "important");
+                            el.style.setProperty("bottom", "auto", "important");
+                            el.style.setProperty("cursor", "grabbing", "important");
+                            if (handleBar) handleBar.style.setProperty("cursor", "grabbing", "important");
+                            document.body.style.cursor = "grabbing";
+                            e.preventDefault();
+                            e.stopPropagation();
+                        };
+
+                        handleBar.onmousedown = startDrag;
+                        el.onmousedown = startDrag;
+
+                        window.addEventListener("mousemove", e => {
+                            if (!isDragging) return;
+                            const dx = e.clientX - startX;
+                            const dy = e.clientY - startY;
+                            const finalL = (origLeft + dx) + "px";
+                            const finalT = (origTop + dy) + "px";
+                            el.style.setProperty("left", finalL, "important");
+                            el.style.setProperty("top", finalT, "important");
+                            updateHandlePosition();
+
+                            currentLayout[t.key] = currentLayout[t.key] || {};
+                            currentLayout[t.key].left = finalL;
+                            currentLayout[t.key].top = finalT;
+                            currentLayout[t.key].scale = scale;
+                        });
+
+                        window.addEventListener("mouseup", () => {
+                            if (isDragging) {
+                                isDragging = false;
+                                el.style.setProperty("cursor", "grab", "important");
+                                if (handleBar) handleBar.style.setProperty("cursor", "grab", "important");
+                                document.body.style.cursor = "";
+                            }
+                        });
+                    }
+                    handleBar.style.display = "flex";
+                    updateHandlePosition();
+                });
+
+                window._chrono_active_editing_layout = currentLayout;
+            }
+
+            function closeHudLayoutEditor(save) {
+                if (bindingListenerActive) cancelRemapping();
+                window._chrono_hud_editing = false;
+                const overlay = document.getElementById("chrono-hud-grid-overlay");
+                if (overlay) overlay.style.display = "none";
+                const topBar = document.getElementById("chrono-hud-editor-bar");
+                if (topBar) topBar.style.display = "none";
+
+                document.querySelectorAll(".chrono-editor-handle").forEach(h => h.style.display = "none");
+                HUD_TARGETS.forEach(t => {
+                    const el = document.querySelector(t.sel);
+                    if (el) {
+                        el.style.removeProperty("outline");
+                        el.style.removeProperty("outline-offset");
+                        el.style.removeProperty("cursor");
+                        el.onmousedown = null;
+                        if (t.key === "fps") {
+                            el.style.setProperty("pointer-events", "none", "important");
+                        }
+                    }
+                });
+
+                if (save) {
+                    saveCustomKeyMap();
+                    if (window._chrono_active_editing_layout) {
+                        saveStoredHudLayout(window._chrono_active_editing_layout);
+                    }
+                }
+            }
+
+            window._chrono_open_hud_editor = openHudLayoutEditor;
+
+            let chatMacroActive = false;
+            function toggleChatMacro(enable) {
+                chatMacroActive = enable;
+                localStorage.setItem("chrono_mod_chatmacro", enable ? "1" : "0");
+                if (!window._chrono_chatmacro_bound) {
+                    window._chrono_chatmacro_bound = true;
+                    window.addEventListener("keydown", e => {
+                        if (!chatMacroActive) return;
+                        const tag = document.activeElement ? document.activeElement.tagName : "";
+                        if (tag === "INPUT" || tag === "TEXTAREA") return;
+                        if (e.key === "g" || e.key === "G") {
+                            const chatInput = document.getElementById("chat-input") || document.querySelector("input.chat-input");
+                            if (chatInput) {
+                                chatInput.value = "gg";
+                                chatInput.dispatchEvent(new Event("input", { bubbles: true }));
+                                chatInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", bubbles: true }));
+                            }
+                        }
+                    });
+                }
+            }
+
+            function togglePixelSharp(enable) {
+                localStorage.setItem("chrono_mod_pixelsharp", enable ? "1" : "0");
+                const canvas = document.getElementById("canvas");
+                if (canvas) {
+                    canvas.style.imageRendering = enable ? "pixelated" : "auto";
+                    const ctx = canvas.getContext("2d");
+                    if (ctx) ctx.imageSmoothingEnabled = !enable;
+                }
+            }
+
+            function toggleHideAllUi(enable) {
+                localStorage.setItem("chrono_mod_hideui", enable ? "1" : "0");
+                const themeTag = document.getElementById("chrono-artem-theme");
+                if (themeTag) {
+                    themeTag.disabled = enable ? true : (currentConfig.flag_custom_theme === false);
+                }
+                const fpsHud = document.getElementById("chrono-fps-hud");
+                if (fpsHud) fpsHud.style.display = enable ? "none" : "";
+
+                let hideStyle = document.getElementById("chrono-hide-all-ui-style");
+                if (enable) {
+                    if (!hideStyle) {
+                        hideStyle = document.createElement("style");
+                        hideStyle.id = "chrono-hide-all-ui-style";
+                        hideStyle.textContent = 
+                            "#chrono-fps-hud, " +
+                            "#chrono-hourglass-launcher, " +
+                            "#chrono-tournament-launcher, " +
+                            "#chrono-leaderboard-launcher, " +
+                            "#chrono-runs-launcher, " +
+                            "#chrono-bragi-launcher, " +
+                            "#chrono-keystrokes-hud, " +
+                            "#chrono-tournament-watermark, " +
+                            "#chrono-leaderboard-window, " +
+                            "#chrono-runs-window, " +
+                            "#chrono-tournament-window, " +
+                            ".title[data-chrono-logo] img { display: none !important; }";
+                        (document.head || document.documentElement || document.body).appendChild(hideStyle);
+                    }
+                } else {
+                    if (hideStyle) hideStyle.remove();
+                }
+
+                const chk = document.getElementById("chrono-mod-hideui");
+                if (chk && chk.checked !== enable) {
+                    chk.checked = enable;
+                }
+            }
+            window.Chrono.toggleHideAllUi = toggleHideAllUi;
+            window.toggleHideAllUi = toggleHideAllUi;
+
+            const modKs = document.getElementById("chrono-mod-keystrokes");
+            const btnOpenHudEd = document.getElementById("chrono-btn-open-hud-editor");
+            const modChat = document.getElementById("chrono-mod-chatmacro");
+            const modPixel = document.getElementById("chrono-mod-pixelsharp");
+            const modTells = document.getElementById("chrono-mod-visualtells");
+            const modHideUi = document.getElementById("chrono-mod-hideui");
+
+            if (modKs) {
+                const savedKs = localStorage.getItem("chrono_mod_keystrokes");
+                modKs.checked = (savedKs === null) ? true : (savedKs === "1");
+                toggleKeystrokesHud(modKs.checked);
+                modKs.onchange = () => toggleKeystrokesHud(modKs.checked);
+            }
+            if (btnOpenHudEd) {
+                btnOpenHudEd.onclick = () => openHudLayoutEditor();
+            }
+            if (modChat) {
+                modChat.checked = (localStorage.getItem("chrono_mod_chatmacro") === "1");
+                toggleChatMacro(modChat.checked);
+                modChat.onchange = () => toggleChatMacro(modChat.checked);
+            }
+            if (modPixel) {
+                modPixel.checked = (localStorage.getItem("chrono_mod_pixelsharp") === "1");
+                togglePixelSharp(modPixel.checked);
+                modPixel.onchange = () => togglePixelSharp(modPixel.checked);
+            }
+            if (modTells) {
+                const savedTells = localStorage.getItem("chrono_mod_visualtells");
+                modTells.checked = (savedTells === null) ? true : (savedTells === "1");
+                window._chrono_enable_visual_tells = modTells.checked;
+                modTells.onchange = () => {
+                    window._chrono_enable_visual_tells = modTells.checked;
+                    localStorage.setItem("chrono_mod_visualtells", modTells.checked ? "1" : "0");
+                };
+            }
+
+            if (modHideUi) {
+                const isHideActive = (localStorage.getItem("chrono_mod_hideui") === "1");
+                modHideUi.checked = isHideActive;
+                toggleHideAllUi(isHideActive);
+                modHideUi.onchange = () => {
+                    toggleHideAllUi(modHideUi.checked);
+                    const em = getEnabledScriptMap();
+                    em["hide_all_ui.js"] = modHideUi.checked;
+                    saveEnabledScriptMap(em);
+                    renderCustomScriptsList();
+                };
+            }
+
+            const openScriptsDirBtn = document.getElementById("chrono-btn-open-scripts-dir");
+            if (openScriptsDirBtn) {
+                openScriptsDirBtn.onclick = () => {
+                    if (window.ipc) {
+                        window.ipc.postMessage(JSON.stringify({ action: "open_scripts_folder" }));
+                        window.ipc.postMessage(JSON.stringify({ action: "reload_scripts" }));
+                    }
+                };
+            }
+
+            // Auto-sync & run enabled scripts on boot
+            if (window.ipc) {
+                window.ipc.postMessage(JSON.stringify({ action: "reload_scripts" }));
+            }
+            const initialMap = getEnabledScriptMap();
+            (window._chrono_loaded_scripts || INITIAL_CHRONO_SCRIPTS || []).forEach(s => {
+                if (initialMap[s.filename] && s.code && !executedScriptFilenames.has(s.filename)) {
+                    executedScriptFilenames.add(s.filename);
+                    executeScript(s);
+                }
+            });
+
+            syncUiFromConfig();
+            renderAltsList();
+            renderActiveFlagsBadges();
+            renderCursorGrid();
+            renderCustomScriptsList();
+            applyHudLayout();
+
+            // --- BRAGI AUTO TRANSLATOR SETTINGS ---
+            function getBragi() {
+                return (window.Chrono && window.Chrono.Bragi) ? window.Chrono.Bragi : null;
+            }
+
+            function initBragiSettingsUI() {
+                const b = getBragi();
+                const masterTgl = document.getElementById("chrono-bragi-master-toggle");
+                const targetSel = document.getElementById("chrono-bragi-target-lang-sel");
+                const chatTgl = document.getElementById("chrono-bragi-chat-toggle");
+                const outTgl = document.getElementById("chrono-bragi-outgoing-toggle");
+                const outSel = document.getElementById("chrono-bragi-outgoing-lang-sel");
+                const uiTgl = document.getElementById("chrono-bragi-ui-toggle");
+                const badge = document.getElementById("chrono-bragi-status-badge");
+                const cacheLbl = document.getElementById("chrono-bragi-cache-label");
+
+                const langs = (b && b.SUPPORTED_LANGUAGES) ? b.SUPPORTED_LANGUAGES : [
+                    { code: "fr", flag: "🇫🇷", name: "Français" },
+                    { code: "en", flag: "🇬🇧", name: "English" },
+                    { code: "es", flag: "🇪🇸", name: "Español" },
+                    { code: "de", flag: "🇩🇪", name: "Deutsch" },
+                    { code: "it", flag: "🇮🇹", name: "Italiano" },
+                    { code: "pt", flag: "🇵🇹", name: "Português" },
+                    { code: "ru", flag: "🇷🇺", name: "Русский" },
+                    { code: "uk", flag: "🇺🇦", name: "Українська" },
+                    { code: "pl", flag: "🇵🇱", name: "Polski" },
+                    { code: "tr", flag: "🇹🇷", name: "Türkçe" },
+                    { code: "nl", flag: "🇳🇱", name: "Nederlands" },
+                    { code: "sv", flag: "🇸🇪", name: "Svenska" },
+                    { code: "no", flag: "🇳🇴", name: "Norsk" },
+                    { code: "da", flag: "🇩🇰", name: "Dansk" },
+                    { code: "fi", flag: "🇫🇮", name: "Suomi" },
+                    { code: "cs", flag: "🇨🇿", name: "Čeština" },
+                    { code: "ro", flag: "🇷🇴", name: "Română" },
+                    { code: "hu", flag: "🇭🇺", name: "Magyar" },
+                    { code: "el", flag: "🇬🇷", name: "Ελληνικά" },
+                    { code: "ar", flag: "🇸🇦", name: "العربية" },
+                    { code: "he", flag: "🇮🇱", name: "עברית" },
+                    { code: "hi", flag: "🇮🇳", name: "हिन्दी" },
+                    { code: "ja", flag: "🇯🇵", name: "日本語" },
+                    { code: "ko", flag: "🇰🇷", name: "한국어" },
+                    { code: "zh-CN", flag: "🇨🇳", name: "简体中文" },
+                    { code: "zh-TW", flag: "🇹🇼", name: "繁體中文" },
+                    { code: "vi", flag: "🇻🇳", name: "Tiếng Việt" },
+                    { code: "th", flag: "🇹🇭", name: "ไทย" },
+                    { code: "id", flag: "🇮🇩", name: "Bahasa Indonesia" }
+                ];
+
+                if (targetSel && targetSel.options.length === 0) {
+                    langs.forEach(l => {
+                        const opt = document.createElement("option");
+                        opt.value = l.code;
+                        opt.textContent = l.flag + " " + l.name + " (" + l.code + ")";
+                        targetSel.appendChild(opt);
+                    });
+                }
+                if (outSel && outSel.options.length === 0) {
+                    langs.forEach(l => {
+                        const opt = document.createElement("option");
+                        opt.value = l.code;
+                        opt.textContent = l.flag + " " + l.name + " (" + l.code + ")";
+                        outSel.appendChild(opt);
+                    });
+                }
+
+                const defaultLang = (navigator.language && navigator.language.toLowerCase().startsWith("fr")) ? "fr" : "fr";
+                const isEnabled = b ? Boolean(b.state && b.state.enabled) : (localStorage.getItem("chrono_bragi_enabled") === "1");
+                const currentTargetLang = b ? (b.state && b.state.targetLang) : (localStorage.getItem("chrono_bragi_target_lang") || defaultLang);
+                const isIncomingChat = b ? Boolean(b.state && b.state.incomingChat) : (localStorage.getItem("chrono_bragi_incoming_chat") !== "0");
+                const isOutgoingChat = b ? Boolean(b.state && b.state.outgoingChat) : (localStorage.getItem("chrono_bragi_outgoing_chat") === "1");
+                const currentOutLang = b ? (b.state && b.state.outgoingLang) : (localStorage.getItem("chrono_bragi_outgoing_lang") || "en");
+                const isGameUI = b ? Boolean(b.state && b.state.gameUI) : (localStorage.getItem("chrono_bragi_game_ui") === "1");
+
+                function updateBadge() {
+                    if (!badge) return;
+                    const active = getBragi() ? Boolean(getBragi().state && getBragi().state.enabled) : (localStorage.getItem("chrono_bragi_enabled") === "1");
+                    if (active) {
+                        badge.innerText = "ACTIVE";
+                        badge.style.background = "rgba(34, 197, 94, 0.2)";
+                        badge.style.borderColor = "rgba(34, 197, 94, 0.5)";
+                        badge.style.color = "#86efac";
+                    } else {
+                        badge.innerText = "DISABLED";
+                        badge.style.background = "rgba(148, 163, 184, 0.2)";
+                        badge.style.borderColor = "rgba(148, 163, 184, 0.4)";
+                        badge.style.color = "#94a3b8";
+                    }
+                }
+
+                function updateCacheCount() {
+                    if (cacheLbl) {
+                        const curB = getBragi();
+                        const count = curB ? curB.getCacheSize() : 0;
+                        cacheLbl.innerText = count + " cached phrases";
+                    }
+                }
+
+                if (masterTgl) {
+                    masterTgl.checked = isEnabled;
+                    if (!masterTgl.hasAttribute("data-bound")) {
+                        masterTgl.setAttribute("data-bound", "1");
+                        masterTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = masterTgl.checked;
+                            localStorage.setItem("chrono_bragi_enabled", val ? "1" : "0");
+                            if (curB) curB.setEnabled(val);
+                            updateBadge();
+                        };
+                    }
+                }
+
+                if (targetSel) {
+                    targetSel.value = currentTargetLang || "fr";
+                    if (!targetSel.hasAttribute("data-bound")) {
+                        targetSel.setAttribute("data-bound", "1");
+                        targetSel.onchange = () => {
+                            const curB = getBragi();
+                            const val = targetSel.value;
+                            localStorage.setItem("chrono_bragi_target_lang", val);
+                            if (curB) curB.setTargetLang(val);
+                        };
+                    }
+                }
+
+                if (chatTgl) {
+                    chatTgl.checked = isIncomingChat;
+                    if (!chatTgl.hasAttribute("data-bound")) {
+                        chatTgl.setAttribute("data-bound", "1");
+                        chatTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = chatTgl.checked;
+                            localStorage.setItem("chrono_bragi_incoming_chat", val ? "1" : "0");
+                            if (curB) curB.setIncomingChat(val);
+                        };
+                    }
+                }
+
+                if (outTgl) {
+                    outTgl.checked = isOutgoingChat;
+                    if (!outTgl.hasAttribute("data-bound")) {
+                        outTgl.setAttribute("data-bound", "1");
+                        outTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = outTgl.checked;
+                            localStorage.setItem("chrono_bragi_outgoing_chat", val ? "1" : "0");
+                            if (curB) curB.setOutgoingChat(val);
+                        };
+                    }
+                }
+
+                if (outSel) {
+                    outSel.value = currentOutLang || "en";
+                    if (!outSel.hasAttribute("data-bound")) {
+                        outSel.setAttribute("data-bound", "1");
+                        outSel.onchange = () => {
+                            const curB = getBragi();
+                            const val = outSel.value;
+                            localStorage.setItem("chrono_bragi_outgoing_lang", val);
+                            if (curB) curB.setOutgoingLang(val);
+                        };
+                    }
+                }
+
+                if (uiTgl) {
+                    uiTgl.checked = isGameUI;
+                    if (!uiTgl.hasAttribute("data-bound")) {
+                        uiTgl.setAttribute("data-bound", "1");
+                        uiTgl.onchange = () => {
+                            const curB = getBragi();
+                            const val = uiTgl.checked;
+                            localStorage.setItem("chrono_bragi_game_ui", val ? "1" : "0");
+                            if (curB) curB.setGameUI(val);
+                        };
+                    }
+                }
+
+                const clearCacheBtn = document.getElementById("chrono-bragi-clear-cache-btn");
+                if (clearCacheBtn && !clearCacheBtn.hasAttribute("data-bound")) {
+                    clearCacheBtn.setAttribute("data-bound", "1");
+                    clearCacheBtn.onclick = () => {
+                        const curB = getBragi();
+                        if (curB && curB.clearCache) curB.clearCache();
+                        else localStorage.removeItem("chrono_bragi_cache");
+                        updateCacheCount();
+                        showStatus("Bragi translation cache cleared!");
+                    };
+                }
+
+                updateBadge();
+                updateCacheCount();
+            }
+
+            window.Chrono = window.Chrono || {};
+            window.Chrono.updateBragiSettingsUI = initBragiSettingsUI;
+
+            try { initBragiSettingsUI(); } catch(e) { console.error("[Bragi Settings Error]", e); }
+            const bragiTabBtn = document.getElementById("chrono-tab-bragi");
+            if (bragiTabBtn && !bragiTabBtn.hasAttribute("data-bound-tab")) {
+                bragiTabBtn.setAttribute("data-bound-tab", "1");
+                bragiTabBtn.addEventListener("click", () => {
+                    try { initBragiSettingsUI(); } catch(e) {}
+                });
+            }
+
+            // --- CUSTOM UI THEME APPLY ---
+            const __uiCfg = JSON.parse(localStorage.getItem('chrono_ui_cfg') || '{}');
+            if (__uiCfg.logoUrl) {
+                const __logoTarget = document.querySelector('.title');
+                if (__logoTarget && !__logoTarget.hasAttribute('data-chrono-logo')) {
+                    __logoTarget.setAttribute('data-chrono-logo', '1');
+                    __logoTarget.innerHTML = '<img src="' + __uiCfg.logoUrl + '" style="max-height:85px; margin-bottom:10px;" />';
+                }
+            }
+            const __btnSave = document.getElementById('chrono-ui-btn-save');
+            if (__btnSave && !__btnSave.hasAttribute('data-bound')) {
+                __btnSave.setAttribute('data-bound', '1');
+                const __iBg1 = document.getElementById('chrono-ui-bg1');
+                const __iBg2 = document.getElementById('chrono-ui-bg2');
+                const __iAc1 = document.getElementById('chrono-ui-acc1');
+                const __iAc2 = document.getElementById('chrono-ui-acc2');
+                const __iAc3 = document.getElementById('chrono-ui-acc3');
+                const __iLogo = document.getElementById('chrono-ui-logo');
+                if (__iBg1) __iBg1.value = __uiCfg.bg1 || '#0d211e';
+                if (__iBg2) __iBg2.value = __uiCfg.bg2 || '#061210';
+                if (__iAc1) __iAc1.value = __uiCfg.acc1 || '#059669';
+                if (__iAc2) __iAc2.value = __uiCfg.acc2 || '#047857';
+                if (__iAc3) __iAc3.value = __uiCfg.acc3 || '#10b981';
+                if (__iLogo) __iLogo.value = __uiCfg.logoUrl || '';
+                __btnSave.onclick = function() {
+                    var nc = {
+                        bg1: __iBg1 ? __iBg1.value : '',
+                        bg2: __iBg2 ? __iBg2.value : '',
+                        acc1: __iAc1 ? __iAc1.value : '',
+                        acc2: __iAc2 ? __iAc2.value : '',
+                        acc3: __iAc3 ? __iAc3.value : '',
+                        logoUrl: __iLogo ? __iLogo.value : ''
+                    };
+                    localStorage.setItem('chrono_ui_cfg', JSON.stringify(nc));
+                    window.location.reload();
+                };
+                var __btnReset = document.getElementById('chrono-ui-btn-reset');
+                if (__btnReset) {
+                    __btnReset.onclick = function() {
+                        localStorage.removeItem('chrono_ui_cfg');
+                        window.location.reload();
+                    };
+                }
+            }
+            // --- END CUSTOM UI ---
+        }
+
+        mountSettingsUI();
+        window.addEventListener("DOMContentLoaded", mountSettingsUI);
+        window.addEventListener("load", mountSettingsUI);
+        const mountSettingsInterval = setInterval(() => {
+            if (document.getElementById("chrono-menu-modal") && document.getElementById("chrono-hourglass-launcher")) {
+                clearInterval(mountSettingsInterval);
+            } else {
+                mountSettingsUI();
+            }
+        }, 300);
+
+    // 8. Account & Customization Enhancer (2-Col Top Layout, Live Preview & 3-Col Categories)
+    function enhanceAccountPage() {
+        const accountEl = document.querySelector(".account");
+        if (!accountEl) return;
+
+        // 1. Blur Email with click-to-reveal toggle
+        const walker = document.createTreeWalker(accountEl, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        const textNodes = [];
+        while (node = walker.nextNode()) {
+            if (node.nodeValue && (node.nodeValue.includes("Verified email:") || node.nodeValue.includes("Email not yet verified:") || (node.nodeValue.includes("@") && node.nodeValue.includes(".")))) {
+                textNodes.push(node);
+            }
+        }
+
+        textNodes.forEach(tNode => {
+            if (tNode.parentNode && tNode.parentNode.classList && tNode.parentNode.classList.contains("chrono-blurred-email")) return;
+            const text = tNode.nodeValue;
+            const emailMatch = text.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+            if (emailMatch) {
+                const span = document.createElement("span");
+                const prefix = text.substring(0, emailMatch.index);
+                const email = emailMatch[0];
+                const suffix = text.substring(emailMatch.index + email.length);
+                
+                span.innerHTML = prefix + '<span class="chrono-blurred-email" title="Click to toggle reveal (Privacy Protected)">' + email + '</span>' + suffix;
+                const emailSpan = span.querySelector(".chrono-blurred-email");
+                if (emailSpan) {
+                    emailSpan.onclick = () => emailSpan.classList.toggle("revealed");
+                }
+                tNode.parentNode.replaceChild(span, tNode);
+            }
+        });
+
+        // 2. Wrap Account Details in .chrono-account-top-grid (Left: Account Card, Right: Preview Display)
+        if (!accountEl.querySelector(".chrono-account-top-grid")) {
+            const titleEl = accountEl.querySelector(".account-title");
+            const resetBtn = accountEl.querySelector(".reset-password-button, .resend-verification-email-button");
+            const stateInfo = accountEl.querySelector(".account-state-info");
+            const clearBtn = accountEl.querySelector(".clear-state-button");
+
+            if (titleEl && titleEl.parentNode) {
+                const topGrid = document.createElement("div");
+                topGrid.className = "chrono-account-top-grid";
+
+                const leftCard = document.createElement("div");
+                leftCard.className = "chrono-account-card";
+
+                titleEl.parentNode.insertBefore(topGrid, titleEl);
+                topGrid.appendChild(leftCard);
+                leftCard.appendChild(titleEl);
+
+                let curr = topGrid.nextSibling;
+                while (curr && curr !== resetBtn && curr !== stateInfo && curr !== clearBtn && !curr.classList?.contains("account-accessories") && !curr.classList?.contains("back-text")) {
+                    const next = curr.nextSibling;
+                    leftCard.appendChild(curr);
+                    curr = next;
+                }
+
+                if (resetBtn) leftCard.appendChild(resetBtn);
+                if (stateInfo) leftCard.appendChild(stateInfo);
+                if (clearBtn) leftCard.appendChild(clearBtn);
+
+                // Create Right Card: Live Character Preview Display
+                const rightCard = document.createElement("div");
+                rightCard.className = "chrono-preview-card";
+                rightCard.innerHTML = 
+                    '<div style="width: 100%; display: flex; align-items: center; justify-content: space-between;">' +
+                        '<span style="font-weight: 800; font-size: 13px; color: #34d399; display: flex; align-items: center; gap: 6px;">✨ Character Preview</span>' +
+                        '<span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(52, 211, 153, 0.4); color: #6ee7b7; font-size: 9px; padding: 1px 7px; border-radius: 4px; font-weight: 700;">LIVE</span>' +
+                    '</div>' +
+                    '<div class="chrono-preview-stage">' +
+                        '<div id="chrono-prev-name" style="font-size: 12px; font-weight: 800; color: #f8fafc; margin-bottom: 6px;">Player</div>' +
+                        '<div class="chrono-preview-avatar-box">' +
+                            '<div id="chrono-prev-hero" class="chrono-preview-hero-circle"></div>' +
+                            '<img id="chrono-prev-body" class="chrono-preview-layer-body" style="display: none;" />' +
+                            '<img id="chrono-prev-hat" class="chrono-preview-layer-hat" style="display: none;" />' +
+                            '<img id="chrono-prev-gem" class="chrono-preview-layer-gem" style="display: none;" />' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="chrono-preview-equipped-list">' +
+                        '<div class="chrono-equipped-badge">🎩 <span id="chrono-lbl-hat" style="color: #6ee7b7; font-weight: bold;">None</span></div>' +
+                        '<div class="chrono-equipped-badge">👕 <span id="chrono-lbl-body" style="color: #6ee7b7; font-weight: bold;">None</span></div>' +
+                        '<div class="chrono-equipped-badge">💎 <span id="chrono-lbl-gem" style="color: #6ee7b7; font-weight: bold;">None</span></div>' +
+                    '</div>';
+
+                topGrid.appendChild(rightCard);
+            }
+        }
+
+        // 3. Reorganize Hats, Body, and Gems side-by-side in 3 columns
+        const accContainer = accountEl.querySelector(".account-accessories");
+        if (accContainer && !accContainer.querySelector(".chrono-accessories-grid")) {
+            const collections = accContainer.querySelectorAll(".collection");
+            const titles = accContainer.querySelectorAll(".collection-title");
+
+            if (collections.length >= 2) {
+                const accGrid = document.createElement("div");
+                accGrid.className = "chrono-accessories-grid";
+
+                const colDefs = [
+                    { name: "🎩 Hats", colIdx: 0 },
+                    { name: "👕 Body", colIdx: 1 },
+                    { name: "💎 Crown Gems", colIdx: 2 }
+                ];
+
+                colDefs.forEach(def => {
+                    if (collections[def.colIdx]) {
+                        const colBox = document.createElement("div");
+                        colBox.className = "chrono-acc-column";
+                        const count = collections[def.colIdx].querySelectorAll(".accessory").length;
+
+                        colBox.innerHTML = '<div class="chrono-acc-column-header"><span>' + def.name + '</span><span style="font-size: 11px; color: #94a3b8; font-weight: 600;">(' + count + ')</span></div>';
+                        colBox.appendChild(collections[def.colIdx]);
+                        accGrid.appendChild(colBox);
+                    }
+                });
+
+                titles.forEach(t => t.style.display = "none");
+                accContainer.appendChild(accGrid);
+            }
+        }
+
+        // 4. Update Live Preview Display values dynamically
+        const prevName = document.getElementById("chrono-prev-name");
+        const titleEl = accountEl.querySelector(".account-title");
+        if (prevName && titleEl) {
+            const match = titleEl.innerText.match(/logged in as\s+(.+)$/i);
+            if (match) prevName.innerText = match[1];
+        }
+
+        const hatCol = accountEl.querySelectorAll(".chrono-acc-column")[0];
+        const bodyCol = accountEl.querySelectorAll(".chrono-acc-column")[1];
+        const gemCol = accountEl.querySelectorAll(".chrono-acc-column")[2];
+
+        let equippedHatName = "";
+
+        // Hats
+        if (hatCol) {
+            const selHat = hatCol.querySelector(".accessory.accessory-selected");
+            const lblHat = document.getElementById("chrono-lbl-hat");
+            const imgHat = document.getElementById("chrono-prev-hat");
+            if (selHat) {
+                equippedHatName = (selHat.querySelector(".accessory-name")?.innerText || "").trim();
+                const img = selHat.querySelector("img");
+                if (lblHat) lblHat.innerText = equippedHatName || "None";
+                if (imgHat) {
+                    if (equippedHatName && equippedHatName.toLowerCase() !== "none" && img && img.src && !img.src.includes("data:image/gif")) {
+                        imgHat.src = img.src;
+                        imgHat.style.display = "block";
+                    } else {
+                        imgHat.style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Body
+        if (bodyCol) {
+            const selBody = bodyCol.querySelector(".accessory.accessory-selected");
+            const lblBody = document.getElementById("chrono-lbl-body");
+            const imgBody = document.getElementById("chrono-prev-body");
+            if (selBody) {
+                const name = (selBody.querySelector(".accessory-name")?.innerText || "").trim();
+                const img = selBody.querySelector("img");
+                if (lblBody) lblBody.innerText = name || "None";
+                if (imgBody) {
+                    if (name && name.toLowerCase() !== "none" && img && img.src && !img.src.includes("data:image/gif")) {
+                        imgBody.src = img.src;
+                        imgBody.style.display = "block";
+                    } else {
+                        imgBody.style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Gem (Only visible if wearing Bronze/Silver/Gold Crown)
+        const isWearingCrown = Boolean(equippedHatName && /crown/i.test(equippedHatName));
+        if (gemCol) {
+            const selGem = gemCol.querySelector(".accessory.accessory-selected");
+            const lblGem = document.getElementById("chrono-lbl-gem");
+            const imgGem = document.getElementById("chrono-prev-gem");
+            if (selGem) {
+                const name = (selGem.querySelector(".accessory-name")?.innerText || "").trim();
+                const img = selGem.querySelector("img");
+                if (lblGem) {
+                    lblGem.innerText = (name && name.toLowerCase() !== "none" && name.toLowerCase() !== "off") 
+                        ? (isWearingCrown ? name : name + " (Needs Crown)") 
+                        : "None";
+                }
+                if (imgGem) {
+                    if (isWearingCrown && name && name.toLowerCase() !== "none" && name.toLowerCase() !== "off" && img && img.src && !img.src.includes("data:image/gif")) {
+                        imgGem.src = img.src;
+                        imgGem.style.display = "block";
+                    } else {
+                        imgGem.style.display = "none";
+                    }
+                }
+            }
+        }
+    }
+
+        // Track logged in user across pages for automatic profile resolution
+        function trackCurrentUser() {
+            const nameFromHome = document.querySelector(".logged-in-name")?.textContent;
+            const nameFromAccount = document.querySelector(".account-title")?.textContent?.match(/logged in as\s+(.+)$/i)?.[1];
+            const storedAlt = getStoredAlts()?.[0]?.username;
+            const name = (nameFromHome || nameFromAccount || storedAlt || "").trim();
+            if (name && name !== "Player" && name !== "undefined") {
+                if (localStorage.getItem("chrono_current_user") !== name) {
+                    localStorage.setItem("chrono_current_user", name);
+                }
+            }
+        }
+
+    // Safe one-time redirect if accessing root /profile without username
+    if ((window.location.pathname === "/profile" || window.location.pathname === "/profile/") && !window._chrono_profile_redirected) {
+        window._chrono_profile_redirected = true;
+        const myUser = localStorage.getItem("chrono_current_user");
+        if (myUser && myUser !== "Player" && myUser !== "undefined") {
+            window.location.replace("/profile/" + encodeURIComponent(myUser));
+        }
+    }
+
+    // 9. Profile Page Enhancer (Sleek Artemesik Theme, Direct API Fetch, No Preview, @artem_on Credits)
+    function enhanceProfilePage() {
+        const subProfile = document.querySelector(".subtitle-profile");
+        const profStats = document.querySelector(".profile-stats");
+        if (!subProfile || !profStats) {
+            document.body.classList.remove("chrono-profile-active");
+            const existing = document.getElementById("chrono-custom-profile");
+            if (existing) existing.style.display = "none";
+            return;
+        }
+
+        document.body.classList.add("chrono-profile-active");
+
+        const mainParent = subProfile.parentElement;
+        if (!mainParent) return;
+
+        let rawUser = (location.pathname.split("/profile/")[1] || "").trim();
+        if (rawUser) rawUser = decodeURIComponent(rawUser);
+        if (!rawUser) {
+            const uEl = subProfile.querySelector(".username");
+            rawUser = (uEl?.innerText || "Player").trim();
+        }
+        const cleanUsername = rawUser.replace(/[\n\r\t]/g, " ").trim();
+        const onlineMarker = subProfile.querySelector(".profile-onlineMarker");
+        const isOnline = Boolean(onlineMarker && onlineMarker.classList.contains("online"));
+
+        let customRoot = document.getElementById("chrono-custom-profile");
+        if (!customRoot) {
+            customRoot = document.createElement("div");
+            customRoot.id = "chrono-custom-profile";
+            customRoot.className = "chrono-artem-profile";
+            mainParent.insertBefore(customRoot, subProfile);
+        }
+        customRoot.style.display = "flex";
+
+        if (customRoot.dataset.loadedUser !== cleanUsername) {
+            customRoot.dataset.loadedUser = cleanUsername;
+            customRoot.innerHTML = 
+                '<div class="chrono-ap-header">' +
+                    '<button class="chrono-ap-back-btn" onclick="location.href=\'/\'" title="Back to Home">←</button>' +
+                    '<div class="chrono-ap-title">Player Profile</div>' +
+                    '<input type="text" class="chrono-ap-search" id="chrono-ap-search-input" placeholder="🔍 Search username..." value="' + cleanUsername + '" />' +
+                '</div>' +
+                '<div class="chrono-ap-top-grid">' +
+                    '<div class="chrono-ap-card">' +
+                        '<div class="chrono-ap-user-header">' +
+                            '<div class="chrono-ap-status-pill ' + (isOnline ? 'chrono-ap-status-online' : 'chrono-ap-status-offline') + '">' + (isOnline ? '● Online' : '○ Offline') + '</div>' +
+                        '</div>' +
+                        '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Career VP:</span><span class="chrono-ap-stat-val" id="chrono-ap-career-vp" style="color:#f59e0b;">...</span></div>' +
+                        '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Quest Points:</span><span class="chrono-ap-stat-val" id="chrono-ap-quest-pts" style="color:#10b981;">...</span></div>' +
+                        '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Achievements:</span><span class="chrono-ap-stat-val">20 / 37</span></div>' +
+                        '<div class="chrono-ap-stat-row"><span class="chrono-ap-stat-label">Rank Status:</span><span class="chrono-ap-stat-val" style="color:#38bdf8;">Active Explorer</span></div>' +
+                    '</div>' +
+                    '<div class="chrono-ap-card">' +
+                        '<div class="chrono-ap-card-title"><span>📈 VP Graph & Performance</span></div>' +
+                        '<div id="chrono-ap-graph-host" style="width:100%; min-height:160px; display:flex; align-items:center; justify-content:center;">' +
+                            '<canvas id="chrono-ap-vp-canvas" style="width:100%; height:160px;"></canvas>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="chrono-ap-bottom-grid">' +
+                    '<div style="display:flex; flex-direction:column; gap:16px;">' +
+                        '<div class="chrono-ap-card">' +
+                            '<div class="chrono-ap-card-title"><span>🏆 Highest Area Achieved</span></div>' +
+                            '<div class="chrono-ap-areas-grid" id="chrono-ap-areas-grid">' +
+                                '<div style="color:#64748b; font-size:11px; padding:6px;">Loading areas...</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="chrono-ap-card">' +
+                            '<div class="chrono-ap-card-title"><span>🏛️ Hall of Fame Weekly Scores</span></div>' +
+                            '<div class="chrono-ap-hof-list" id="chrono-ap-hof-list">' +
+                                '<div style="color:#64748b; font-size:11px; padding:6px;">Loading weekly scores...</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="chrono-ap-card">' +
+                        '<div class="chrono-ap-card-title">' +
+                            '<span>🏃 Recent Runs</span>' +
+                            '<span style="font-size:11px; color:#38bdf8; cursor:pointer; text-decoration:underline;" onclick="toggleRunsWindow()">Open Runs Page ⏳</span>' +
+                        '</div>' +
+                        '<div id="chrono-ap-runs-box" style="overflow-x:auto;">' +
+                            '<div style="color:#64748b; font-size:11px; text-align:center; padding:16px 0;">Loading runs...</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="chrono-ap-footer">' +
+                    '<div class="chrono-ap-credits">✨ UI Concept by <b style="color:#38bdf8;">@artem_on</b></div>' +
+                    '<div>Click <a href="/" class="bold-link">here</a> to return to the home page.</div>' +
+                '</div>';
+
+            const searchInput = document.getElementById("chrono-ap-search-input");
+            if (searchInput) {
+                searchInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        const q = (searchInput.value || "").trim();
+                        if (q) location.href = "/profile/" + encodeURIComponent(q);
+                    }
+                });
+            }
+
+            const PROFILE_MAP_COLORS = Object.assign({
+                "Ancient Abyss": "#9363b1",
+                "Assorted Alcove": "#c19762",
+                "Assorted Alcove Hard": "#d08e29",
+                "Burning Bunker": "#ef4444",
+                "Burning Bunker Hard": "#ff5252",
+                "Catastrophic Core": "#84cc16",
+                "Central Core": "#84cc16",
+                "Central Core Hard": "#65a30d",
+                "Coupled Corridors": "#f0e87a",
+                "Cyber Castle": "#21bad9",
+                "Cyber Castle Hard": "#53c8e0",
+                "Dangerous District": "#f43f5e",
+                "Dangerous District Hard": "#f3b9b9",
+                "Dusty Depths": "#d19264",
+                "Elite Expanse": "#60a5fa",
+                "Elite Expanse Hard": "#3b82f6",
+                "Endless Echo": "#9ac2ff",
+                "Endless Echo Hard": "#9ac2ff",
+                "Frozen Fjord": "#a5bfda",
+                "Frozen Fjord Hard": "#a5bfda",
+                "Glacial Gorge": "#a7d1d6",
+                "Glacial Gorge Hard": "#b3e0de",
+                "Grand Garden": "#83c05b",
+                "Grand Garden Hard": "#83c05b",
+                "Haunted Halls": "#f37250",
+                "Haunted Halls Hard": "#854d0e",
+                "Humongous Hollow": "#b45309",
+                "Humongous Hollow Hard": "#92400e",
+                "Infinite Inferno": "#b33e50",
+                "Infinite Inferno Hard": "#ff4b6e",
+                "Lonely Laboratory": "#21bad9",
+                "Magnetic Monopole": "#d043ff",
+                "Magnetic Monopole Hard": "#cb30ff",
+                "Monumental Migration": "#c084fc",
+                "Monumental Migration Hard": "#a855f7",
+                "Mysterious Mansion": "#c446eb",
+                "Ominous Occult": "#8fb2c2",
+                "Ominous Occult Hard": "#8fb2c2",
+                "Peculiar Pyramid": "#eab308",
+                "Peculiar Pyramid Hard": "#ca8a04",
+                "Powered Plains": "#b9d026",
+                "Pristine Purgatory": "#c472c2",
+                "Quiet Quarry": "#b2b6b9",
+                "Quiet Quarry Hard": "#b2b6b9",
+                "Research Lab": "#21bad9",
+                "Restless Ridge": "#d4af7f",
+                "Restless Ridge Hard": "#d4af7f",
+                "Shifting Sands": "#eda764",
+                "Sparkling Shrine": "#4c25cb",
+                "Sparkling Shrine Hard": "#4520bd",
+                "Stellar Square": "#d6d2a7",
+                "Terrifying Temple": "#ff7381",
+                "Terrifying Temple Hard": "#ff91b9",
+                "Toxic Terraces": "#bcbcbc",
+                "Toxic Territory": "#bcbcbc",
+                "Toxic Territory Hard": "#bcbcbc",
+                "Transforming Turbidity": "#38bdf8",
+                "Vast Void": "#a855f7",
+                "Vicious Valley": "#e11d48",
+                "Vicious Valley Hard": "#be123c",
+                "Voidborne": "#9333ea",
+                "Wacky Wonderland": "#eab308",
+                "Wacky Wonderland Hard": "#ca8a04",
+                "Withering Wasteland": "#d97706"
+            }, (window.Chrono && window.Chrono.MAP_COLORS) || {});
+
+            const getProfileMapColor = (m) => PROFILE_MAP_COLORS[m] || "#38bdf8";
+
+            // 1. Fetch Account Data from /api/account/
+            (async () => {
+                try {
+                    const res = await fetch("/api/account/" + encodeURIComponent(cleanUsername));
+                    const data = await res.json();
+                    if (!data) return;
+
+                    const stats = data.stats || {};
+                    const careerVpEl = document.getElementById("chrono-ap-career-vp");
+                    const questPtsEl = document.getElementById("chrono-ap-quest-pts");
+                    if (careerVpEl) careerVpEl.innerText = stats.highest_area_achieved_counter || 0;
+                    if (questPtsEl) questPtsEl.innerText = stats.quest_points || 0;
+
+                    // Populate Areas (Excluding Transforming Turbidity & Powered Plains)
+                    const areasGrid = document.getElementById("chrono-ap-areas-grid");
+                    if (areasGrid && stats.highest_area_achieved) {
+                        const entries = Object.entries(stats.highest_area_achieved);
+                        if (entries.length === 0) {
+                            areasGrid.innerHTML = '<div style="color:#64748b; font-size:11px;">No maps recorded yet.</div>';
+                        } else {
+                            let html = "";
+                            entries.forEach(([mapName, val]) => {
+                                if (mapName === "Transforming Turbidity" || mapName === "Powered Plains") return;
+                                const color = getProfileMapColor(mapName);
+                                html += '<div class="chrono-ap-area-row" style="color:' + color + ';">' +
+                                    '<span>' + mapName + '</span>' +
+                                    '<span style="color:#ffffff;">Area ' + val + '</span>' +
+                                    '</div>';
+                            });
+                            areasGrid.innerHTML = html;
+                        }
+                    }
+
+                    // Populate HoF from stats.week_record
+                    const hofList = document.getElementById("chrono-ap-hof-list");
+                    if (hofList && stats.week_record) {
+                        const weekNums = Object.keys(stats.week_record).map(Number).sort((a, b) => b - a);
+                        let html = "";
+                        weekNums.forEach(wk => {
+                            const item = stats.week_record[wk] || {};
+                            const wins = item.wins || 0;
+                            const finish = item.finish || "";
+                            if (wins > 0 || finish) {
+                                const isGold = (finish === "gold");
+                                const isSilver = (finish === "silver");
+                                const isBronze = (finish === "bronze");
+                                const finishLabel = isGold ? "Top 3" : isSilver ? "Top 10" : isBronze ? "Top 30" : "";
+                                html += '<div class="chrono-ap-hof-row' + (isGold ? ' gold' : '') + '">' +
+                                    '<span><b>Week ' + wk + '</b> ' + (finish ? '<span style="color:' + (isGold ? '#f59e0b' : isSilver ? '#cbd5e1' : '#d97706') + '; font-weight:700;">(' + finishLabel + ')</span>' : '') + '</span>' +
+                                    '<span style="color:#34d399; font-weight:700;">' + wins + ' VP</span>' +
+                                    '</div>';
+                            }
+                        });
+                        hofList.innerHTML = html || '<div style="color:#64748b; font-size:11px; padding:6px;">No weekly scores recorded yet.</div>';
+                    }
+
+                    // Draw VP Graph on Canvas
+                    const vpCanvas = document.getElementById("chrono-ap-vp-canvas");
+                    if (vpCanvas && stats.week_record) {
+                        window._chrono_cached_week_record = stats.week_record;
+                        drawVpGraph(vpCanvas, stats.week_record);
+                        setTimeout(() => drawVpGraph(vpCanvas, stats.week_record), 80);
+                    }
+                } catch(e) {
+                    console.error("[Chrono Account API Error]", e);
+                }
+            })();
+
+            // 2. Fetch Runs from /api/runs?username=
+            (async () => {
+                try {
+                    const res = await fetch("/api/runs?username=" + encodeURIComponent(cleanUsername));
+                    const data = await res.json();
+                    const runsBox = document.getElementById("chrono-ap-runs-box");
+                    if (!runsBox) return;
+                    const runsList = Array.isArray(data) ? data : (data?.runs || []);
+                    if (runsList.length === 0) {
+                        runsBox.innerHTML = '<div style="padding:14px; color:#64748b; text-align:center;">No recent runs recorded.</div>';
+                        return;
+                    }
+                    let html = '<table class="chrono-ap-runs-table"><thead><tr><th>Map</th><th>Hero</th><th>Level</th><th>Survival Time</th><th>Date</th></tr></thead><tbody>';
+                    runsList.slice(0, 15).forEach(r => {
+                        const map = r.region_name || r.region || "Unknown";
+                        if (map === "Transforming Turbidity" || map === "Powered Plains") return;
+                        const color = getProfileMapColor(map);
+                        const hero = r.hero || r.hero_name || "Unknown";
+                        const lvl = r.exp_level || r.level || 1;
+                        const timeStr = r.survival_time ? (Math.floor(r.survival_time / 60) + "m " + (r.survival_time % 60) + "s") : "-";
+                        const ts = r.created_at || r.timestamp || r.time || 0;
+                        const dateStr = ts ? new Date(ts * 1000).toLocaleDateString() : "-";
+                        html += '<tr>' +
+                            '<td><b style="color:' + color + ';">' + map + '</b> <span style="color:#64748b; font-size:9.5px;">(' + (r.area_index || r.area_number || 1) + ')</span></td>' +
+                            '<td>' + hero + '</td>' +
+                            '<td>Lvl ' + lvl + '</td>' +
+                            '<td style="color:#34d399; font-weight:700;">' + timeStr + '</td>' +
+                            '<td style="color:#94a3b8;">' + dateStr + '</td>' +
+                        '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    runsBox.innerHTML = html;
+                } catch(e) {
+                    console.error("[Chrono Runs API Error]", e);
+                }
+            })();
+        }
+
+        // 3. Sync HoF Weekly Scores from React DOM
+        const weeksContainer = profStats.querySelector(".profile-weeks-container");
+        const hofList = document.getElementById("chrono-ap-hof-list");
+        if (weeksContainer && hofList) {
+            const weekDivs = weeksContainer.querySelectorAll(".profile-rectangle");
+            if (weekDivs.length > 0 && (!hofList.dataset.loadedCount || hofList.dataset.loadedCount != weekDivs.length)) {
+                hofList.dataset.loadedCount = weekDivs.length;
+                let html = "";
+                weekDivs.forEach(wd => {
+                    const isGold = wd.classList.contains("profile-rectangle-gold");
+                    const isSilver = wd.classList.contains("profile-rectangle-silver");
+                    const isBronze = wd.classList.contains("profile-rectangle-bronze");
+                    const weekNum = wd.querySelector(".profile-week-number")?.innerText || "";
+                    const weekName = wd.querySelector(".profile-week-name")?.innerText || "";
+                    const weekText = wd.querySelector(".profile-week-text")?.innerText || "";
+                    const winsText = wd.querySelector(".profile-wins-text")?.innerText || "";
+                    const rankLabel = isGold ? "Top 3" : isSilver ? "Top 10" : isBronze ? "Top 30" : "";
+                    html += '<div class="chrono-ap-hof-row' + (isGold ? ' gold' : '') + '">' +
+                        '<span><b>' + weekNum + '</b> ' + (rankLabel ? '<span style="color:' + (isGold ? '#f59e0b' : isSilver ? '#cbd5e1' : '#d97706') + '; font-weight:700;">(' + rankLabel + ')</span> ' : '') + '<span style="color:#94a3b8; font-size:10px;">' + weekName + '</span></span>' +
+                        '<span style="color:#34d399; font-weight:700;">' + weekText + '</span>' +
+                        (winsText ? '<span style="color:#f59e0b; font-weight:700;">' + winsText + '</span>' : '') +
+                    '</div>';
+                });
+                hofList.innerHTML = html;
+            }
+        }
+    }
+
+    // Canvas VP Chart Drawing Function
+    function drawVpGraph(canvas, weekRecord) {
+        if (!canvas || !weekRecord) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        const host = canvas.parentElement;
+        const w = Math.max(300, rect.width || (host ? host.clientWidth : 0) || 420);
+        const h = Math.max(120, rect.height || (host ? host.clientHeight : 0) || 160);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = w + "px";
+        canvas.style.height = h + "px";
+        ctx.scale(dpr, dpr);
+
+        ctx.clearRect(0, 0, w, h);
+
+        const weeks = Object.keys(weekRecord).map(Number).sort((a, b) => a - b);
+        if (weeks.length === 0) {
+            ctx.fillStyle = "#64748b";
+            ctx.font = "12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("No VP history recorded yet", w / 2, h / 2);
+            return;
+        }
+
+        const minX = Math.min(...weeks);
+        const maxX = Math.max(...weeks);
+        let maxY = 0;
+        const points = [];
+        weeks.forEach(wk => {
+            const item = weekRecord[wk] || {};
+            const val = Number(item.wins || 0);
+            if (val > maxY) maxY = val;
+            points.push({ x: wk, y: val, finish: item.finish || "" });
+        });
+        if (maxY === 0) maxY = 10;
+        maxY = Math.ceil(maxY * 1.25);
+
+        const padL = 36, padR = 16, padT = 22, padB = 22;
+        const graphW = w - padL - padR;
+        const graphH = h - padT - padB;
+
+        const getX = (wk) => padL + ((wk - minX) / Math.max(1, (maxX - minX))) * graphW;
+        const getY = (val) => padT + graphH - (val / maxY) * graphH;
+
+        // Grid lines
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.07)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 3; i++) {
+            const yVal = Math.round((maxY / 3) * i);
+            const yPos = getY(yVal);
+            ctx.beginPath();
+            ctx.moveTo(padL, yPos);
+            ctx.lineTo(w - padR, yPos);
+            ctx.stroke();
+
+            ctx.fillStyle = "#64748b";
+            ctx.font = "9px sans-serif";
+            ctx.textAlign = "right";
+            ctx.fillText(yVal.toString(), padL - 5, yPos + 3);
+        }
+
+        // X Axis labels
+        ctx.fillStyle = "#64748b";
+        ctx.font = "9px sans-serif";
+        ctx.textAlign = "center";
+        const step = Math.max(1, Math.floor((maxX - minX) / 5));
+        for (let xVal = minX; xVal <= maxX; xVal += step) {
+            ctx.fillText("W" + xVal, getX(xVal), h - 6);
+        }
+
+        // Plot Area & Line (All VP)
+        if (points.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(getX(points[0].x), getY(points[0].y));
+            points.forEach(p => {
+                ctx.lineTo(getX(p.x), getY(p.y));
+            });
+            ctx.strokeStyle = "#e8c1a0";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.lineTo(getX(points[points.length - 1].x), padT + graphH);
+            ctx.lineTo(getX(points[0].x), padT + graphH);
+            ctx.closePath();
+            const grad = ctx.createLinearGradient(0, padT, 0, padT + graphH);
+            grad.addColorStop(0, "rgba(232, 193, 160, 0.25)");
+            grad.addColorStop(1, "rgba(232, 193, 160, 0.0)");
+            ctx.fillStyle = grad;
+            ctx.fill();
+        }
+
+        // Points
+        points.forEach(p => {
+            if (p.y <= 0 && !p.finish) return;
+            const px = getX(p.x);
+            const py = getY(p.y);
+
+            ctx.beginPath();
+            ctx.arc(px, py, p.finish ? 4 : 2, 0, Math.PI * 2);
+            if (p.finish === "gold") ctx.fillStyle = "#FFD700";
+            else if (p.finish === "silver") ctx.fillStyle = "#C0C0C0";
+            else if (p.finish === "bronze") ctx.fillStyle = "#CD7F32";
+            else ctx.fillStyle = "#e8c1a0";
+            ctx.fill();
+
+            if (p.finish) {
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        });
+
+        // Legend Top Right
+        ctx.textAlign = "left";
+        ctx.font = "9px sans-serif";
+        const legends = [
+            { label: "All VP", color: "#e8c1a0" },
+            { label: "Gold", color: "#FFD700" },
+            { label: "Silver", color: "#C0C0C0" },
+            { label: "Bronze", color: "#CD7F32" }
+        ];
+        let legX = w - padR - 170;
+        legends.forEach(l => {
+            ctx.fillStyle = l.color;
+            ctx.fillRect(legX, 6, 7, 7);
+            ctx.fillStyle = "#94a3b8";
+            ctx.fillText(l.label, legX + 10, 13);
+            legX += 42;
+        });
+    }
+
+    window.addEventListener("resize", () => {
+        const vpCanvas = document.getElementById("chrono-ap-vp-canvas");
+        if (vpCanvas && window._chrono_cached_week_record) {
+            drawVpGraph(vpCanvas, window._chrono_cached_week_record);
+        }
+    });
+
+    // Helper to get connected in-game player/account name (returns null if not logged in)
+
+        window.Chrono.Settings = {
+            toggle: toggleChronoMenu,
+            modal: menuContainer,
+            syncUi: syncUiFromConfig,
+            saveConfig: saveConfig,
+            enhanceAccountPage: enhanceAccountPage,
+            enhanceProfilePage: enhanceProfilePage,
+            trackCurrentUser: trackCurrentUser
+        };
+
+        window.toggleChronoMenu = toggleChronoMenu;
+        window.closeHudLayoutEditor = closeHudLayoutEditor;
+        window.applyHudLayout = applyHudLayout;
+        window.enhanceAccountPage = enhanceAccountPage;
+        window.enhanceProfilePage = enhanceProfilePage;
+        window.trackCurrentUser = trackCurrentUser;
+
+        // Auto-run page enhancers on navigation & initial load
+        function checkAndEnhanceCurrentPage() {
+            const p = window.location.pathname;
+            if (p.startsWith("/account")) {
+                enhanceAccountPage();
+            } else if (p.startsWith("/profile")) {
+                enhanceProfilePage();
+            }
+            trackCurrentUser();
+        }
+        checkAndEnhanceCurrentPage();
+        window.addEventListener("DOMContentLoaded", checkAndEnhanceCurrentPage);
+        window.addEventListener("load", checkAndEnhanceCurrentPage);
+        window.addEventListener("popstate", checkAndEnhanceCurrentPage);
+    } catch(err) {
+        console.error("[Aesir::Settings Error]", err);
+    }
+})();

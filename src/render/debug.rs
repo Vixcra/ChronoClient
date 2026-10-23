@@ -5,6 +5,12 @@ pub struct DebugRenderer {
     pub enabled: bool,
 }
 
+impl Default for DebugRenderer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DebugRenderer {
     /// Creates a new DebugRenderer.
     pub fn new() -> Self {
@@ -14,7 +20,6 @@ impl DebugRenderer {
     /// Draws debug info if enabled.
     pub fn draw(&mut self) {
         if !self.enabled {
-            return;
         }
         // Stub
     }

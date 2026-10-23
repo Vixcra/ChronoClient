@@ -107,10 +107,7 @@ impl Entity {
     }
 
     pub fn is_enemy(&self) -> bool {
-        match self.entity_type {
-            Some(EntityType::Pellet) | Some(EntityType::Player) => false,
-            _ => true,
-        }
+        !matches!(self.entity_type, Some(EntityType::Pellet) | Some(EntityType::Player))
     }
 }
 
@@ -208,11 +205,10 @@ impl GameWorld {
 
             if msg.removed.unwrap_or(false) {
                 self.entities.remove(&id);
-                if self.self_id == Some(id) {
-                    if let Some(p) = &mut self.local_player {
+                if self.self_id == Some(id)
+                    && let Some(p) = &mut self.local_player {
                         p.alive = false;
                     }
-                }
                 continue;
             }
 
@@ -259,12 +255,11 @@ impl GameWorld {
             if let Some(e) = self.entities.get_mut(&id) {
                 e.prev_pos.x = e.pos.x;
                 e.pos.x = x;
-                if self.self_id == Some(id) {
-                    if let Some(p) = &mut self.local_player {
+                if self.self_id == Some(id)
+                    && let Some(p) = &mut self.local_player {
                         p.prev_pos.x = p.pos.x;
                         p.pos.x = x;
                     }
-                }
             }
         }
 
@@ -272,12 +267,11 @@ impl GameWorld {
             if let Some(e) = self.entities.get_mut(&id) {
                 e.prev_pos.y = e.pos.y;
                 e.pos.y = y;
-                if self.self_id == Some(id) {
-                    if let Some(p) = &mut self.local_player {
+                if self.self_id == Some(id)
+                    && let Some(p) = &mut self.local_player {
                         p.prev_pos.y = p.pos.y;
                         p.pos.y = y;
                     }
-                }
             }
         }
 
@@ -285,12 +279,11 @@ impl GameWorld {
             if let Some(e) = self.entities.get_mut(&id) {
                 e.prev_pos = e.pos;
                 e.pos = Vec2::new(x, y);
-                if self.self_id == Some(id) {
-                    if let Some(p) = &mut self.local_player {
+                if self.self_id == Some(id)
+                    && let Some(p) = &mut self.local_player {
                         p.prev_pos = p.pos;
                         p.pos = Vec2::new(x, y);
                     }
-                }
             }
         }
 
@@ -299,13 +292,12 @@ impl GameWorld {
                 e.prev_pos = e.pos;
                 e.pos = Vec2::new(x, y);
                 e.radius = r;
-                if self.self_id == Some(id) {
-                    if let Some(p) = &mut self.local_player {
+                if self.self_id == Some(id)
+                    && let Some(p) = &mut self.local_player {
                         p.prev_pos = p.pos;
                         p.pos = Vec2::new(x, y);
                         p.radius = r;
                     }
-                }
             }
         }
     }

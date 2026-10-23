@@ -10,6 +10,12 @@ pub struct ReplayPlayer {
     // State
 }
 
+impl Default for ReplayPlayer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ReplayPlayer {
     pub fn new() -> Self {
         Self {}

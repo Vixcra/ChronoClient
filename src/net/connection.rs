@@ -44,10 +44,10 @@ impl ServerConnection {
             .header("Connection", "Upgrade")
             .header("Upgrade", "websocket");
 
-        if let Some(c) = cookie {
-            if !c.is_empty() {
-                builder = builder.header("Cookie", c);
-            }
+        if let Some(c) = cookie
+            && !c.is_empty()
+        {
+            builder = builder.header("Cookie", c);
         }
 
         let request = builder.body(())?;

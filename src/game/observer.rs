@@ -134,7 +134,7 @@ impl Observer {
         let speed = rec.speed;
         let r = rec.radius;
 
-        let bounded = area.map_or(false, |a| a.width > 0 && a.height > 0);
+        let bounded = area.is_some_and(|a| a.width > 0 && a.height > 0);
         let (lx, rx, ty, by) = if let Some(a) = area {
             (
                 a.x as f32 + r,
