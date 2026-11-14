@@ -46,7 +46,7 @@
                     '<span style="font-size: 22px;">⏳</span>' +
                     '<div>' +
                         '<div style="font-weight: 800; font-size: 16px; letter-spacing: 0.5px; background: linear-gradient(90deg, #6ee7b7, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CHRONO CLIENT HUB</div>' +
-                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "1.2.0") + '</span></div>' +
+                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "2.0.0") + '</span></div>' +
                     '</div>' +
                 '</div>' +
                 '<button id="chrono-close-btn" style="' +
@@ -75,9 +75,9 @@
                     'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
                 '">🚩 Flags Engine</button>' +
                 '<button id="chrono-tab-experimental" style="' +
-                    'background: transparent; border: 1px solid transparent; color: #c084fc;' +
+                    'background: transparent; border: 1px solid transparent; color: #fb923c;' +
                     'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
-                '">🧪 Experimental</button>' +
+                '">🦊 Loki</button>' +
                 '<button id="chrono-tab-alts" style="' +
                     'background: transparent; border: 1px solid transparent; color: #94a3b8;' +
                     'padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;' +
@@ -215,8 +215,30 @@
                     '</div>' +
                 '</div>' +
 
-                '<!-- TAB 2.5: EXPERIMENTAL & NETWORK OPTIMIZATIONS -->' +
+                '<!-- TAB 2.5: LOKI (TPS SMOOTHER, LOW-LATENCY & NETWORK OPTIMIZATIONS) -->' +
                 '<div id="chrono-view-experimental" style="display: none; flex-direction: column; gap: 12px;">' +
+                    '<!-- SECTION 0: LOKI AESIR MODULE (SERVER TPS CLOCK & SMOOTHER) -->' +
+                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 12px; padding: 12px 14px;">' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">' +
+                            '<div style="font-weight: 700; font-size: 12px; color: #fb923c; display: flex; align-items: center; gap: 6px;">' +
+                                '<span>🦊 LOKI • SERVER TPS-LOCKED SMOOTHER (Aesir Module)</span>' +
+                            '</div>' +
+                            '<span id="chrono-loki-status-badge" style="background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.5); color: #86efac; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px;">ACTIVE</span>' +
+                        '</div>' +
+                        '<div style="font-size: 11px; color: #cbd5e1; line-height: 1.4; margin-bottom: 10px;">' +
+                            'Cables smoothing velocity directly onto live WebSocket server TPS while keeping <b>rAF / VSync / Unlocked FPS</b> completely free. Teleporting/Star/Dripping enemies snap cleanly without gliding. Toggle ON/OFF live without restarting.' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
+                            '<label style="display: flex; align-items: center; justify-content: space-between; background: rgba(3, 15, 13, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(249, 115, 22, 0.25); cursor: pointer;">' +
+                                '<div><b style="color: #fdba74;">Enable Loki Server-TPS Smoother :</b><br><span style="font-size: 10px; color: #94a3b8;">Prevents lag overshoot &amp; rollback snaps during server TPS drops</span></div>' +
+                                '<input type="checkbox" id="chrono-loki-enabled" style="accent-color: #f97316; width: 18px; height: 18px; cursor: pointer;" />' +
+                            '</label>' +
+                            '<div id="chrono-loki-telemetry" style="font-family: monospace; font-size: 10.5px; color: #94a3b8; background: rgba(3, 15, 13, 0.6); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">' +
+                                'Server TPS: waiting for game socket...' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+
                     '<!-- SECTION 1: ULTRA-LOW INPUT LATENCY & SCHEDULER -->' +
                     '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 12px; padding: 12px 14px;">' +
                         '<div style="font-weight: 700; font-size: 12px; color: #c084fc; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">' +
@@ -238,36 +260,6 @@
                             '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
                                 '<div><code style="color: #e9d5ff;">--enable-zero-copy</code> & <code style="color: #e9d5ff;">CanvasOopRasterization</code> : Zero-copy VRAM direct pipeline for 2D canvas</div>' +
                                 '<input type="checkbox" id="cfg-flag-zero-copy-raster" style="accent-color: #a855f7; width: 16px; height: 16px; cursor: pointer;" />' +
-                            '</label>' +
-                        '</div>' +
-                    '</div>' +
-
-                    '<!-- SECTION 2: WEBSOCKET & NETWORK LATENCY OPTIMIZATIONS (WITH WARNING BADGE ⚠️) -->' +
-                    '<div style="background: rgba(7, 26, 23, 0.65); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 12px; padding: 12px 14px;">' +
-                        '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">' +
-                            '<div style="font-weight: 700; font-size: 12px; color: #facc15; display: flex; align-items: center; gap: 6px;">' +
-                                '<span>🌐 WEBSOCKET & NETWORK OPTIMIZATIONS</span>' +
-                            '</div>' +
-                            '<span style="background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.4); color: #fef08a; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">⚠️ NETWORK CAUTION</span>' +
-                        '</div>' +
-
-                        '<!-- Warning Notice -->' +
-                        '<div style="background: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; border-radius: 4px; padding: 8px 10px; margin-bottom: 10px; font-size: 11px; color: #fef08a; line-height: 1.4;">' +
-                            '<b>⚠️ Network Caution Notice:</b> These options reduce jitter and TCP/WebSocket transit latency by enforcing immediate packet acknowledgement. Recommended for stable Ethernet or Wi-Fi 6 connections to prevent packet drops.' +
-                        '</div>' +
-
-                        '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 11px; color: #cbd5e1;">' +
-                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
-                                '<div><b style="color: #fef08a;">WebSocket ArrayBuffer Sync Mode :</b> Forces direct synchronous memory decoding without Blob async delay (0ms packet parse)</div>' +
-                                '<input type="checkbox" id="cfg-flag-websocket-arraybuffer" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
-                            '</label>' +
-                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
-                                '<div><b style="color: #fef08a;">TCP_NODELAY & Delayed ACK Bypass :</b> Disables Nagle buffering and suppresses Windows 40-200ms Delayed ACK mechanism</div>' +
-                                '<input type="checkbox" id="cfg-flag-tcp-nodelay-tuning" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
-                            '</label>' +
-                            '<label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
-                                '<div><b style="color: #fef08a;">V8 Incremental GC & Nursery Buffer (64MB) :</b> Eliminates 100ms Stop-The-World GC micro-freezes by running continuous background sweeps</div>' +
-                                '<input type="checkbox" id="cfg-flag-anti-freeze-gc" style="accent-color: #eab308; width: 16px; height: 16px; cursor: pointer;" />' +
                             '</label>' +
                         '</div>' +
                     '</div>' +
@@ -579,10 +571,7 @@
             { id: "cfg-flag-raw-input-no-resample", key: "flag_raw_input_no_resample" },
             { id: "cfg-flag-windows-timer-resolution", key: "flag_windows_timer_resolution" },
             { id: "cfg-flag-disable-frame-rate-limit", key: "flag_disable_frame_rate_limit" },
-            { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster" },
-            { id: "cfg-flag-websocket-arraybuffer", key: "flag_websocket_arraybuffer" },
-            { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning" },
-            { id: "cfg-flag-anti-freeze-gc", key: "flag_anti_freeze_gc" }
+            { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster" }
         ];
 
         checkboxes.forEach(c => {
@@ -1094,13 +1083,13 @@
                             if (other.tab === t.tab) {
                                 if (otherEl) {
                                     otherEl.style.background = (t.tab === "chrono-tab-experimental") 
-                                        ? "linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(147, 51, 234, 0.25) 100%)" 
+                                        ? "linear-gradient(135deg, rgba(249, 115, 22, 0.4) 0%, rgba(234, 88, 12, 0.25) 100%)" 
                                         : (t.tab === "chrono-tab-bragi")
                                         ? "linear-gradient(135deg, rgba(14, 165, 233, 0.35) 0%, rgba(2, 132, 199, 0.25) 100%)"
                                         : "linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.2) 100%)";
                                     otherEl.style.color = "#ffffff";
                                     otherEl.style.borderColor = (t.tab === "chrono-tab-experimental") 
-                                        ? "#c084fc" 
+                                        ? "#fb923c" 
                                         : (t.tab === "chrono-tab-bragi" ? "#38bdf8" : "#34d399");
                                 }
                                 if (otherView) otherView.style.display = "block";
@@ -1108,7 +1097,7 @@
                                 if (otherEl) {
                                     otherEl.style.background = "transparent";
                                     otherEl.style.color = (other.tab === "chrono-tab-experimental") 
-                                        ? "#c084fc" 
+                                        ? "#fb923c" 
                                         : (other.tab === "chrono-tab-bragi" ? "#38bdf8" : "#94a3b8");
                                     otherEl.style.borderColor = "transparent";
                                 }
@@ -1145,14 +1134,11 @@
                 { id: "cfg-flag-no-sandbox", key: "flag_no_sandbox", restart: true, hazard: true },
                 { id: "cfg-discord-rpc-enabled", key: "discord_rpc_enabled", restart: false },
 
-                // Experimental & Low-Latency Network
+                // Low-Latency & Rendering
                 { id: "cfg-flag-raw-input-no-resample", key: "flag_raw_input_no_resample", restart: true },
                 { id: "cfg-flag-windows-timer-resolution", key: "flag_windows_timer_resolution", restart: true },
                 { id: "cfg-flag-disable-frame-rate-limit", key: "flag_disable_frame_rate_limit", restart: true },
-                { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster", restart: true },
-                { id: "cfg-flag-websocket-arraybuffer", key: "flag_websocket_arraybuffer", restart: false },
-                { id: "cfg-flag-tcp-nodelay-tuning", key: "flag_tcp_nodelay_tuning", restart: true },
-                { id: "cfg-flag-anti-freeze-gc", key: "flag_anti_freeze_gc", restart: true }
+                { id: "cfg-flag-zero-copy-raster", key: "flag_zero_copy_raster", restart: true }
             ];
 
             flagMap.forEach(item => {
@@ -1221,8 +1207,7 @@
                     { key: "flag_anti_freeze_ipc", label: "🟢 Combat Anti-Freeze IPC", tip: "Suppresses high-frequency combat log spam to completely eliminate combat stutter." },
                     { key: "flag_raw_input_no_resample", label: "⚡ Raw Mouse Input", tip: "Bypasses browser input resampling for instant 1:1 cursor response." },
                     { key: "flag_windows_timer_resolution", label: "⚡ 0.5ms Windows Timer (2000Hz)", tip: "Sub-millisecond OS scheduler for zero-stutter VSync and instant packet handling." },
-                    { key: "flag_websocket_arraybuffer", label: "🌐 WS ArrayBuffer Sync", tip: "Direct binary memory WebSocket decoding with 0ms async lag." },
-                    { key: "flag_zero_copy_raster", label: "🟢 Zero-Copy VRAM Canvas", tip: "Direct GPU tile rasterization bypassing intermediate RAM copies." },
+                    { key: "flag_zero_copy_raster", label: "🟢 Zero-Copy + OOP Canvas", tip: "Enables CanvasOopRasterization & zero-copy GPU buffers for 2D canvas." },
                     { key: "flag_accelerated_canvas", label: "🟢 Direct3D 11 GPU Canvas", tip: "Hardware GPU-accelerated 2D canvas, particle, and map rasterization." },
                     { key: "flag_highres_timer", label: "🟢 High-Precision Timer", tip: "Sub-millisecond Windows kernel clock for ultra-low latency inputs." },
                     { key: "flag_anti_throttle", label: "🟢 Anti-Throttling Core", tip: "Prevents Chromium frame rate drop or throttling when the window is in background." },
@@ -2132,23 +2117,28 @@
             // Right-click context menu guard (Ensure player menus are always on top of leaderboard and chat)
             if (!window._chrono_context_menu_hooked) {
                 window._chrono_context_menu_hooked = true;
+                let menuFrontPending = false;
                 const bringMenuToFront = () => {
+                    if (menuFrontPending) return;
+                    menuFrontPending = true;
                     setTimeout(() => {
-                        document.querySelectorAll("body > div, #overlay > div").forEach(div => {
-                            if (div.id && div.id.startsWith("chrono-")) return;
-                            if (div.id === "canvas" || div.id === "game") return;
-                            const text = div.innerText || "";
-                            if (text.includes("Profile") || text.includes("Spectate") || text.includes("Send Message") || text.includes("Copy Name")) {
+                        menuFrontPending = false;
+                        const nodes = document.querySelectorAll("body > div, #overlay > div");
+                        for (let i = 0; i < nodes.length; i++) {
+                            const div = nodes[i];
+                            if (!div || div.hidden || div.style.display === "none") continue;
+                            const id = div.id;
+                            if (id && (id.startsWith("chrono-") || id === "canvas" || id === "game" || id === "overlay" || id === "chat" || id === "leaderboard")) continue;
+                            if (div.childElementCount > 16) continue;
+                            const text = div.textContent || "";
+                            if (text.length < 300 && (text.includes("Profile") || text.includes("Spectate") || text.includes("Send Message") || text.includes("Copy Name"))) {
                                 div.style.setProperty("z-index", "999999", "important");
                                 div.style.setProperty("pointer-events", "auto", "important");
                             }
-                        });
+                        }
                     }, 10);
                 };
                 window.addEventListener("contextmenu", bringMenuToFront, true);
-                window.addEventListener("mousedown", (e) => {
-                    if (e.button === 2) bringMenuToFront();
-                }, true);
             }
 
             function cleanupStrayElements() {
@@ -2337,6 +2327,33 @@
                         let startX = 0, startY = 0;
                         let origLeft = 0, origTop = 0;
 
+                        const onDragMove = (e) => {
+                            if (!isDragging) return;
+                            const dx = e.clientX - startX;
+                            const dy = e.clientY - startY;
+                            const finalL = (origLeft + dx) + "px";
+                            const finalT = (origTop + dy) + "px";
+                            el.style.setProperty("left", finalL, "important");
+                            el.style.setProperty("top", finalT, "important");
+                            updateHandlePosition();
+
+                            currentLayout[t.key] = currentLayout[t.key] || {};
+                            currentLayout[t.key].left = finalL;
+                            currentLayout[t.key].top = finalT;
+                            currentLayout[t.key].scale = scale;
+                        };
+
+                        const onDragUp = () => {
+                            window.removeEventListener("mousemove", onDragMove);
+                            window.removeEventListener("mouseup", onDragUp);
+                            if (isDragging) {
+                                isDragging = false;
+                                el.style.setProperty("cursor", "grab", "important");
+                                if (handleBar) handleBar.style.setProperty("cursor", "grab", "important");
+                                document.body.style.cursor = "";
+                            }
+                        };
+
                         const startDrag = (e) => {
                             if (e.target.tagName === "BUTTON" || e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
                             if (e.target.closest && e.target.closest(".chrono-key-box")) return;
@@ -2354,37 +2371,14 @@
                             el.style.setProperty("cursor", "grabbing", "important");
                             if (handleBar) handleBar.style.setProperty("cursor", "grabbing", "important");
                             document.body.style.cursor = "grabbing";
+                            window.addEventListener("mousemove", onDragMove);
+                            window.addEventListener("mouseup", onDragUp);
                             e.preventDefault();
                             e.stopPropagation();
                         };
 
                         handleBar.onmousedown = startDrag;
                         el.onmousedown = startDrag;
-
-                        window.addEventListener("mousemove", e => {
-                            if (!isDragging) return;
-                            const dx = e.clientX - startX;
-                            const dy = e.clientY - startY;
-                            const finalL = (origLeft + dx) + "px";
-                            const finalT = (origTop + dy) + "px";
-                            el.style.setProperty("left", finalL, "important");
-                            el.style.setProperty("top", finalT, "important");
-                            updateHandlePosition();
-
-                            currentLayout[t.key] = currentLayout[t.key] || {};
-                            currentLayout[t.key].left = finalL;
-                            currentLayout[t.key].top = finalT;
-                            currentLayout[t.key].scale = scale;
-                        });
-
-                        window.addEventListener("mouseup", () => {
-                            if (isDragging) {
-                                isDragging = false;
-                                el.style.setProperty("cursor", "grab", "important");
-                                if (handleBar) handleBar.style.setProperty("cursor", "grab", "important");
-                                document.body.style.cursor = "";
-                            }
-                        });
                     }
                     handleBar.style.display = "flex";
                     updateHandlePosition();
@@ -2426,24 +2420,28 @@
             window._chrono_open_hud_editor = openHudLayoutEditor;
 
             let chatMacroActive = false;
+            const onChatMacroKeydown = (e) => {
+                if (!chatMacroActive) return;
+                const tag = document.activeElement ? document.activeElement.tagName : "";
+                if (tag === "INPUT" || tag === "TEXTAREA") return;
+                if (e.key === "g" || e.key === "G") {
+                    const chatInput = document.getElementById("chat-input") || document.querySelector("input.chat-input");
+                    if (chatInput) {
+                        chatInput.value = "gg";
+                        chatInput.dispatchEvent(new Event("input", { bubbles: true }));
+                        chatInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", bubbles: true }));
+                    }
+                }
+            };
             function toggleChatMacro(enable) {
-                chatMacroActive = enable;
-                localStorage.setItem("chrono_mod_chatmacro", enable ? "1" : "0");
-                if (!window._chrono_chatmacro_bound) {
+                chatMacroActive = Boolean(enable);
+                localStorage.setItem("chrono_mod_chatmacro", chatMacroActive ? "1" : "0");
+                if (chatMacroActive && !window._chrono_chatmacro_bound) {
                     window._chrono_chatmacro_bound = true;
-                    window.addEventListener("keydown", e => {
-                        if (!chatMacroActive) return;
-                        const tag = document.activeElement ? document.activeElement.tagName : "";
-                        if (tag === "INPUT" || tag === "TEXTAREA") return;
-                        if (e.key === "g" || e.key === "G") {
-                            const chatInput = document.getElementById("chat-input") || document.querySelector("input.chat-input");
-                            if (chatInput) {
-                                chatInput.value = "gg";
-                                chatInput.dispatchEvent(new Event("input", { bubbles: true }));
-                                chatInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", bubbles: true }));
-                            }
-                        }
-                    });
+                    window.addEventListener("keydown", onChatMacroKeydown);
+                } else if (!chatMacroActive && window._chrono_chatmacro_bound) {
+                    window._chrono_chatmacro_bound = false;
+                    window.removeEventListener("keydown", onChatMacroKeydown);
                 }
             }
 
@@ -2777,6 +2775,73 @@
                 bragiTabBtn.setAttribute("data-bound-tab", "1");
                 bragiTabBtn.addEventListener("click", () => {
                     try { initBragiSettingsUI(); } catch(e) {}
+                });
+            }
+
+            // --- LOKI TPS CLOCK SMOOTHER SETTINGS ---
+            function getLoki() {
+                return (window.Chrono && window.Chrono.Loki) ? window.Chrono.Loki : null;
+            }
+
+            function initLokiSettingsUI() {
+                const l = getLoki();
+                const expTgl = document.getElementById("chrono-loki-enabled");
+                const badge = document.getElementById("chrono-loki-status-badge");
+                const tele = document.getElementById("chrono-loki-telemetry");
+
+                const saved = localStorage.getItem("chrono_loki_enabled");
+                const isEnabled = l ? l.isEnabled() : (saved === null ? true : saved === "1");
+
+                function renderLokiState(active) {
+                    if (expTgl) expTgl.checked = active;
+                    if (badge) {
+                        if (active) {
+                            badge.innerText = "ACTIVE";
+                            badge.style.background = "rgba(34, 197, 94, 0.2)";
+                            badge.style.borderColor = "rgba(34, 197, 94, 0.5)";
+                            badge.style.color = "#86efac";
+                        } else {
+                            badge.innerText = "DISABLED";
+                            badge.style.background = "rgba(148, 163, 184, 0.2)";
+                            badge.style.borderColor = "rgba(148, 163, 184, 0.4)";
+                            badge.style.color = "#94a3b8";
+                        }
+                    }
+                    if (tele) {
+                        const curL = getLoki();
+                        if (curL && typeof curL.getStats === "function") {
+                            const s = curL.getStats();
+                            if (s.packets > 0) {
+                                tele.innerText = "Server: " + s.tps + " TPS (" + s.tickMs + " ms/tick) • Jitter: " + s.jitterMs + " ms • Smoother: " + (s.hooked ? "Hooked" : "Waiting");
+                            } else {
+                                tele.innerText = "Server TPS: waiting for game socket... • Smoother: " + (s.hooked ? "Hooked" : "Armed");
+                            }
+                        }
+                    }
+                }
+
+                function setLokiState(val) {
+                    const curL = getLoki();
+                    localStorage.setItem("chrono_loki_enabled", val ? "1" : "0");
+                    if (curL && typeof curL.setEnabled === "function") curL.setEnabled(val);
+                    renderLokiState(val);
+                }
+
+                if (expTgl && !expTgl.hasAttribute("data-bound")) {
+                    expTgl.setAttribute("data-bound", "1");
+                    expTgl.onchange = () => setLokiState(expTgl.checked);
+                }
+
+                renderLokiState(isEnabled);
+            }
+
+            window.Chrono.updateLokiSettingsUI = initLokiSettingsUI;
+            try { initLokiSettingsUI(); } catch(e) { console.error("[Loki Settings Error]", e); }
+            const expTabBtn = document.getElementById("chrono-tab-experimental");
+            if (expTabBtn && !expTabBtn.hasAttribute("data-bound-loki-tab")) {
+                expTabBtn.setAttribute("data-bound-loki-tab", "1");
+                expTabBtn.addEventListener("click", () => {
+                    try { initLokiSettingsUI(); } catch(e) {}
                 });
             }
 

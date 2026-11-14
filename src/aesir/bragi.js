@@ -420,9 +420,13 @@
                     const mut = mutations[i];
                     if (mut.type !== "childList") continue;
                     const added = mut.addedNodes;
+                    if (!added || added.length === 0) continue;
+                    const tId = mut.target && mut.target.id;
+                    if (tId && tId.startsWith("chrono-")) continue;
                     for (let j = 0; j < added.length; j++) {
                         const node = added[j];
                         if (node.nodeType !== 1) continue;
+                        if (node.id && node.id.startsWith("chrono-")) continue;
                         if (node.classList && node.classList.contains("chat-message")) {
                             processChatNode(node);
                         } else if (node.querySelectorAll) {
