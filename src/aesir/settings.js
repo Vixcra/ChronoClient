@@ -46,7 +46,7 @@
                     '<span style="font-size: 22px;">⏳</span>' +
                     '<div>' +
                         '<div style="font-weight: 800; font-size: 16px; letter-spacing: 0.5px; background: linear-gradient(90deg, #6ee7b7, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CHRONO CLIENT HUB</div>' +
-                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "1.2.0") + '</span></div>' +
+                        '<div style="font-size: 11px; color: #a7f3d0;">Nordic Engine • <span style="color: #34d399; font-weight: bold;">v' + (typeof __CHRONO_VERSION !== "undefined" ? __CHRONO_VERSION : "2.0.0") + '</span></div>' +
                     '</div>' +
                 '</div>' +
                 '<button id="chrono-close-btn" style="' +
@@ -2117,23 +2117,28 @@
             // Right-click context menu guard (Ensure player menus are always on top of leaderboard and chat)
             if (!window._chrono_context_menu_hooked) {
                 window._chrono_context_menu_hooked = true;
+                let menuFrontPending = false;
                 const bringMenuToFront = () => {
+                    if (menuFrontPending) return;
+                    menuFrontPending = true;
                     setTimeout(() => {
-                        document.querySelectorAll("body > div, #overlay > div").forEach(div => {
-                            if (div.id && div.id.startsWith("chrono-")) return;
-                            if (div.id === "canvas" || div.id === "game") return;
-                            const text = div.innerText || "";
-                            if (text.includes("Profile") || text.includes("Spectate") || text.includes("Send Message") || text.includes("Copy Name")) {
+                        menuFrontPending = false;
+                        const nodes = document.querySelectorAll("body > div, #overlay > div");
+                        for (let i = 0; i < nodes.length; i++) {
+                            const div = nodes[i];
+                            if (!div || div.hidden || div.style.display === "none") continue;
+                            const id = div.id;
+                            if (id && (id.startsWith("chrono-") || id === "canvas" || id === "game" || id === "overlay" || id === "chat" || id === "leaderboard")) continue;
+                            if (div.childElementCount > 16) continue;
+                            const text = div.textContent || "";
+                            if (text.length < 300 && (text.includes("Profile") || text.includes("Spectate") || text.includes("Send Message") || text.includes("Copy Name"))) {
                                 div.style.setProperty("z-index", "999999", "important");
                                 div.style.setProperty("pointer-events", "auto", "important");
                             }
-                        });
+                        }
                     }, 10);
                 };
                 window.addEventListener("contextmenu", bringMenuToFront, true);
-                window.addEventListener("mousedown", (e) => {
-                    if (e.button === 2) bringMenuToFront();
-                }, true);
             }
 
             function cleanupStrayElements() {
@@ -2322,6 +2327,33 @@
                         let startX = 0, startY = 0;
                         let origLeft = 0, origTop = 0;
 
+                        const onDragMove = (e) => {
+                            if (!isDragging) return;
+                            const dx = e.clientX - startX;
+                            const dy = e.clientY - startY;
+                            const finalL = (origLeft + dx) + "px";
+                            const finalT = (origTop + dy) + "px";
+                            el.style.setProperty("left", finalL, "important");
+                            el.style.setProperty("top", finalT, "important");
+                            updateHandlePosition();
+
+                            currentLayout[t.key] = currentLayout[t.key] || {};
+                            currentLayout[t.key].left = finalL;
+                            currentLayout[t.key].top = finalT;
+                            currentLayout[t.key].scale = scale;
+                        };
+
+                        const onDragUp = () => {
+                            window.removeEventListener("mousemove", onDragMove);
+                            window.removeEventListener("mouseup", onDragUp);
+                            if (isDragging) {
+                                isDragging = false;
+                                el.style.setProperty("cursor", "grab", "important");
+                                if (handleBar) handleBar.style.setProperty("cursor", "grab", "important");
+                                document.body.style.cursor = "";
+                            }
+                        };
+
                         const startDrag = (e) => {
                             if (e.target.tagName === "BUTTON" || e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
                             if (e.target.closest && e.target.closest(".chrono-key-box")) return;
@@ -2339,37 +2371,14 @@
                             el.style.setProperty("cursor", "grabbing", "important");
                             if (handleBar) handleBar.style.setProperty("cursor", "grabbing", "important");
                             document.body.style.cursor = "grabbing";
+                            window.addEventListener("mousemove", onDragMove);
+                            window.addEventListener("mouseup", onDragUp);
                             e.preventDefault();
                             e.stopPropagation();
                         };
 
                         handleBar.onmousedown = startDrag;
                         el.onmousedown = startDrag;
-
-                        window.addEventListener("mousemove", e => {
-                            if (!isDragging) return;
-                            const dx = e.clientX - startX;
-                            const dy = e.clientY - startY;
-                            const finalL = (origLeft + dx) + "px";
-                            const finalT = (origTop + dy) + "px";
-                            el.style.setProperty("left", finalL, "important");
-                            el.style.setProperty("top", finalT, "important");
-                            updateHandlePosition();
-
-                            currentLayout[t.key] = currentLayout[t.key] || {};
-                            currentLayout[t.key].left = finalL;
-                            currentLayout[t.key].top = finalT;
-                            currentLayout[t.key].scale = scale;
-                        });
-
-                        window.addEventListener("mouseup", () => {
-                            if (isDragging) {
-                                isDragging = false;
-                                el.style.setProperty("cursor", "grab", "important");
-                                if (handleBar) handleBar.style.setProperty("cursor", "grab", "important");
-                                document.body.style.cursor = "";
-                            }
-                        });
                     }
                     handleBar.style.display = "flex";
                     updateHandlePosition();
@@ -2411,24 +2420,28 @@
             window._chrono_open_hud_editor = openHudLayoutEditor;
 
             let chatMacroActive = false;
+            const onChatMacroKeydown = (e) => {
+                if (!chatMacroActive) return;
+                const tag = document.activeElement ? document.activeElement.tagName : "";
+                if (tag === "INPUT" || tag === "TEXTAREA") return;
+                if (e.key === "g" || e.key === "G") {
+                    const chatInput = document.getElementById("chat-input") || document.querySelector("input.chat-input");
+                    if (chatInput) {
+                        chatInput.value = "gg";
+                        chatInput.dispatchEvent(new Event("input", { bubbles: true }));
+                        chatInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", bubbles: true }));
+                    }
+                }
+            };
             function toggleChatMacro(enable) {
-                chatMacroActive = enable;
-                localStorage.setItem("chrono_mod_chatmacro", enable ? "1" : "0");
-                if (!window._chrono_chatmacro_bound) {
+                chatMacroActive = Boolean(enable);
+                localStorage.setItem("chrono_mod_chatmacro", chatMacroActive ? "1" : "0");
+                if (chatMacroActive && !window._chrono_chatmacro_bound) {
                     window._chrono_chatmacro_bound = true;
-                    window.addEventListener("keydown", e => {
-                        if (!chatMacroActive) return;
-                        const tag = document.activeElement ? document.activeElement.tagName : "";
-                        if (tag === "INPUT" || tag === "TEXTAREA") return;
-                        if (e.key === "g" || e.key === "G") {
-                            const chatInput = document.getElementById("chat-input") || document.querySelector("input.chat-input");
-                            if (chatInput) {
-                                chatInput.value = "gg";
-                                chatInput.dispatchEvent(new Event("input", { bubbles: true }));
-                                chatInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", bubbles: true }));
-                            }
-                        }
-                    });
+                    window.addEventListener("keydown", onChatMacroKeydown);
+                } else if (!chatMacroActive && window._chrono_chatmacro_bound) {
+                    window._chrono_chatmacro_bound = false;
+                    window.removeEventListener("keydown", onChatMacroKeydown);
                 }
             }
 

@@ -214,6 +214,9 @@
     function applyTournamentModeSecurity(active) {
         isTournamentModeActive = active;
         localStorage.setItem("chrono_tournament_mode", active ? "true" : "false");
+        if (typeof window._chrono_set_tournament_mode === "function") {
+            window._chrono_set_tournament_mode(active);
+        }
 
         if (window.ipc) {
             window.ipc.postMessage(JSON.stringify({
@@ -265,6 +268,7 @@
             sendGameKey("right", false);
             applyCargoState(false);
         }
+        syncGrbRuntimeHooks();
         updateGrbBadge();
         syncTournamentUi();
     }
@@ -291,21 +295,12 @@
     }
 
     function isAnyMenuOpen() {
-        const modals = [
-            "#chrono-menu-modal",
-            "#chrono-runs-window",
-            "#chrono-leaderboard-window",
-            "#chrono-tournament-window",
-            ".settings-window",
-            ".quests-window",
-            ".quests",
-            ".settings"
-        ];
-        for (const sel of modals) {
-            const el = document.querySelector(sel);
-            if (el && (el.style.display === "flex" || el.style.display === "block" || el.offsetParent !== null)) {
-                return true;
-            }
+        if (typeof window.isAnyMenuOpen === "function" && window.isAnyMenuOpen()) {
+            return true;
+        }
+        const gameSettings = document.querySelector(".settings-window, .quests-window");
+        if (gameSettings && !gameSettings.hidden && gameSettings.style.display !== "none") {
+            return true;
         }
         return false;
     }
@@ -489,31 +484,148 @@
     }
 
     // Capture keyboard events for GRB
+    let grbMouseHooksBound = false;
+    let grbIntervalId = null;
+    let cargoLastKeyPressTime = 0;
+    const grbBlockEvents = ["mousemove", "pointermove", "touchmove", "mousedown", "pointerdown", "touchstart"];
+
+    function shouldBlockGrbMouse(e) {
+        if (!isGrbActive) return false;
+        if (isAnyMenuOpen()) return false;
+        const target = e && e.target;
+        if (target && target.closest) {
+            if (target.closest("#chrono-menu-modal, #chrono-runs-window, #chrono-leaderboard-window, #chrono-tournament-window, #chrono-hourglass-launcher, #chrono-runs-launcher, #chrono-leaderboard-launcher, #chrono-tournament-launcher, .settings-launcher, .quests-launcher, .quests-window, .quests, .settings")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function grbMouseBlocker(e) {
+        if (!e.isTrusted) return;
+        if (shouldBlockGrbMouse(e)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        }
+    }
+
+    function runGrbTick() {
+        if (!isGrbActive) return;
+
+        // 1. Maintain Auto Right Movement
+        if (isAutoMovingRight) {
+            sendGameKey("right", true);
+        }
+
+        // 2. Cargo Auto-Upgrades (Scratch Puzzle Sequence Engine)
+        if (isCargoActive && cargoPipeline.length > 0) {
+            const player = getLocalPlayer();
+            if (player) {
+                const isDead = player.removed || (player.death_timer && player.death_timer > 0) || (player.deathTimer && player.deathTimer > 0) || (player.alive === false);
+                const curLvl = player.level || 1;
+                if (isDead || (curLvl === 1 && chronoLastObservedLevel > 1)) {
+                    chronoInitialStats = null;
+                    cargoPipelineStep = 0;
+                    cargoPipelineProgress = 0;
+                    if (typeof renderCargoPuzzlePipeline === "function") renderCargoPuzzlePipeline();
+                }
+                chronoLastObservedLevel = curLvl;
+
+                // Find first unfinished target in pipeline based on real hero stats
+                let activeStep = cargoPipeline.length;
+                for (let i = 0; i < cargoPipeline.length; i++) {
+                    const block = cargoPipeline[i];
+                    const meta = CARGO_STAT_META[block.stat] || CARGO_STAT_META.speed;
+                    const targetVal = parseFloat(block.target ?? block.count) || meta.defaultTarget;
+                    const currentVal = getPlayerStatValue(player, block.stat);
+                    if (currentVal < targetVal - 0.01) {
+                        activeStep = i;
+                        break;
+                    }
+                }
+
+                const prevStep = cargoPipelineStep;
+                cargoPipelineStep = activeStep;
+
+                if (prevStep !== cargoPipelineStep) {
+                    if (typeof renderCargoPuzzlePipeline === "function") renderCargoPuzzlePipeline();
+                }
+
+                // Send upgrade key whenever target is not reached!
+                if (cargoPipelineStep < cargoPipeline.length) {
+                    const activeBlock = cargoPipeline[cargoPipelineStep];
+                    const meta = CARGO_STAT_META[activeBlock.stat] || CARGO_STAT_META.speed;
+                    const now = Date.now();
+
+                    if (now - cargoLastKeyPressTime >= 80) {
+                        cargoLastKeyPressTime = now;
+                        doUpgrade(meta.digit);
+                    }
+                }
+            } else {
+                const now = Date.now();
+                if (cargoPipelineStep < cargoPipeline.length && now - cargoLastKeyPressTime >= 100) {
+                    cargoLastKeyPressTime = now;
+                    const activeBlock = cargoPipeline[cargoPipelineStep];
+                    const meta = CARGO_STAT_META[activeBlock.stat] || CARGO_STAT_META.speed;
+                    doUpgrade(meta.digit);
+                }
+            }
+        }
+    }
+
+    function syncGrbRuntimeHooks() {
+        if (isGrbActive) {
+            if (!grbMouseHooksBound) {
+                grbMouseHooksBound = true;
+                for (let i = 0; i < grbBlockEvents.length; i++) {
+                    window.addEventListener(grbBlockEvents[i], grbMouseBlocker, true);
+                }
+            }
+            if (grbIntervalId === null) {
+                grbIntervalId = setInterval(runGrbTick, 50);
+            }
+        } else {
+            if (grbMouseHooksBound) {
+                grbMouseHooksBound = false;
+                for (let i = 0; i < grbBlockEvents.length; i++) {
+                    window.removeEventListener(grbBlockEvents[i], grbMouseBlocker, true);
+                }
+            }
+            if (grbIntervalId !== null) {
+                clearInterval(grbIntervalId);
+                grbIntervalId = null;
+            }
+        }
+    }
+
     if (!window._chrono_grb_hooked) {
         window._chrono_grb_hooked = true;
 
-        // Reset counts on respawn click or space/enter
-        window.addEventListener("click", function(e) {
-            if (e.target && (e.target.classList.contains("respawn-btn") || e.target.classList.contains("respawn-button") || e.target.closest(".death-screen") || e.target.closest(".victory-screen"))) {
+        function resetCargoRunState() {
+            if (chronoInitialStats !== null || cargoPipelineStep !== 0 || cargoPipelineProgress !== 0) {
                 chronoInitialStats = null;
                 cargoPipelineStep = 0;
                 cargoPipelineProgress = 0;
                 if (typeof renderCargoPuzzlePipeline === "function") renderCargoPuzzlePipeline();
+            }
+        }
+
+        // Reset counts on respawn click or space/enter
+        window.addEventListener("click", function(e) {
+            if (e.target && (e.target.classList.contains("respawn-btn") || e.target.classList.contains("respawn-button") || (e.target.closest && (e.target.closest(".death-screen") || e.target.closest(".victory-screen"))))) {
+                resetCargoRunState();
             }
         }, true);
 
         window.addEventListener("keydown", function(e) {
-            // Space / Enter reset stat counts for new run
+            // Space / Enter reset stat counts for new run (only touches DOM if state was dirty)
             if (e.key === " " || e.code === "Space" || e.code === "Enter") {
-                chronoInitialStats = null;
-                cargoPipelineStep = 0;
-                cargoPipelineProgress = 0;
-                if (typeof renderCargoPuzzlePipeline === "function") renderCargoPuzzlePipeline();
+                resetCargoRunState();
             }
 
-            if (!e.isTrusted) return;
-
-            if (!isGrbActive) return;
+            if (!e.isTrusted || !isGrbActive) return;
             const dir = isMoveDirection(e.code, e.key);
             if (dir === "up" || dir === "down" || dir === "left") {
                 e.preventDefault();
@@ -537,9 +649,7 @@
         }, true);
 
         window.addEventListener("keyup", function(e) {
-            if (!e.isTrusted) return;
-
-            if (!isGrbActive) return;
+            if (!e.isTrusted || !isGrbActive) return;
             const dir = isMoveDirection(e.code, e.key);
             if (dir === "up" || dir === "down" || dir === "left") {
                 e.preventDefault();
@@ -553,51 +663,6 @@
             }
         }, true);
 
-        // Block mouse/touch steering movements during GRB
-        function shouldBlockGrbMouse(e) {
-            if (!isGrbActive) return false;
-            if (isAnyMenuOpen()) return false;
-            const target = e && e.target;
-            if (target && target.closest) {
-                if (target.closest("#chrono-menu-modal") || 
-                    target.closest("#chrono-runs-window") || 
-                    target.closest("#chrono-leaderboard-window") || 
-                    target.closest("#chrono-tournament-window") || 
-                    target.closest("#chrono-hourglass-launcher") || 
-                    target.closest("#chrono-runs-launcher") || 
-                    target.closest("#chrono-leaderboard-launcher") || 
-                    target.closest("#chrono-tournament-launcher") || 
-                    target.closest(".settings-launcher") || 
-                    target.closest(".quests-launcher") ||
-                    target.closest(".quests-window") ||
-                    target.closest(".quests") ||
-                    target.closest(".settings")) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        const blockEvents = ["mousemove", "pointermove", "touchmove", "mousedown", "pointerdown", "touchstart"];
-        blockEvents.forEach(evt => {
-            window.addEventListener(evt, function(e) {
-                if (!e.isTrusted) return;
-                if (shouldBlockGrbMouse(e)) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    return false;
-                }
-            }, true);
-            document.addEventListener(evt, function(e) {
-                if (!e.isTrusted) return;
-                if (shouldBlockGrbMouse(e)) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    return false;
-                }
-            }, true);
-        });
-
         // Maintain GRB across Alt-Tab & window blur
         const maintainGrbOnBlur = function() {
             if (isGrbActive && isAutoMovingRight) {
@@ -608,73 +673,7 @@
         window.addEventListener("focus", maintainGrbOnBlur);
         document.addEventListener("visibilitychange", maintainGrbOnBlur);
 
-        // Continuous TS Ticker: Auto-Right Glide & Cargo Stat Upgrades
-        let cargoLastKeyPressTime = 0;
-
-        setInterval(() => {
-            if (!isGrbActive) return;
-
-            // 1. Maintain Auto Right Movement
-            if (isAutoMovingRight) {
-                sendGameKey("right", true);
-            }
-
-            // 2. Cargo Auto-Upgrades (Scratch Puzzle Sequence Engine)
-            if (isCargoActive && cargoPipeline.length > 0) {
-                const player = getLocalPlayer();
-                if (player) {
-                    const isDead = player.removed || (player.death_timer && player.death_timer > 0) || (player.deathTimer && player.deathTimer > 0) || (player.alive === false);
-                    const curLvl = player.level || 1;
-                    if (isDead || (curLvl === 1 && chronoLastObservedLevel > 1)) {
-                        chronoInitialStats = null;
-                        cargoPipelineStep = 0;
-                        cargoPipelineProgress = 0;
-                        if (typeof renderCargoPuzzlePipeline === "function") renderCargoPuzzlePipeline();
-                    }
-                    chronoLastObservedLevel = curLvl;
-
-                    // Find first unfinished target in pipeline based on real hero stats
-                    let activeStep = cargoPipeline.length;
-                    for (let i = 0; i < cargoPipeline.length; i++) {
-                        const block = cargoPipeline[i];
-                        const meta = CARGO_STAT_META[block.stat] || CARGO_STAT_META.speed;
-                        const targetVal = parseFloat(block.target ?? block.count) || meta.defaultTarget;
-                        const currentVal = getPlayerStatValue(player, block.stat);
-                        if (currentVal < targetVal - 0.01) {
-                            activeStep = i;
-                            break;
-                        }
-                    }
-
-                    const prevStep = cargoPipelineStep;
-                    cargoPipelineStep = activeStep;
-
-                    if (prevStep !== cargoPipelineStep) {
-                        if (typeof renderCargoPuzzlePipeline === "function") renderCargoPuzzlePipeline();
-                    }
-
-                    // Send upgrade key whenever target is not reached!
-                    if (cargoPipelineStep < cargoPipeline.length) {
-                        const activeBlock = cargoPipeline[cargoPipelineStep];
-                        const meta = CARGO_STAT_META[activeBlock.stat] || CARGO_STAT_META.speed;
-                        const now = Date.now();
-
-                        if (now - cargoLastKeyPressTime >= 80) {
-                            cargoLastKeyPressTime = now;
-                            doUpgrade(meta.digit);
-                        }
-                    }
-                } else {
-                    const now = Date.now();
-                    if (cargoPipelineStep < cargoPipeline.length && now - cargoLastKeyPressTime >= 100) {
-                        cargoLastKeyPressTime = now;
-                        const activeBlock = cargoPipeline[cargoPipelineStep];
-                        const meta = CARGO_STAT_META[activeBlock.stat] || CARGO_STAT_META.speed;
-                        doUpgrade(meta.digit);
-                    }
-                }
-            }
-        }, 50);
+        syncGrbRuntimeHooks();
     }
 
     const tournamentWindow = document.createElement("div");

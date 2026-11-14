@@ -99,8 +99,12 @@
     fpsDiv.textContent = "FPS: ...";
     
     let fpsLoopStarted = false;
+    const rAF = (typeof window !== "undefined" && window.requestAnimationFrame)
+        ? window.requestAnimationFrame.bind(window)
+        : (typeof requestAnimationFrame !== "undefined" ? requestAnimationFrame : null);
+
     function startFpsLoop() {
-        if (fpsLoopStarted) return;
+        if (fpsLoopStarted || !rAF) return;
         fpsLoopStarted = true;
         function countFps(now) {
             frameCount++;
@@ -117,17 +121,9 @@
                 frameCount = 0;
                 lastHudTime = now;
             }
-            if (typeof requestAnimationFrame !== "undefined") {
-                requestAnimationFrame(countFps);
-            } else if (typeof window !== "undefined" && window.requestAnimationFrame) {
-                window.requestAnimationFrame(countFps);
-            }
+            rAF(countFps);
         }
-        if (typeof requestAnimationFrame !== "undefined") {
-            requestAnimationFrame(countFps);
-        } else if (typeof window !== "undefined" && window.requestAnimationFrame) {
-            window.requestAnimationFrame(countFps);
-        }
+        rAF(countFps);
     }
 
     // 2b. Enemy Outlines & Chroma Hook
@@ -421,6 +417,13 @@
 
     let _chrono_active_enemy = null;
     let _chrono_stroke_hook_active = false;
+    const OUTLINE_STROKE_SET = new Set([
+        "#000000", "#000", "black",
+        "#ffffff", "#fff", "white",
+        "rgb(0, 0, 0)", "rgb(0,0,0)",
+        "rgb(255, 255, 255)", "rgb(255,255,255)",
+        "#222222", "#333333", "rgba(0, 0, 0, 0.8)"
+    ]);
 
     function chronoCustomStroke(path) {
         // Fast-path: Zero-cost pass-through for anything not actively inside an enemy render
@@ -434,14 +437,11 @@
         }
 
         const st = curStroke.toLowerCase();
-        const isOutlineStroke = (
-            st === "#000000" || st === "#000" || st === "black" ||
-            st === "#ffffff" || st === "#fff" || st === "white" ||
-            st === "rgb(0, 0, 0)" || st === "rgb(0,0,0)" ||
-            st === "rgb(255, 255, 255)" || st === "rgb(255,255,255)" ||
-            st.startsWith("rgba(0, 0, 0") || st.startsWith("rgba(0,0,0") ||
-            st.startsWith("rgba(255, 255, 255") || st.startsWith("rgba(255,255,255") ||
-            st === "#222222" || st === "#333333" || st === "rgba(0, 0, 0, 0.8)"
+        const isOutlineStroke = OUTLINE_STROKE_SET.has(st) || (
+            st.startsWith("rgba(") && (
+                st.startsWith("rgba(0, 0, 0") || st.startsWith("rgba(0,0,0") ||
+                st.startsWith("rgba(255, 255, 255") || st.startsWith("rgba(255,255,255")
+            )
         );
 
         if (isOutlineStroke) {
@@ -589,12 +589,19 @@
 
                 if (!isSniperTell && !isSlasherTell) return;
 
-                const pos = (typeof this.getRenderPos === "function") ? this.getRenderPos() : { x: this.x, y: this.y };
-                if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number") return;
+                let posX = this.x;
+                let posY = this.y;
+                if (typeof this.getRenderPos === "function") {
+                    const pos = this.getRenderPos();
+                    if (!pos) return;
+                    posX = pos.x;
+                    posY = pos.y;
+                }
+                if (typeof posX !== "number" || typeof posY !== "number") return;
                 if (!camera || typeof camera.getX !== "function" || typeof camera.getY !== "function" || typeof camera.toScale !== "function") return;
 
-                const cx = camera.getX(pos.x);
-                const cy = camera.getY(pos.y);
+                const cx = camera.getX(posX);
+                const cy = camera.getY(posY);
                 const rad = camera.toScale(this.visualRadius ?? this.radius);
                 if (!Number.isFinite(cx) || !Number.isFinite(cy) || !Number.isFinite(rad) || rad <= 0) return;
 
@@ -689,20 +696,26 @@
         } catch(e) {}
     }
 
+    // Cached Tournament Mode flag (avoids synchronous localStorage reads on every keydown/createElement)
+    let cachedTournamentMode = (localStorage.getItem("chrono_tournament_mode") === "true");
+    window._chrono_tournament_mode = cachedTournamentMode;
+    window._chrono_set_tournament_mode = function(val) {
+        cachedTournamentMode = Boolean(val);
+        window._chrono_tournament_mode = cachedTournamentMode;
+    };
+
     // Dynamic Script Protection Hook
     if (!window._chrono_elem_hooked) {
         window._chrono_elem_hooked = true;
         const origCreateElement = document.createElement.bind(document);
         document.createElement = function(tag, options) {
             const el = origCreateElement(tag, options);
-            if (tag && typeof tag === "string" && tag.toLowerCase() === "script") {
-                if (localStorage.getItem("chrono_tournament_mode") === "true") {
-                    console.warn("[Chrono Tournament Security] Dynamic script injection blocked.");
-                    Object.defineProperty(el, "src", {
-                        set: function() { console.warn("[Chrono Tournament Security] Blocked external script src."); },
-                        get: function() { return ""; }
-                    });
-                }
+            if (cachedTournamentMode && tag && typeof tag === "string" && tag.toLowerCase() === "script") {
+                console.warn("[Chrono Tournament Security] Dynamic script injection blocked.");
+                Object.defineProperty(el, "src", {
+                    set: function() { console.warn("[Chrono Tournament Security] Blocked external script src."); },
+                    get: function() { return ""; }
+                });
             }
             return el;
         };
@@ -839,29 +852,44 @@
         }
     };
 
+    // Cached modal element references for zero-DOM-lookup hot paths (keydown/keyup/processInputs)
+    let _elChronoModal = null;
+    let _elRunsModal = null;
+    let _elLbModal = null;
+    let _elTourModal = null;
+    let _elCheatModal = null;
+    let _elHudEd = null;
+    let _elCanvas = null;
+    let _elInGameModal = null;
+
+    function getCachedEl(cached, id) {
+        if (cached && cached.isConnected) return cached;
+        return document.getElementById(id);
+    }
+
     function isAnyMenuOpen() {
         try {
-            const chronoModal = document.getElementById("chrono-menu-modal");
-            if (chronoModal && (chronoModal.style.display === "flex" || chronoModal.style.display === "block")) return true;
-            const runsModal = document.getElementById("chrono-runs-window");
-            if (runsModal && runsModal.style.display !== "none" && runsModal.style.display !== "") return true;
-            const lbModal = document.getElementById("chrono-leaderboard-window");
-            if (lbModal && lbModal.style.display !== "none" && lbModal.style.display !== "") return true;
-            const tourModal = document.getElementById("chrono-tournament-window");
-            if (tourModal && tourModal.style.display !== "none" && tourModal.style.display !== "") return true;
-            const cheatModal = document.getElementById("chrono-stop-cheating-modal");
-            if (cheatModal && (cheatModal.style.display === "flex" || cheatModal.style.display === "block")) return true;
-            const hudEd = document.getElementById("chrono-hud-grid-overlay");
-            if (hudEd && hudEd.style.display === "block") return true;
+            _elChronoModal = getCachedEl(_elChronoModal, "chrono-menu-modal");
+            if (_elChronoModal && (_elChronoModal.style.display === "flex" || _elChronoModal.style.display === "block")) return true;
+            _elRunsModal = getCachedEl(_elRunsModal, "chrono-runs-window");
+            if (_elRunsModal && _elRunsModal.style.display !== "none" && _elRunsModal.style.display !== "") return true;
+            _elLbModal = getCachedEl(_elLbModal, "chrono-leaderboard-window");
+            if (_elLbModal && _elLbModal.style.display !== "none" && _elLbModal.style.display !== "") return true;
+            _elTourModal = getCachedEl(_elTourModal, "chrono-tournament-window");
+            if (_elTourModal && _elTourModal.style.display !== "none" && _elTourModal.style.display !== "") return true;
+            _elCheatModal = getCachedEl(_elCheatModal, "chrono-stop-cheating-modal");
+            if (_elCheatModal && (_elCheatModal.style.display === "flex" || _elCheatModal.style.display === "block")) return true;
+            _elHudEd = getCachedEl(_elHudEd, "chrono-hud-grid-overlay");
+            if (_elHudEd && _elHudEd.style.display === "block") return true;
         } catch(e) {}
         return false;
     }
 
     function isEvadesInGame() {
         try {
-            const canvas = document.getElementById("canvas");
-            if (!canvas) return false;
-            if (canvas.hidden || canvas.style.display === "none" || canvas.style.visibility === "hidden") return false;
+            _elCanvas = getCachedEl(_elCanvas, "canvas");
+            if (!_elCanvas) return false;
+            if (_elCanvas.hidden || _elCanvas.style.display === "none" || _elCanvas.style.visibility === "hidden") return false;
             if (isAnyMenuOpen()) return false;
             if (typeof isPlayerSpectating === "function" && isPlayerSpectating()) return false;
             const path = window.location.pathname;
@@ -874,6 +902,9 @@
 
     let lastAnticheatStateKey = "";
     function chronoTick() {
+        cachedTournamentMode = (localStorage.getItem("chrono_tournament_mode") === "true");
+        window._chrono_tournament_mode = cachedTournamentMode;
+
         const inGame = isEvadesInGame();
         if (!inGame) {
             const path = window.location.pathname;
@@ -890,7 +921,7 @@
             else if (typeof applyHudLayout === "function") applyHudLayout();
         }
 
-        const isTourActive = (localStorage.getItem("chrono_tournament_mode") === "true");
+        const isTourActive = cachedTournamentMode;
         const isSpectating = isPlayerSpectating();
         const isFocused = Boolean(document.hasFocus && document.hasFocus());
 
@@ -916,8 +947,8 @@
     function updateDiscordRPC() {
         try {
             if (!window.ipc) return;
-            const canvas = document.getElementById("canvas");
-            const inGame = Boolean(canvas && canvas.style.display !== "none");
+            _elCanvas = getCachedEl(_elCanvas, "canvas");
+            const inGame = Boolean(_elCanvas && _elCanvas.style.display !== "none");
             
             let status = inGame ? "Online" : "Idle";
             if (!inGame && (document.querySelector(".runs-interface") || document.querySelector(".hall-of-fame-archive-page"))) {
@@ -938,26 +969,22 @@
 
     setInterval(updateDiscordRPC, 3000);
 
-    // ── Synthetic DOM Event Guard (isTrusted enforcement) ──
-    const blockUntrustedEvents = function(e) {
-        if (window._chrono_is_internal_freeze) return;
-        if (!e.isTrusted && e.type === "keydown") {
+    // Single unified capture-phase Keydown Listener:
+    // 1. Blocks untrusted synthetic events
+    // 2. Enforces Tournament Mode DevTools lock
+    // 3. Handles ESC / F5 / F11 & freezes game inputs when a Chrono menu is open
+    window.addEventListener("keydown", (e) => {
+        if (!e.isTrusted && !window._chrono_is_internal_freeze) {
             e.stopImmediatePropagation();
             e.preventDefault();
             console.warn("[Chrono Sentinel] Blocked synthetic untrusted event:", e.type, e.key);
-
-            if (localStorage.getItem("chrono_tournament_mode") === "true" && isEvadesInGame()) {
+            if (cachedTournamentMode && isEvadesInGame()) {
                 window.showStopCheatingOverlay("Synthetic Keyboard Input Injected via JavaScript (isTrusted=false).");
             }
+            return;
         }
-    };
 
-    window.addEventListener("keydown", blockUntrustedEvents, true);
-
-    // Global Key Listener: ESC to toggle menu, F5 to reload, F11 for fullscreen, and freeze game inputs when in menu
-    window.addEventListener("keydown", (e) => {
-        // Block DevTools shortcuts (F12, Ctrl+Shift+I, etc.) in Tournament Mode only
-        if (localStorage.getItem("chrono_tournament_mode") === "true") {
+        if (cachedTournamentMode) {
             if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c"))) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -1010,8 +1037,8 @@
 
         if (isAnyMenuOpen()) {
             if (window._chrono_is_binding_key) return;
-            const inGameModal = document.getElementById("modal");
-            if (inGameModal && inGameModal.contains(document.activeElement)) {
+            _elInGameModal = getCachedEl(_elInGameModal, "modal");
+            if (_elInGameModal && _elInGameModal.contains(document.activeElement)) {
                 return;
             }
             const activeTag = document.activeElement ? document.activeElement.tagName : "";
@@ -1028,8 +1055,8 @@
     window.addEventListener("keyup", (e) => {
         if (isAnyMenuOpen()) {
             if (window._chrono_is_binding_key) return;
-            const inGameModal = document.getElementById("modal");
-            if (inGameModal && inGameModal.contains(document.activeElement)) {
+            _elInGameModal = getCachedEl(_elInGameModal, "modal");
+            if (_elInGameModal && _elInGameModal.contains(document.activeElement)) {
                 return;
             }
             const activeTag = document.activeElement ? document.activeElement.tagName : "";
@@ -1043,9 +1070,9 @@
         }
     }, true);
 
-    // ── Update Notification Banner (checked natively by Rust) ──
-    const UPDATE_NOTICE_VER = typeof __CHRONO_UPDATE_NOTICE_VER !== 'undefined' ? __CHRONO_UPDATE_NOTICE_VER : null;
-    if (UPDATE_NOTICE_VER) {
+    // ── Update Notification Banner (triggered asynchronously by Rust) ──
+    function showUpdateNoticeBanner(ver) {
+        if (!ver || document.getElementById("chrono-update-notice")) return;
         const banner = document.createElement("div");
         banner.id = "chrono-update-notice";
         banner.style.position = "fixed";
@@ -1066,8 +1093,8 @@
         banner.style.gap = "12px";
         banner.style.zIndex = "99999999";
         banner.style.backdropFilter = "blur(8px)";
-        banner.innerHTML = `<span>🚀 New version <b>v${UPDATE_NOTICE_VER}</b> available on GitHub!</span> <button style="background:#10b981;border:none;color:#000;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'" onclick="window.open('https://github.com/Vixcra/ChronoClient', '_blank');">Open GitHub</button> <span style="cursor:pointer;opacity:0.6;font-size:16px;margin-left:4px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'" onclick="this.parentElement.remove()">✕</span>`;
-        
+        banner.innerHTML = `<span>🚀 New version <b>v${ver}</b> available on GitHub!</span> <button style="background:#10b981;border:none;color:#000;padding:4px 10px;border-radius:4px;cursor:pointer;font-weight:bold;font-size:12px;transition:0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'" onclick="window.open('https://github.com/Vixcra/ChronoClient', '_blank');">Open GitHub</button> <span style="cursor:pointer;opacity:0.6;font-size:16px;margin-left:4px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'" onclick="this.parentElement.remove()">✕</span>`;
+
         const mount = () => {
             if (document.body) {
                 document.body.appendChild(banner);
@@ -1076,6 +1103,11 @@
             }
         };
         mount();
+    }
+    window._chrono_show_update_notice = showUpdateNoticeBanner;
+    const UPDATE_NOTICE_VER = typeof __CHRONO_UPDATE_NOTICE_VER !== 'undefined' ? __CHRONO_UPDATE_NOTICE_VER : null;
+    if (UPDATE_NOTICE_VER) {
+        showUpdateNoticeBanner(UPDATE_NOTICE_VER);
     }
 
     window.Chrono.Core = {
@@ -1087,6 +1119,7 @@
     };
 
     window.isEvadesInGame = isEvadesInGame;
+    window.isAnyMenuOpen = isAnyMenuOpen;
     window.isPlayerSpectating = isPlayerSpectating;
     window.getEvadesPlayerName = getEvadesPlayerName;
 } catch(err) {

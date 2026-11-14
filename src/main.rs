@@ -366,7 +366,7 @@ fn main() -> anyhow::Result<()> {
             .user_agent("ChronoClient")
             .build()
             .ok()?;
-        
+
         let url_master = "https://raw.githubusercontent.com/Vixcra/ChronoClient/master/version.json";
         let url_main = "https://raw.githubusercontent.com/Vixcra/ChronoClient/main/version.json";
 
